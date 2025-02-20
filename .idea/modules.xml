@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Eclipser.iml" filepath="$PROJECT_DIR$/.idea/Eclipser.iml" />
+      <module fileurl="file://$PROJECT_DIR$/server/Eclipser.iml" filepath="$PROJECT_DIR$/server/Eclipser.iml" />
     </modules>
   </component>
 </project>
