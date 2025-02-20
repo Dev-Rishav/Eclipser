@@ -9,9 +9,13 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     @Autowired
-    private UsersRepo usersRepo;
+    private UsersRepo repo;
 
-    public Users verify(Users user) {
-        return usersRepo.save(user);
+    public Users addUser(Users user) {
+        return  repo.save(user);
     }
+
+//    public Users verify(Users user) {
+//
+//    }
 }

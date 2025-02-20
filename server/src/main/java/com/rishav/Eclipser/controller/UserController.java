@@ -19,10 +19,16 @@ public class UserController {
     private UserService userService;
 
 
-    @PostMapping("/login")
+//    @PostMapping("/login")
+//    @ResponseBody
+//    public Users login(@RequestBody Users user) {
+//        return userService.verify(user);
+//    }
+
+    @PostMapping("/register")
     @ResponseBody
-    public Users login(@RequestBody Users user) {
-        return userService.verify(user);
+    public Users register(@RequestBody  Users user){
+        return  userService.addUser(user);
     }
     
     

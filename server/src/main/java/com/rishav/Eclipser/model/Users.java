@@ -1,10 +1,13 @@
 package com.rishav.Eclipser.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import org.springframework.stereotype.Component;
 
-@Component
+@Entity
 public class Users {
-    
+
+    @Id
     private int id;
     private String username;
     private String password;
