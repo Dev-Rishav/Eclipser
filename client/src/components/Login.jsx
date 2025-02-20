@@ -3,13 +3,14 @@ import { gsap } from "gsap";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "../styles/Login.css";
+import { useNavigate} from "react-router-dom";
 
 
 const Login = () => {
   const formRef = useRef(null);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  // const navigate=useNavigate("");
+  const navigate=useNavigate();
 
   // useEffect(() => {
   //   gsap.from(formRef.current, {
@@ -21,14 +22,12 @@ const Login = () => {
   // }, []);
 
   const handleSubmit = async (e) => {
-    console.log("yes");
-    
     const id=4; //TODO handle id into the database
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8080/login", { id,email, password });
+      const response = await axios.post("http://localhost:8080/login", { id,username, password });
       console.log("Login successful:", response.data);
-      // navigate('/home')
+      navigate("/home");
     } catch (error) {
       console.error("Login failed:", error);
     }
@@ -41,11 +40,11 @@ const Login = () => {
         <h2 className="eclipser-subtitle">Explore the Platform</h2>
         <form ref={formRef} className="eclipser-form" onSubmit={handleSubmit}>
           <input
-            type="email"
-            placeholder="Email"
+            type="username"
+            placeholder="Username"
             className="eclipser-input"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
           <input
