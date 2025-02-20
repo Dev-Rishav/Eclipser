@@ -25,12 +25,15 @@ public class UserController {
 //        return userService.verify(user);
 //    }
 
+    @GetMapping("/login")
+    @ResponseBody
+    public String greet(){
+        return  "Hello";
+    }
+
     @PostMapping("/register")
     @ResponseBody
     public Users register(@RequestBody  Users user){
         return  userService.addUser(user);
     }
-    
-    
-
 }
