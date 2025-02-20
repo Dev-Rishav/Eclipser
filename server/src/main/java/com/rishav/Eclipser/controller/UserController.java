@@ -17,6 +17,7 @@ public class UserController {
     @PostMapping("/login")
     @ResponseBody
     public String login(@RequestBody Users user) {
+        System.out.println("the incoming object is "+user);
         return userService.verify(user);
     }
 
