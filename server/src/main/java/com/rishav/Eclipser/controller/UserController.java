@@ -19,11 +19,11 @@ public class UserController {
     private UserService userService;
 
 
-//    @PostMapping("/login")
-//    @ResponseBody
-//    public Users login(@RequestBody Users user) {
-//        return userService.verify(user);
-//    }
+    @PostMapping("/login")
+    @ResponseBody
+    public String login(@RequestBody Users user) {
+        return userService.verify(user);
+    }
 
     @GetMapping("/login")
     @ResponseBody
