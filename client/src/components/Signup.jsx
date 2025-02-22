@@ -16,7 +16,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       const response=await axios.post("http://localhost:8080/register",{id,username,password});
-      console.log("Account creation successful"+response.body);
+      console.log("Account creation successful"+response.data);
       navigate('/login');
     } catch (error) {
       console.error("Failure");
