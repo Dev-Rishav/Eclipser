@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import "../styles/Login.css";
 import { useNavigate} from "react-router-dom";
+import {useDispatch} from "react-redux"
 
 
 const Login = () => {
@@ -11,6 +12,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate=useNavigate();
+  const dispatch=useDispatch();
 
   // useEffect(() => {
   //   gsap.from(formRef.current, {
@@ -27,6 +29,7 @@ const Login = () => {
     try {
       const response = await axios.post("http://localhost:8080/login", { id,username, password });
       console.log("Login successful:", response.data);
+      dispatch({type: 'Login', payload: {username}});
       navigate("/home");
     } catch (error) {
       console.error("Login failed:", error);
