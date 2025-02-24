@@ -5,10 +5,7 @@ export const loginUser = (credentials) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
   try {
     const response = await axios.post('http://localhost:8080/login', credentials);
-    const token = response.data;
-    const user={
-      username:"Sample",
-    }; //TODO write backend logic to send the user object
+    const {user,token} = response.data;
     
     localStorage.setItem('authToken', token);
     

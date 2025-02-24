@@ -1,5 +1,6 @@
 package com.rishav.Eclipser.service;
 
+import com.rishav.Eclipser.dto.UserDTO;
 import com.rishav.Eclipser.model.Users;
 import com.rishav.Eclipser.repo.UsersRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -29,15 +34,26 @@ public class UserService {
         return  repo.save(user);
     }
 
-    public String verify(Users user) {
+    public Map<String,Object> verify(Users user) {
         Authentication authentication=
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword())
                 );
-        if(authentication.isAuthenticated())
-            return jwtService.generateToken(user.getUsername());
+        if(authentication.isAuthenticated()) {
+//            return jwtService.generateToken(user.getUsername());
+            String token=jwtService.generateToken(user.getUsername());
+            Users authenticatedUser=repo.findByUsername(user.getUsername());
+
+            UserDTO userDTO=new UserDTO();
+            userDTO.setUsername(authenticatedUser.getUsername());
+
+            Map<String, Object> res=new HashMap<>();
+            res.put("token",token);
+            res.put("user",userDTO);
+            return res;
+        }
         else
-            return "failure";
+            return Collections.singletonMap("Message","failure");
     }
 
 }
