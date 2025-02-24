@@ -7,7 +7,7 @@ import {
   
   const initialState = {
     isAuthenticated: localStorage.getItem('authToken') ? true : false,
-    user: null,
+    user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
     token: localStorage.getItem('authToken') || null,
     loading: false,
     error: null
@@ -23,7 +23,6 @@ import {
         };
   
       case LOGIN_SUCCESS:
-        // console.log("from the authReducer "+ action.payload.user.username);
         
         return {
           ...state,

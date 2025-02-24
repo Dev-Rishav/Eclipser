@@ -12,10 +12,9 @@ const Signup = () => {
 
 
   const handleSubmit=async( e)=>{
-    const id=5;
     e.preventDefault();
     try {
-      const response=await axios.post("http://localhost:8080/register",{id,username,password});
+      const response=await axios.post("http://localhost:8080/register",{username,password});
       console.log("Account creation successful"+response.data);
       navigate('/login');
     } catch (error) {

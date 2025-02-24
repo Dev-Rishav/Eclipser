@@ -6,6 +6,8 @@ import com.rishav.Eclipser.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 
 @CrossOrigin
 @RestController
@@ -16,7 +18,7 @@ public class UserController {
 
     @PostMapping("/login")
     @ResponseBody
-    public String login(@RequestBody Users user) {
+    public Map<String, Object> login(@RequestBody Users user) {
         System.out.println("the incoming object is "+user);
         return userService.verify(user);
     }

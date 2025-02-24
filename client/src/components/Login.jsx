@@ -1,16 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-// import { gsap } from "gsap";
 import { Link,useNavigate } from "react-router-dom";
-// import axios from "axios";
 import "../styles/Login.css";
-// import { useNavigate} from "react-router-dom";
-// import {useDispatch} from "react-redux"
 import { loginUser } from "../Redux/actions/authActions";
 import { connect,useSelector } from "react-redux";
 
 const Login = ({loginUser, loading,error}) => {
   const [credentials,setCredentials]=useState({
-    id:5,
+    id:2,
     username:'',
     password:''
   });
@@ -25,34 +21,14 @@ const Login = ({loginUser, loading,error}) => {
         navigate("/home");
   },[isAuthenticated,navigate]);
 
-  // const [username, setUsername] = useState("");
-  // const [password, setPassword] = useState("");
-
-  // const dispatch=useDispatch();
-
-  // useEffect(() => {
-  //   gsap.from(formRef.current, {
-  //     duration: 0.6,
-  //     opacity:50,
-  //     y: 0,
-  //     ease: "power2.out"
-  //   });
-  // }, []);
-
   const handleSubmit = async (e) => {
-    // const id=4; //TODO handle id into the database
     e.preventDefault();
     try {
-      // const response = await axios.post("http://localhost:8080/login", { id,username, password });
-      // console.log("Login successful:", response.data);
-      // dispatch({type: 'Login', payload: {username}});
-      // navigate("/home");
       await loginUser(credentials);
-
     } catch (error) {
-      // console.error("Login failed:", error);
+      console.log(error);
     }
-  };
+    }
 
   return (
     <div className="login-container">
