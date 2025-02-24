@@ -1,18 +1,34 @@
 import React, { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import { Link } from "react-router-dom";
-import axios from "axios";
+// import { gsap } from "gsap";
+import { Link,useNavigate } from "react-router-dom";
+// import axios from "axios";
 import "../styles/Login.css";
-import { useNavigate} from "react-router-dom";
-import {useDispatch} from "react-redux"
+// import { useNavigate} from "react-router-dom";
+// import {useDispatch} from "react-redux"
+import { loginUser } from "../Redux/actions/authActions";
+import { connect,useSelector } from "react-redux";
 
-
-const Login = () => {
+const Login = ({loginUser, loading,error}) => {
+  const [credentials,setCredentials]=useState({
+    id:5,
+    username:'',
+    password:''
+  });
+    const navigate=useNavigate();
   const formRef = useRef(null);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate=useNavigate();
-  const dispatch=useDispatch();
+  const {isAuthenticated}=useSelector(state=>state.auth);
+
+
+
+  useEffect(()=>{
+    if(isAuthenticated)
+        navigate("/home");
+  },[isAuthenticated,navigate]);
+
+  // const [username, setUsername] = useState("");
+  // const [password, setPassword] = useState("");
+
+  // const dispatch=useDispatch();
 
   // useEffect(() => {
   //   gsap.from(formRef.current, {
@@ -24,15 +40,17 @@ const Login = () => {
   // }, []);
 
   const handleSubmit = async (e) => {
-    const id=4; //TODO handle id into the database
+    // const id=4; //TODO handle id into the database
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8080/login", { id,username, password });
-      console.log("Login successful:", response.data);
-      dispatch({type: 'Login', payload: {username}});
-      navigate("/home");
+      // const response = await axios.post("http://localhost:8080/login", { id,username, password });
+      // console.log("Login successful:", response.data);
+      // dispatch({type: 'Login', payload: {username}});
+      // navigate("/home");
+      await loginUser(credentials);
+
     } catch (error) {
-      console.error("Login failed:", error);
+      // console.error("Login failed:", error);
     }
   };
 
@@ -46,21 +64,22 @@ const Login = () => {
             type="username"
             placeholder="Username"
             className="eclipser-input"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={credentials.username}
+            onChange={(e) => setCredentials({...credentials,username: e.target.value})}
             required
           />
           <input
             type="password"
             placeholder="Password"
             className="eclipser-input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={credentials.password}
+            onChange={(e) => setCredentials({...credentials, password :e.target.value})}
             required
           />
-          <button type="submit" className="eclipser-button" onClick={handleSubmit} >
-            Continue
+          <button type="submit" className="eclipser-button" disabled={loading} >
+            {loading ? 'Loggin in...' : 'Login'}
           </button>
+          {error && <div className="error">{error}</div>}
         </form>
         <p className="eclipser-footer">
           New user?{" "}
@@ -73,4 +92,9 @@ const Login = () => {
   );
 };
 
-export default Login;
+const mapStateToProps=(state)=>({
+  loading: state.auth.loading,
+  error: state.auth.error
+})
+
+export default connect(mapStateToProps,{ loginUser })(Login);
