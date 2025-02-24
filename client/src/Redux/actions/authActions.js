@@ -4,10 +4,13 @@ import axios from 'axios';
 export const loginUser = (credentials) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
   try {
+    
     const response = await axios.post('http://localhost:8080/login', credentials);
     const {user,token} = response.data;
+  
     
     localStorage.setItem('authToken', token);
+    localStorage.setItem('user',JSON.stringify(user));
     
     
     dispatch({
@@ -24,9 +27,7 @@ export const loginUser = (credentials) => async (dispatch) => {
 };
 
 export const logoutUser = () => (dispatch) => {
-  // Clear stored token
   localStorage.removeItem('authToken');
+  localStorage.removeItem('user')
   dispatch({ type: LOGOUT });
 };
-
-// Add other auth-related actions (token validation, silent refresh, etc.) as needed

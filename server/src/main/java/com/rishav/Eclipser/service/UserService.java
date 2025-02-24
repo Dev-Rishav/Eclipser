@@ -43,7 +43,7 @@ public class UserService {
 //            return jwtService.generateToken(user.getUsername());
             String token=jwtService.generateToken(user.getUsername());
             Users authenticatedUser=repo.findByUsername(user.getUsername());
-
+            System.out.println(token+"token");
             UserDTO userDTO=new UserDTO();
             userDTO.setUsername(authenticatedUser.getUsername());
 
