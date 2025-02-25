@@ -25,9 +25,10 @@ public class UserPrincipal implements UserDetails {
         return user.getPassword();
     }
 
+
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return user.getEmail();    //use primary key
     }
 
     @Override

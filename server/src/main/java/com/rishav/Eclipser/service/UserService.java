@@ -37,12 +37,12 @@ public class UserService {
     public Map<String,Object> verify(Users user) {
         Authentication authentication=
                 authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword())
+                        new UsernamePasswordAuthenticationToken(user.getEmail(),user.getPassword())
                 );
         if(authentication.isAuthenticated()) {
 //            return jwtService.generateToken(user.getUsername());
-            String token=jwtService.generateToken(user.getUsername());
-            Users authenticatedUser=repo.findByUsername(user.getUsername());
+            String token=jwtService.generateToken(user.getEmail());
+            Users authenticatedUser=repo.findByEmail(user.getEmail());
             System.out.println(token+"token");
             UserDTO userDTO=new UserDTO();
             userDTO.setUsername(authenticatedUser.getUsername());
