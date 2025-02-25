@@ -7,6 +7,7 @@ import axios from "axios";
 const Signup = () => {
   const formRef = useRef(null);
   const navigate=useNavigate();
+  const [email,setEmail] =useState("")
   const [username,setUsername]=useState("");
   const [password,setPassword]=useState("")
 
@@ -14,7 +15,7 @@ const Signup = () => {
   const handleSubmit=async( e)=>{
     e.preventDefault();
     try {
-      const response=await axios.post("http://localhost:8080/register",{username,password});
+      const response=await axios.post("http://localhost:8080/register",{email,username,password});
       console.log("Account creation successful"+response.data);
       navigate('/login');
     } catch (error) {
@@ -39,6 +40,7 @@ const Signup = () => {
             type="email"
             placeholder="Email"
             className="eclipser-input"
+            onChange={e => setEmail(e.target.value)}
             required
           />
           <input
