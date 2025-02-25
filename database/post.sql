@@ -1,0 +1,7 @@
+CREATE TABLE posts (
+    post_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    type VARCHAR(20) CHECK (type IN ('QUERY', 'ACHIEVEMENT')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
