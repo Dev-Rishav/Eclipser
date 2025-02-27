@@ -6,8 +6,7 @@ import { connect,useSelector } from "react-redux";
 
 const Login = ({loginUser, loading,error}) => {
   const [credentials,setCredentials]=useState({
-    id:2,
-    username:'',
+    email:'',
     password:''
   });
     const navigate=useNavigate();
@@ -37,11 +36,11 @@ const Login = ({loginUser, loading,error}) => {
         <h2 className="eclipser-subtitle">Explore the Platform</h2>
         <form ref={formRef} className="eclipser-form" onSubmit={handleSubmit}>
           <input
-            type="username"
-            placeholder="Username"
+            type="email"
+            placeholder="Email"
             className="eclipser-input"
-            value={credentials.username}
-            onChange={(e) => setCredentials({...credentials,username: e.target.value})}
+            value={credentials.email}
+            onChange={(e) => setCredentials({...credentials, email: e.target.value})}
             required
           />
           <input
