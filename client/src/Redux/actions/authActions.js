@@ -5,7 +5,7 @@ export const loginUser = (credentials) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
   try {
     
-    const response = await axios.post('http://localhost:8080/login', credentials);
+    const response = await axios.post('http://localhost:3000/api/auth/login', credentials);
     const {user,token} = response.data;
   
     
