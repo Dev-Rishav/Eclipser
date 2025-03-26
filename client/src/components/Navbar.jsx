@@ -1,17 +1,20 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { logoutUser } from '../Redux/actions/authActions';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutUser } from "../Redux/actions/authActions";
+import { useNavigate, NavLink } from "react-router-dom";
 
 const Navbar = () => {
-  const { isAuthenticated, user } = useSelector(state => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(logoutUser());
-    navigate('/login', { replace: true });
-  };
+    navigate("/login", { replace: true });
+  }, [dispatch, navigate]);
+
+  console.log("navbar painted");
+  
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-gradient-to-r from-cosmic to-stellar border-b border-nebula border-opacity-30 backdrop-filter backdrop-blur-lg">
@@ -19,23 +22,36 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* Left Section */}
           <div className="flex items-center space-x-8">
-            <h1 className="text-2xl font-orbitron text-corona font-bold">
+            <NavLink
+              to="/"
+              className="text-2xl font-orbitron text-corona font-bold"
+            >
               ECLIPSER
-            </h1>
-            
+            </NavLink>
+
             <div className="hidden md:flex space-x-6">
-              <button className="flex items-center text-stardust hover:text-corona">
-                <span className="w-2 h-2 rounded-full bg-nebula bg-opacity-70 mr-2"></span>
-                Home
-              </button>
-              <button className="flex items-center text-stardust hover:text-corona">
+              <NavLink
+                to="/topics"
+                className={({ isActive }) =>
+                  `flex items-center ${
+                    isActive ? "text-corona" : "text-stardust"
+                  } hover:text-corona`
+                }
+              >
                 <span className="w-2 h-2 rounded-full bg-nebula bg-opacity-70 mr-2"></span>
                 Topics
-              </button>
-              <button className="flex items-center text-stardust hover:text-corona">
+              </NavLink>
+              <NavLink
+                to="/contests"
+                className={({ isActive }) =>
+                  `flex items-center ${
+                    isActive ? "text-corona" : "text-stardust"
+                  } hover:text-corona`
+                }
+              >
                 <span className="w-2 h-2 rounded-full bg-nebula bg-opacity-70 mr-2"></span>
                 Contests
-              </button>
+              </NavLink>
             </div>
           </div>
 
@@ -66,9 +82,11 @@ const Navbar = () => {
                     </div>
                     <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-400"></div>
                   </div>
-                  
+
                   <div className="flex flex-col">
-                    <span className="text-sm text-stardust">{user?.username}</span>
+                    <span className="text-sm text-stardust">
+                      {user?.username}
+                    </span>
                     <button
                       onClick={handleLogout}
                       className="text-xs text-supernova hover:underline"
@@ -80,7 +98,7 @@ const Navbar = () => {
               </>
             ) : (
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => navigate("/login")}
                 className="px-6 py-2 bg-gradient-to-br from-nebula to-supernova text-cosmic rounded-full hover:transform hover:-translate-y-px"
               >
                 Board Station
