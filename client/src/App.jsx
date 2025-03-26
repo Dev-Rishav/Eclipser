@@ -6,11 +6,13 @@ import Login from "./components/Login";
 import PrivateRoute from "./Redux/PrivateRoute";
 import Signup from "./components/Signup";
 import AuthStatus from "./Redux/AuthStatus";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
     <Provider store={store}>
       <Router>
+        <Toaster/>
       <AuthStatus />
         <Routes>
           <Route path="/login" element={<Login />} />

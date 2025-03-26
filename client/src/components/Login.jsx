@@ -2,16 +2,18 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link,useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 import { loginUser } from "../Redux/actions/authActions";
-import { connect,useSelector } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
-const Login = ({loginUser, loading,error}) => {
-  const [credentials,setCredentials]=useState({
+const Login = () => {
+  const dispatch=useDispatch();
+  const {error,isAuthenticated,loading}=useSelector(state=>state.auth);
+  const [user,setUser]=useState({
     email:'',
     password:''
   });
     const navigate=useNavigate();
   const formRef = useRef(null);
-  const {isAuthenticated}=useSelector(state=>state.auth);
 
 
 
@@ -20,10 +22,20 @@ const Login = ({loginUser, loading,error}) => {
         navigate("/home");
   },[isAuthenticated,navigate]);
 
+  useEffect(() => {
+    if(error){
+        toast.error(error);
+        console.error(error);
+    }
+}, [error]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await loginUser(credentials);
+      dispatch(loginUser(user));
+      console.log(user);
+      
+      toast.success(`Welcome back, ${user.username}!`);
     } catch (error) {
       console.log(error);
     }
@@ -39,16 +51,16 @@ const Login = ({loginUser, loading,error}) => {
             type="email"
             placeholder="Email"
             className="eclipser-input"
-            value={credentials.email}
-            onChange={(e) => setCredentials({...credentials, email: e.target.value})}
+            value={user.email}
+            onChange={(e) => setUser({...user, email: e.target.value})}
             required
           />
           <input
             type="password"
             placeholder="Password"
             className="eclipser-input"
-            value={credentials.password}
-            onChange={(e) => setCredentials({...credentials, password :e.target.value})}
+            value={user.password}
+            onChange={(e) => setUser({...user, password :e.target.value})}
             required
           />
           <button type="submit" className="eclipser-button" disabled={loading} >
@@ -67,9 +79,9 @@ const Login = ({loginUser, loading,error}) => {
   );
 };
 
-const mapStateToProps=(state)=>({
-  loading: state.auth.loading,
-  error: state.auth.error
-})
+// const mapStateToProps=(state)=>({
+//   loading: state.auth.loading,
+//   error: state.auth.error
+// })
 
-export default connect(mapStateToProps,{ loginUser })(Login);
+export default Login;
