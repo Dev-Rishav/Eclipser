@@ -4,7 +4,6 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 
 const PrivateRoute = () => {
-  console.log("in private route");
   const { isAuthenticated } = useSelector(state => state.auth);
   
   
