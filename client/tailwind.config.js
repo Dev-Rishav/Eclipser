@@ -16,6 +16,9 @@ export default {
       },
       fontFamily: {
         orbitron: ['Orbitron', 'sans-serif']
+      },
+      backdropBlur: {
+        lg: '16px'
       }
     },
   },
