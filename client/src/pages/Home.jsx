@@ -1,11 +1,11 @@
 // HomePage.jsx
 import React, { useState } from 'react';
 import '../styles/Home.css';
-import { SubscribedTopicsList } from './SubscribedTopicsList';
-import { QuickAccess } from './QuickAccess';
-import { LiveActivity } from './LiveActivity';
-import { ChatPreview } from './ChatPreview';
-import { PostCard } from './PostCard';
+import { SubscribedTopicsList } from '../components/SubscribedTopicsList';
+import { QuickAccess } from '../components/QuickAccess';
+import { LiveActivity } from '../components/LiveActivity';
+import { ChatPreview } from '../components/ChatPreview';
+import { PostCard } from '../components/PostCard';
 
 const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -19,9 +19,10 @@ const HomePage = () => {
 
   return (
     <div className="home-container cosmic-bg">
-      <div className="eclipse-header">
+      {/* <div className="eclipse-header">
         <div className="corona-effect"></div>
-      </div>
+      </div> */} 
+      {/* not working */}
 
       <div className="main-grid">
         {/* Left Sidebar */}
@@ -79,21 +80,5 @@ const FeedControlBar = ({ filter, sort, onFilterChange, onSortChange }) => (
   </div>
 );
 
-// const PostCard = ({ post }) => (
-//   <div className="post-card celestial-card">
-//     <div className="post-header">
-//       <span className="topic-tag constellation-tag">{post.topic}</span>
-//       <span className="post-time cosmic-time">{post.time}</span>
-//     </div>
-//     <div className="post-content cosmic-text">{post.content}</div>
-//     <div className="post-footer">
-//       <div className="engagement-metrics stardust-text">
-//         <span>▲ {post.votes}</span>
-//         <span>💫 {post.answers}</span>
-//       </div>
-//       <button className="answer-btn supernova-btn">Transmit Answer</button>
-//     </div>
-//   </div>
-// );
 
 export default HomePage;

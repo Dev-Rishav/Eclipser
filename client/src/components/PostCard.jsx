@@ -2,7 +2,7 @@
 import React from 'react';
 import styles from '../styles/PostCard.module.css';
 
-const PostCard = ({ post }) => {
+export const PostCard = ({ post }) => {
   return (
     <div className={`${styles.card} ${post.answered ? styles.answered : ''}`}>
       <div className={styles.header}>
@@ -31,4 +31,4 @@ const PostCard = ({ post }) => {
   );
 };
 
-export default PostCard;
+// export default PostCard;
