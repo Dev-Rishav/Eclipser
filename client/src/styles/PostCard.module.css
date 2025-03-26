@@ -1,0 +1,151 @@
+/* PostCard.module.css */
+.card {
+    position: relative;
+    background: linear-gradient(145deg, 
+      rgba(26,28,46,0.95) 0%,
+      rgba(11,13,23,0.95) 100%
+    );
+    border: 1px solid rgba(79,70,229,0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    backdrop-filter: blur(6px);
+  }
+  
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 20px rgba(79,70,229,0.2);
+  }
+  
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg,
+      rgba(79,70,229,0.4),
+      rgba(255,107,53,0.2),
+      transparent
+    );
+    z-index: -1;
+    border-radius: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .card:hover::before {
+    opacity: 1;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .topic {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: linear-gradient(45deg,
+      rgba(79,70,229,0.2),
+      transparent
+    );
+    border: 1px solid rgba(79,70,229,0.4);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #AEB8FE;
+  }
+  
+  .time {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: rgba(174,184,254,0.7);
+  }
+  
+  .content {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: rgba(255,255,255,0.9);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+  
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .metrics {
+    display: flex;
+    gap: 1.5rem;
+    color: rgba(174,184,254,0.8);
+  }
+  
+  .metricItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .answerButton {
+    background: linear-gradient(45deg, 
+      rgba(79,70,229,0.9),
+      rgba(255,107,53,0.9)
+    );
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px;
+    color: #0B0D17;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .answerButton:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(79,70,229,0.3);
+  }
+  
+  /* Special States */
+  .answered {
+    border-color: rgba(76,175,80,0.4);
+  }
+  
+  .answered .topic {
+    border-color: rgba(76,175,80,0.4);
+  }
+  
+  .urgent {
+    animation: pulseBorder 1.5s infinite;
+  }
+  
+  @keyframes pulseBorder {
+    0% { box-shadow: 0 0 0 0 rgba(255,107,53,0.2); }
+    100% { box-shadow: 0 0 0 8px rgba(255,107,53,0); }
+  }
+  
+  /* Mobile Optimization */
+  @media (max-width: 768px) {
+    .card {
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+    }
+  
+    .content {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+  
+    .metrics {
+      gap: 1rem;
+    }
+  }

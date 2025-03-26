@@ -1,0 +1,210 @@
+/* HomePage.css (Alignment Fixes) */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--cosmic-primary);
+  color: var(--stardust);
+}
+
+.cosmic-bg {
+    background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+  }
+
+:root {
+    --cosmic-primary: #0B0D17;
+    --stellar-secondary: #1A1C2E;
+    --nebula-accent: #4F46E5;
+    --supernova: #FF6B35;
+    --corona: #FFD700;
+    --stardust: rgba(255,255,255,0.8);
+  }
+
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 25% 50% 25%;
+  grid-template-rows: auto 1fr;
+  flex-grow: 1;
+  height: calc(100vh - 60px); /* Adjust based on header height */
+  align-items: start;
+  background: transparent;
+}
+
+.sidebar-left, .main-feed, .sidebar-right {
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+  position: relative;
+  
+}
+.sidebar-right {
+    border-left: 1px solid rgba(79,70,229,0.3);
+    border-right: none;
+  }
+
+.sidebar-left, .sidebar-right {
+    background: linear-gradient(215deg, 
+      rgba(26,28,46,0.9) 0%,
+      rgba(11,13,23,0.9) 100%
+    );
+    border-right: 1px solid rgba(79,70,229,0.3);
+  }
+
+  .cosmic-feed {
+    background: rgba(11,13,23,0.8);
+    border-left: 1px solid rgba(79,70,229,0.2);
+    border-right: 1px solid rgba(79,70,229,0.2);
+  }
+  
+  .post-card {
+    background: linear-gradient(145deg, 
+      rgba(26,28,46,0.9) 0%,
+      rgba(11,13,23,0.9) 100%
+    );
+    color: var(--stardust);
+    border: 1px solid rgba(79,70,229,0.3);
+  }
+
+  /* Text Color Restoration */
+.stellar-subheader,
+.cosmic-time,
+.message-preview {
+  color: var(--stardust) !important;
+} /* !not working*/
+
+
+
+/* Button Restoration */
+.filter-btn,
+.bookmark-btn,
+.supernova-btn {
+  background: linear-gradient(45deg, 
+    var(--nebula-accent),
+    var(--supernova)
+  );
+  color: var(--cosmic-primary) !important;
+}
+
+/* Scrollbar Restoration */
+::-webkit-scrollbar-thumb {
+  background: var(--nebula-accent);
+}
+
+/* Responsive Fixes */
+@media (max-width: 768px) {
+  .main-grid {
+    background: var(--cosmic-primary);
+  }
+  
+  .sidebar-left, 
+  .main-feed,
+  .sidebar-right {
+    background: transparent;
+    border: none;
+  }
+}
+
+
+
+
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  background: rgba(0,0,0,0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--nebula-accent);
+  border-radius: 4px;
+}
+
+/* Header Alignment */
+.eclipse-header {
+  height: 60px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+/* Grid Column Alignment */
+.sidebar-left {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+
+.main-feed {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-right {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+}
+
+.feed-control-bar {
+  grid-row: 1;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.feed-content {
+  flex-grow: 1;
+  padding-top: 1rem;
+}
+
+/* Equal Height Cards */
+.post-card {
+  min-height: 180px; /* Set minimum card height */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Vertical Rhythm Fixes */
+.cosmic-panel {
+  margin-bottom: 1rem;
+}
+
+.stellar-subheader {
+  margin: 0 0 1rem 0;
+}
+
+/* Responsive Fixes */
+@media (max-width: 1200px) {
+  .main-grid {
+    grid-template-columns: 30% 40% 30%;
+  }
+}
+
+@media (max-width: 992px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  
+  .sidebar-left, .main-feed, .sidebar-right {
+    grid-column: 1;
+    height: auto;
+    overflow: visible;
+  }
+  
+  .main-feed {
+    order: 2;
+  }
+  
+  .sidebar-left {
+    order: 1;
+  }
+  
+  .sidebar-right {
+    order: 3;
+  }
+}
