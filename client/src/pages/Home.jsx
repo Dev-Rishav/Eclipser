@@ -1,5 +1,5 @@
 // HomePage.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/Home.css";
 import { SubscribedTopicsList } from "../components/SubscribedTopicsList";
 import { QuickAccess } from "../components/QuickAccess";
@@ -7,24 +7,38 @@ import { LiveActivity } from "../components/LiveActivity";
 import { ChatPreview } from "../components/ChatPreview";
 import { PostCard } from "../components/PostCard";
 import FeedControlBar from '../components/FeedControlBar';
+import { fetchPosts } from "../utility/fetchPost";
 
 const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [selectedSort, setSelectedSort] = useState("newest");
 
-  // Sample data
-  const posts = [
-    {
-      id: 1,
-      topic: "WebDev",
-      content: "How to optimize React rendering?",
-      author: "JohnDoe",
-      votes: 45,
-      answers: 12,
-      time: "2h",
-    },
-    // ... more posts
-  ];
+  // // Sample data
+  // const posts = [
+  //   {
+  //     id: 1,
+  //     topic: "WebDev",
+  //     content: "How to optimize React rendering?",
+  //     author: "JohnDoe",
+  //     votes: 45,
+  //     answers: 12,
+  //     time: "2h",
+  //   },
+  //   // ... more posts
+  // ];
+
+  const [posts, setPosts] = useState([]);
+
+  //! [TODO]: fetching old posts from local storage, refactor logic to fetch new posts from backend
+  //in backend too, its serving from redis cache, while the new posts are created 
+  useEffect(() => {
+    const getPosts = async () => {
+      const data=await fetchPosts();
+      setPosts(data);
+    };
+    getPosts();
+  }, []);
+  
 
   return (
     <div className="home-container cosmic-bg">
@@ -50,7 +64,7 @@ const HomePage = () => {
           />
           <div className="feed-content">
             {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
+              <PostCard key={post._id} post={post} />
             ))}
           </div>
         </div>
@@ -64,29 +78,5 @@ const HomePage = () => {
     </div>
   );
 };
-
-// Sub-components
-// const FeedControlBar = ({ filter, sort, onFilterChange, onSortChange }) => (
-//   <div className="feed-control-bar">
-//     <div className="filter-options">
-//       {["all", "my-topics", "following"].map((option) => (
-//         <button
-//           key={option}
-//           className={`filter-btn ${filter === option ? "active" : ""}`}
-//           onClick={() => onFilterChange(option)}
-//         >
-//           {option.replace("-", " ")}
-//         </button>
-//       ))}
-//     </div>
-//     <div className="sort-options">
-//       <select value={sort} onChange={(e) => onSortChange(e.target.value)}>
-//         <option value="newest">Newest First</option>
-//         <option value="trending">Trending</option>
-//         <option value="most-discussed">Most Discussed</option>
-//       </select>
-//     </div>
-//   </div>
-// );
 
 export default HomePage;
