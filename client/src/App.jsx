@@ -6,7 +6,6 @@ import Login from "./components/Login";
 import PrivateRoute from "./Redux/PrivateRoute";
 import Signup from "./components/Signup";
 import { Toaster } from "react-hot-toast";
-import { memo } from "react";
 import PersistentLayout from "./components/PersistentLayout";
 import Contest from "./components/Contest";
 
