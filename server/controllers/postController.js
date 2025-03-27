@@ -1,16 +1,30 @@
 const Post = require('../models/Post');
+const sanitizeHtml = require("sanitize-html");
+
+//handle code snippet from XSS attacks
+const sanitizeInput = (input) => {
+  return sanitizeHtml(input, {
+    allowedTags: [], // No HTML tags allowed
+    allowedAttributes: {},
+  });
+};
+
+
 
 // Create a Post
 exports.createPost = async (req, res) => {
   try {
     const { title, content, codeSnippet, tags, postType } = req.body;
 
+    const sanitizedContent = sanitizeInput(content);
+    const sanitizedCode = codeSnippet ? sanitizeInput(codeSnippet.code) : null;
+
     const newPost = new Post({
-      userId: req.user.id, // Extracted from auth middleware
+      userId: req.user.id,
       postType,
-      title,
-      content,
-      codeSnippet: codeSnippet ? { language: codeSnippet.language, code: codeSnippet.code } : null,
+      title: sanitizeInput(title),
+      content: sanitizedContent,
+      codeSnippet: codeSnippet ? { language: codeSnippet.language, code: sanitizedCode } : null,
       tags,
     });
 
