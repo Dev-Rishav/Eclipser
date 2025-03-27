@@ -33,7 +33,7 @@ export const PostCard = ({ post }) => {
       
       <div className={styles.content}>
         {post.content}
-        {post.attachments.length > 0 && (
+        {post.attachments?.length > 0 && (
           <div className={styles.attachments}>
             {post.attachments.map((file, index) => (
               <a
