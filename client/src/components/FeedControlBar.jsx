@@ -3,7 +3,7 @@ import React from 'react';
 
 const FeedControlBar = ({ filter, sort, onFilterChange, onSortChange }) => {
   return (
-    <div className="flex justify-between items-center p-4 bg-gradient-to-br from-stellar-secondary/90 to-cosmic-primary/90 border border-nebula/30 rounded-xl mb-6 backdrop-blur-lg">
+    <div className="flex justify-between items-center p-4 bg-gradient-to-br from-stellar/90 to-cosmic/90 border border-nebula/30 rounded-xl mb-6 backdrop-blur-lg">
       <div className="flex flex-wrap gap-2">
         {['All', 'My-topics', 'Following'].map((option) => (
           <button
@@ -11,7 +11,7 @@ const FeedControlBar = ({ filter, sort, onFilterChange, onSortChange }) => {
             onClick={() => onFilterChange(option)}
             className={`px-4 py-2 rounded-full border transition-all ${
               filter === option 
-                ? 'bg-gradient-to-br from-nebula to-supernova border-transparent text-cosmic-primary font-semibold'
+                ? 'bg-gradient-to-br from-nebula to-supernova border-transparent text-cosmic font-semibold'
                 : 'border-nebula/30 bg-nebula/10 text-stardust/80 hover:bg-nebula/20 hover:text-stardust'
             }`}
           >

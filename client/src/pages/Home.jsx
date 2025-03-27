@@ -1,6 +1,5 @@
 // HomePage.jsx
 import React, { useEffect, useState } from "react";
-import "../styles/Home.css";
 import { SubscribedTopicsList } from "../components/SubscribedTopicsList";
 import { QuickAccess } from "../components/QuickAccess";
 import { LiveActivity } from "../components/LiveActivity";
@@ -17,8 +16,18 @@ const HomePage = () => {
   const [selectedSort, setSelectedSort] = useState("newest");
   const [posts, setPosts] = useState([]);
   let localStorageUpdate = false; //think of better approach to handle this
+  const [scrollY, setScrollY] = useState(0);
 
 
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Listen for new posts via WebSocket
   useEffect(() => {
@@ -62,38 +71,39 @@ const HomePage = () => {
   }, [posts]);
 
   return (
-    <div className="home-container cosmic-bg">
-      {/* <div className="eclipse-header">
-        <div className="corona-effect"></div>
-      </div> */}
-      {/* not working */}
-
-      <div className="main-grid">
+   <div className="min-h-screen bg-gradient-to-br from-cosmic to-stellar">
+      <div className="lg:grid lg:grid-cols-12 gap-3 p-3 mx-auto">
         {/* Left Sidebar */}
-        <div className="sidebar-left starmap-bg">
-          <SubscribedTopicsList />
-          <QuickAccess />
-        </div>
-
-        {/* Main Feed */}
-        <div className="main-feed cosmic-feed">
-          <FeedControlBar
-            filter={selectedFilter}
-            sort={selectedSort}
-            onFilterChange={setSelectedFilter}
-            onSortChange={setSelectedSort}
-          />
-          <div className="feed-content">
-            {posts.map((post) => (
-              <PostCard key={post._id} post={post} />
-            ))}
+        <div className="hidden lg:block lg:col-span-3">
+          <div className={`space-y-6 sticky transition-all duration-300 
+            ${scrollY > 100 ? '-translate-x-[120%]' : 'translate-x-0'}`}>
+            <SubscribedTopicsList />
+            <QuickAccess />
           </div>
         </div>
 
+        {/* Main Feed */}
+        <main className="lg:col-span-6">
+          <div className="sticky top-0 z-10 bg-gradient-to-b from-cosmic to-cosmic/90 backdrop-blur-lg pb-2">
+            <FeedControlBar 
+              selectedFilter={selectedFilter}
+              setSelectedFilter={setSelectedFilter}
+              selectedSort={selectedSort}
+              setSelectedSort={setSelectedSort}
+            />
+          </div>
+          <div className="space-y-4 mt-4">
+            {posts.map(post => <PostCard key={post._id} post={post} />)}
+          </div>
+        </main>
+
         {/* Right Sidebar */}
-        <div className="sidebar-right nebula-bg">
-          <LiveActivity />
-          <ChatPreview />
+        <div className="hidden lg:block lg:col-span-3">
+          <div className={`space-y-6 sticky transition-all duration-300 
+            ${scrollY > 100 ? 'translate-x-[120%]' : 'translate-x-0'}`}>
+            <LiveActivity />
+            <ChatPreview />
+          </div>
         </div>
       </div>
     </div>

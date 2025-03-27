@@ -9,7 +9,7 @@ const PersistentLayout = memo(() => (
     <Layout>
       <Routes>
         {/* All authenticated routes will be rendered here */}
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/contest" element={<Contest />} />
       </Routes>
     </Layout>

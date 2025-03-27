@@ -13,12 +13,11 @@ const Navbar = () => {
     navigate("/login", { replace: true });
   }, [dispatch, navigate]);
 
-  console.log("navbar painted");
   
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-gradient-to-r from-cosmic to-stellar border-b border-nebula border-opacity-30 backdrop-filter backdrop-blur-lg">
-      <div className="max-w-7xl mx-auto px-4 py-3">
+      <div className="w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Left Section */}
           <div className="flex items-center space-x-8">
