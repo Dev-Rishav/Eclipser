@@ -1,6 +1,8 @@
 const Post = require("../models/Post");
 const sanitizeHtml = require("sanitize-html");
 const client = require("../configs/redis");
+const {getIo}=require("../configs/socket");
+
 
 // Function to sanitize user inputs (XSS Protection)
 const sanitizeInput = (input) => {
@@ -10,13 +12,25 @@ const sanitizeInput = (input) => {
   });
 };
 
+// Function to sanitize code snippets (allowing <pre> and <code> for formatting)
+const sanitizeCodeSnippet = (code) => {
+  return sanitizeHtml(code, {
+    allowedTags: ["pre", "code"], // Allowing only these tags
+
+    allowedAttributes: {},
+  });
+};
+
+
 //  Create a New Post & Update Redis Cache
 exports.createPost = async (req, res) => {
   try {
-    const { title, content, postType, tags, attachments } = req.body;
+    const io=getIo();
+    const { title, content, postType, tags, attachments,codeSnippet } = req.body;
 
     const sanitizedContent = sanitizeInput(content);
     const sanitizedTitle = sanitizeInput(title);
+    const sanitizedCodeSnippet = codeSnippet ? sanitizeCodeSnippet(codeSnippet.code) : null;
 
     const newPost = new Post({
       userId: req.user.id,
@@ -24,7 +38,8 @@ exports.createPost = async (req, res) => {
       title: sanitizedTitle,
       content: sanitizedContent,
       tags,
-      attachments, 
+      attachments,
+      codeSnippet: codeSnippet ? { language: codeSnippet.language, code: sanitizedCodeSnippet } : null,
     });
 
     //Save new post to MongoDB
@@ -38,6 +53,9 @@ exports.createPost = async (req, res) => {
 
       //  Add new post to cache (prepend to keep latest posts first)
       postsArray.unshift(newPost);
+
+      // Emit event to WebSocket clients
+      io.emit("newPost", newPost);
 
       // Update Redis cache with new post
       await client.setEx("allPosts", 3600, JSON.stringify(postsArray));
@@ -53,7 +71,7 @@ exports.createPost = async (req, res) => {
   }
 };
 
-// Get All Posts (Check Redis Cache First)
+// Get All Posts
 exports.getAllPosts = async (req, res) => {
   try {
     // Check if posts exist in Redis cache
@@ -76,7 +94,7 @@ exports.getAllPosts = async (req, res) => {
   }
 };
 
-// Get Posts by User (Check Redis Cache)
+// Get Posts by User
 exports.getPostsByUser = async (req, res) => {
   try {
     const cacheKey = `userPosts:${req.params.userId}`;
@@ -87,6 +105,7 @@ exports.getPostsByUser = async (req, res) => {
     }
 
     const posts = await Post.find({ userId: req.params.userId });
+    if (posts?.length === 0) return res.status(404).json({ message: "Post not found" });
 
     await client.setEx(cacheKey, 3600, JSON.stringify(posts));
 
@@ -122,8 +141,11 @@ exports.likePost = async (req, res) => {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });
 
-    const alreadyLiked = post.likes.some(like => like.userId.toString() === req.user.id);
-    if (alreadyLiked) return res.status(400).json({ message: "You already liked this post" });
+    const alreadyLiked = post.likes.some(
+      (like) => like.userId.toString() === req.user.id
+    );
+    if (alreadyLiked)
+      return res.status(400).json({ message: "You already liked this post" });
 
     post.likes.push({ userId: req.user.id });
     await post.save();
@@ -132,7 +154,9 @@ exports.likePost = async (req, res) => {
     const cachedPosts = await client.get("allPosts");
     if (cachedPosts) {
       const postsArray = JSON.parse(cachedPosts);
-      const updatedPosts = postsArray.map(p => (p._id === post.id ? post : p));
+      const updatedPosts = postsArray.map((p) =>
+        p._id === post.id ? post : p
+      );
       await client.setEx("allPosts", 3600, JSON.stringify(updatedPosts));
     }
 
@@ -156,7 +180,9 @@ exports.commentOnPost = async (req, res) => {
     const cachedPosts = await client.get("allPosts");
     if (cachedPosts) {
       const postsArray = JSON.parse(cachedPosts);
-      const updatedPosts = postsArray.map(p => (p._id === post.id ? post : p));
+      const updatedPosts = postsArray.map((p) =>
+        p._id === post.id ? post : p
+      );
       await client.setEx("allPosts", 3600, JSON.stringify(updatedPosts));
     }
 
@@ -179,7 +205,9 @@ exports.increaseViewCount = async (req, res) => {
     const cachedPosts = await client.get("allPosts");
     if (cachedPosts) {
       const postsArray = JSON.parse(cachedPosts);
-      const updatedPosts = postsArray.map(p => (p._id === post.id ? post : p));
+      const updatedPosts = postsArray.map((p) =>
+        p._id === post.id ? post : p
+      );
       await client.setEx("allPosts", 3600, JSON.stringify(updatedPosts));
     }
 
@@ -195,14 +223,17 @@ exports.deletePost = async (req, res) => {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });
 
-    if (post.userId.toString() !== req.user.id) return res.status(403).json({ message: "Unauthorized" });
+    if (post.userId.toString() !== req.user.id)
+      return res.status(403).json({ message: "Unauthorized" });
 
     await post.deleteOne();
 
     // Update Redis cache
     const cachedPosts = await client.get("allPosts");
     if (cachedPosts) {
-      const postsArray = JSON.parse(cachedPosts).filter(p => p._id !== post.id);
+      const postsArray = JSON.parse(cachedPosts).filter(
+        (p) => p._id !== post.id
+      );
       await client.setEx("allPosts", 3600, JSON.stringify(postsArray));
     }
 
