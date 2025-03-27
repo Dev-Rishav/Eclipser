@@ -3,12 +3,21 @@ const Post = require('../models/Post');
 // Create a Post
 exports.createPost = async (req, res) => {
   try {
-    const { postType, title, content, tags, attachments } = req.body;
-    const newPost = new Post({ userId: req.user.id, postType, title, content, tags, attachments });
+    const { title, content, codeSnippet, tags, postType } = req.body;
+
+    const newPost = new Post({
+      userId: req.user.id, // Extracted from auth middleware
+      postType,
+      title,
+      content,
+      codeSnippet: codeSnippet ? { language: codeSnippet.language, code: codeSnippet.code } : null,
+      tags,
+    });
+
     await newPost.save();
     res.status(201).json(newPost);
   } catch (error) {
-    res.status(500).json({ message: "Error creating post", error });
+    res.status(500).json({ message: "Server Error", error });
   }
 };
 
