@@ -6,39 +6,60 @@ import { QuickAccess } from "../components/QuickAccess";
 import { LiveActivity } from "../components/LiveActivity";
 import { ChatPreview } from "../components/ChatPreview";
 import { PostCard } from "../components/PostCard";
-import FeedControlBar from '../components/FeedControlBar';
+import FeedControlBar from "../components/FeedControlBar";
 import { fetchPosts } from "../utility/fetchPost";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3000");
 
 const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [selectedSort, setSelectedSort] = useState("newest");
-
-  // // Sample data
-  // const posts = [
-  //   {
-  //     id: 1,
-  //     topic: "WebDev",
-  //     content: "How to optimize React rendering?",
-  //     author: "JohnDoe",
-  //     votes: 45,
-  //     answers: 12,
-  //     time: "2h",
-  //   },
-  //   // ... more posts
-  // ];
-
   const [posts, setPosts] = useState([]);
+  let localStorageUpdate = false; //think of better approach to handle this
 
-  //! [TODO]: fetching old posts from local storage, refactor logic to fetch new posts from backend
-  //in backend too, its serving from redis cache, while the new posts are created 
+
+
+  // Listen for new posts via WebSocket
   useEffect(() => {
-    const getPosts = async () => {
-      const data=await fetchPosts();
-      setPosts(data);
-    };
     getPosts();
+
+    // Listen for new posts via WebSocket
+    socket.on("newPost", (newPost) => {
+      setPosts((prevPosts) => [newPost, ...prevPosts]);
+      localStorageUpdate = true;
+      //write it in local storage too
+      console.log("new post binded", newPost);
+    });
+
+    return () => {
+      socket.off("newPost");
+    };
   }, []);
-  
+
+  //! koi post delete karne se both local storage and backend k redis se hatana padega
+
+  // Polling every 60 seconds to fetch new posts
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getPosts(); // Use getPosts to fetch and update the posts state
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getPosts = async () => {
+    const data = await fetchPosts();
+    setPosts(data);
+  };
+
+  //local storage needed to be updated whenever posts state are updated
+  useEffect(() => {
+    if (localStorageUpdate) {
+      localStorage.setItem("cachedPosts", JSON.stringify(posts));
+      console.log("WRITING LOCAL storage");
+      localStorageUpdate=false;
+    }
+  }, [posts]);
 
   return (
     <div className="home-container cosmic-bg">

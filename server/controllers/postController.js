@@ -1,6 +1,8 @@
 const Post = require("../models/Post");
 const sanitizeHtml = require("sanitize-html");
 const client = require("../configs/redis");
+const {getIo}=require("../configs/socket");
+
 
 // Function to sanitize user inputs (XSS Protection)
 const sanitizeInput = (input) => {
@@ -23,6 +25,7 @@ const sanitizeCodeSnippet = (code) => {
 //  Create a New Post & Update Redis Cache
 exports.createPost = async (req, res) => {
   try {
+    const io=getIo();
     const { title, content, postType, tags, attachments,codeSnippet } = req.body;
 
     const sanitizedContent = sanitizeInput(content);
@@ -50,6 +53,9 @@ exports.createPost = async (req, res) => {
 
       //  Add new post to cache (prepend to keep latest posts first)
       postsArray.unshift(newPost);
+
+      // Emit event to WebSocket clients
+      io.emit("newPost", newPost);
 
       // Update Redis cache with new post
       await client.setEx("allPosts", 3600, JSON.stringify(postsArray));
