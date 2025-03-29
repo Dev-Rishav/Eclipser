@@ -47,6 +47,9 @@ export default {
         'glow-intense': '0 0 20px rgba(79, 70, 229, 0.4)',
         galaxy: '0 0 30px rgba(79, 70, 229, 0.1)'
       },
+      maxWidth: {
+        '2xl': '42rem'
+      }
     },
   },
   plugins: [],
