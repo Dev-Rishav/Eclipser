@@ -8,6 +8,7 @@ import Signup from "./components/Signup";
 import { Toaster } from "react-hot-toast";
 import PersistentLayout from "./components/PersistentLayout";
 import Contest from "./components/Contest";
+import Profile from "./pages/Profile";
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
             <Route element={<PersistentLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/contest" element={<Contest />} />
+              <Route path="/profile" element={<Profile />} />
               {/* Add other authenticated routes here */}
             </Route>
           </Route>

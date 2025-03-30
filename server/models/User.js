@@ -21,8 +21,38 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user',
   },
+  profilePic: {
+    type: String, // URL of the profile picture
+    default: '', // Default to an empty string if no profile picture is provided
+  },
+  queries: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Post', // Reference to the Post model
+      default: [], // Default to an empty array
+    },
+  ],
+  discussions: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Post', // Reference to the Post model
+      default: [], // Default to an empty array
+    },
+  ],
+  achievements: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Post', // Reference to the Post model
+      default: [], // Default to an empty array
+    },
+  ],
+  subscribedTopics: {
+    type: [String], // Array of topic names
+    default: [], // Default to an empty array
+  },
 }, { timestamps: true });
 
+// Hash the password before saving the user
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next();
@@ -31,6 +61,7 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
+// Method to compare entered password with hashed password
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

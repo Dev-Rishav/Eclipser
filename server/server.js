@@ -6,6 +6,7 @@ const postRoutes = require('./routes/postRoutes');
 const cors=require('cors');
 const { initSocket } = require("./configs/socket");
 const {createServer} = require("http");
+const uploadRoutes =require('./routes/uploadRoutes');
 
 const {Server}= require('socket.io');
 
@@ -25,6 +26,7 @@ app.use(cors());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/posts',postRoutes);
+app.use('/api/user',uploadRoutes);
 
 app.use('/greet', (req, res) => {
     res.send('Hello, World!');
