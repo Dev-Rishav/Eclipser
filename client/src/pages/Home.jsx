@@ -32,6 +32,11 @@ const HomePage = () => {
   const [localStorageUpdate, setLocalStorageUpdate] = useState(false);
 
 //! [TODO]: code snippet is broken 
+//! [TODO]: add a loading state for the post creation
+  //! [TODO]: add a loading state for the post fetching
+  //! [TODO]: add a loading state for the post deletion
+  //! [TODO]: add a loading state for the post update
+  //! [TODO]: side components are getting mounted multiple times while scrolling
 
   const handleCreatePost = async () => {
     try {
