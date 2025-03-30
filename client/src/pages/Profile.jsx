@@ -1,16 +1,67 @@
 import React, { useEffect, useState } from "react";
 import { TrophyIcon, ChatBubbleLeftIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
+import { FaEdit } from "react-icons/fa";
 
 const Profile = () => {
-  const [user, setUser] = useState(null); // State to store the user object
+  const [user, setUser] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch user data from local storage on component mount
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const userData = JSON.parse(storedUser);
+      setUser(userData);
+      setNewUsername(userData.username);
     }
   }, []);
+
+  const handleUpdateProfile = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      if (selectedFile) {
+        formData.append('avatar', selectedFile);
+      }
+      if (newUsername !== user.username) {
+        formData.append('username', newUsername);
+      }
+
+      // Call your update API endpoint
+      const response = await fetch(`http://localhost:3000/api/user/profile/${user._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: formData
+      });
+
+      const result= await response.json();
+      console.log("Updated successfully", result);
+      if (!result.success) {
+        throw new Error(result.error || 'Update failed');
+      }
+      
+      
+      
+      const updatedUser = result.user;
+      
+      // Update local storage and state
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      setIsEditing(false);
+      setSelectedFile(null);
+      
+    } catch (error) {
+      console.error("Update error:", error);
+      // Add error handling UI here
+    }
+    setLoading(false);
+  };
 
   if (!user) {
     return (
@@ -24,13 +75,59 @@ const Profile = () => {
     <div className="min-h-screen bg-gradient-to-br from-cosmic to-stellar p-6">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Profile Header */}
-        <div className="bg-gradient-to-br from-stellar to-cosmic rounded-2xl p-8 border border-nebula/30 backdrop-blur-lg">
+        <div className="bg-gradient-to-br from-stellar to-cosmic rounded-2xl p-8 border border-nebula/30 backdrop-blur-lg relative">
+          <button 
+            onClick={() => setIsEditing(!isEditing)}
+            className="absolute top-4 right-4 text-stardust hover:text-supernova transition-colors"
+          >
+            <FaEdit className="w-6 h-6" />
+          </button>
+
           <div className="flex items-center gap-6">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-r from-nebula to-supernova flex items-center justify-center text-3xl font-bold text-cosmic">
-              {user.username.toUpperCase()}
+            <div className="relative">
+              {user.profilePic.length !== 0 ? (
+                <img 
+                  src={user.profilePic} 
+                  alt="Profile" 
+                  className="w-24 h-24 rounded-full object-cover border-2 border-nebula/50"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gradient-to-r from-nebula to-supernova flex items-center justify-center text-3xl font-bold text-cosmic">
+                  {user.username[0].toUpperCase()}
+                </div>
+              )}
+              
+              {isEditing && (
+                <div className="absolute bottom-0 right-0">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setSelectedFile(e.target.files[0])}
+                    className="hidden"
+                    id="profilePicInput"
+                  />
+                  <label 
+                    htmlFor="profilePicInput"
+                    className="bg-supernova text-cosmic px-3 py-1 rounded-full text-sm cursor-pointer hover:brightness-110"
+                  >
+                    {selectedFile ? selectedFile.name : 'Change'}
+                  </label>
+                </div>
+              )}
             </div>
+
             <div className="space-y-2">
-              <h1 className="text-3xl text-corona font-orbitron">{user.username}</h1>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  className="text-3xl bg-stellar border-b border-nebula/50 text-corona font-orbitron"
+                />
+              ) : (
+                <h1 className="text-3xl text-corona font-orbitron">{user.username}</h1>
+              )}
+              
               <div className="flex items-center gap-4 text-stardust/80">
                 <span>{user.email}</span>
                 <span className="text-sm bg-nebula/20 px-3 py-1 rounded-full">{user.role}</span>
@@ -40,7 +137,30 @@ const Profile = () => {
               </p>
             </div>
           </div>
+
+          {isEditing && (
+            <div className="mt-4 flex gap-4">
+              <button
+                onClick={handleUpdateProfile}
+                className="px-4 py-2 bg-gradient-to-r from-nebula to-supernova text-cosmic rounded-lg hover:brightness-110"
+                disabled={loading}
+              >
+                {loading ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  setSelectedFile(null);
+                  setNewUsername(user.username);
+                }}
+                className="px-4 py-2 bg-stellar border border-nebula/30 text-stardust rounded-lg hover:border-nebula/50"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
+
 
         {/* Activity Stats */}
         <div className="grid md:grid-cols-3 gap-4">
