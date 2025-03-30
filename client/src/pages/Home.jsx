@@ -19,7 +19,6 @@ const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [selectedSort, setSelectedSort] = useState("newest");
   const [posts, setPosts] = useState([]);
-  let localStorageUpdate = false; //think of better approach to handle this
   const [scrollY, setScrollY] = useState(0);
   const [isCreatingPost, setIsCreatingPost] = useState(false);
   const [newPost, setNewPost] = useState({
@@ -30,6 +29,7 @@ const HomePage = () => {
     codeSnippet: '',
     language: 'javascript'
   });
+  const [localStorageUpdate, setLocalStorageUpdate] = useState(false);
 
 //! [TODO]: code snippet is broken 
 
@@ -67,7 +67,7 @@ const HomePage = () => {
     // Listen for new posts via WebSocket
     socket.on("newPost", (newPost) => {
       setPosts((prevPosts) => [newPost, ...prevPosts]);
-      localStorageUpdate = true;
+      setLocalStorageUpdate(true); 
       //write it in local storage too
       console.log("new post binded", newPost);
     });
@@ -92,14 +92,18 @@ const HomePage = () => {
     setPosts(data);
   };
 
-  //local storage needed to be updated whenever posts state are updated
+  //! set an order that this local storage state gets triggered only after the socket is checked for new posts
+
+  // local storage needed to be updated whenever posts state are updated
   useEffect(() => {
     if (localStorageUpdate) {
       localStorage.setItem("cachedPosts", JSON.stringify(posts));
       console.log("WRITING LOCAL storage");
-      localStorageUpdate=false;
+      setLocalStorageUpdate(false);
     }
-  }, [posts]);
+    else
+      console.log("NOT WRITING LOCAL storage");
+  }, [posts, localStorageUpdate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cosmic to-stellar">
