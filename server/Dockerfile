@@ -13,4 +13,4 @@ RUN npm install --production
 COPY . .
 
 # Start the server
-CMD ["nodemon", "server.js"]
+CMD ["npm", "run", "start"]

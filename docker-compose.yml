@@ -13,16 +13,9 @@ services:
 
   mongo:
     image: mongo:7
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
 
   postgres:
     image: postgres:15
-    environment:
-      POSTGRES_USER: eclipser
-      POSTGRES_PASSWORD: Str0ngP@ssw0rd!
-      POSTGRES_DB: contests
 
   redis:
     image: redis:latest
