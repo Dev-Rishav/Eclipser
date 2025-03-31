@@ -1,42 +1,64 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const path = require('path'); // Import path module for resolving paths
 const connectDB = require('./configs/db');
 const authRoutes = require('./routes/authRoutes');
 const postRoutes = require('./routes/postRoutes');
-const cors=require('cors');
-const { initSocket } = require("./configs/socket");
-const {createServer} = require("http");
-const uploadRoutes =require('./routes/uploadRoutes');
+const cors = require('cors');
+const { initSocket } = require('./configs/socket');
+const { createServer } = require('http');
+const uploadRoutes = require('./routes/uploadRoutes');
+const { Server } = require('socket.io');
 
-const {Server}= require('socket.io');
+// Load environment variables from the root directory
+dotenv.config({ path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env' });
 
-dotenv.config();
+// Validate required environment variables
+const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
+requiredEnvVars.forEach((key) => {
+  if (!process.env[key]) {
+    console.error(`Missing required environment variable: ${key}`);
+    process.exit(1); // Exit the application if a required variable is missing
+  }
+});
 
+// Connect to the database
 connectDB();
 
 const app = express();
 const server = createServer(app);
 
+// Initialize WebSockets
+initSocket(server);
 
-initSocket(server); // Initialize WebSockets
-
-
+// Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: '*' }));
 
+
+// Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/posts',postRoutes);
-app.use('/api/user',uploadRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/user', uploadRoutes);
 
+// Health check route
 app.use('/greet', (req, res) => {
-    res.send('Hello, World!');
-    });
+  res.send('Hello, World!');
+});
 
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')));
 
-    
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+  });
+}
 
+// Start the server
 const PORT = process.env.PORT || 3000;
-
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  console.log(`MongoDB URI: ${process.env.MONGO_URI}`);
+  
 });

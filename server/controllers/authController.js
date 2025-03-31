@@ -42,6 +42,12 @@ exports.login = async (req, res) => {
         email: user.email,
         role: user.role,
         token: generateToken(user._id),
+        joined: user.createdAt,
+        profilePic: user.profilePic,
+        queries: user.queries,
+        discussions: user.discussions,
+        achievements: user.achievements,
+        subscribedTopics: user.subscribedTopics,
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });

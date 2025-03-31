@@ -1,6 +1,8 @@
 const { v2: cloudinary } = require('cloudinary');
 const dotenv = require('dotenv');
 
+
+
 // Load environment variables with validation
 dotenv.config({ path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env' });
 

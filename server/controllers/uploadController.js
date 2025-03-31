@@ -3,8 +3,6 @@ const User = require('../models/User');
 const redisClient = require('../configs/redis');
 
 const updateUserProfile = async (req, res) => {
-  console.log('Received request to update user profile:', req.params);
-  
   try {
     // Authorization check
     if (req.params.userId !== req.user.id) {
@@ -12,11 +10,12 @@ const updateUserProfile = async (req, res) => {
     }
 
     const { username } = req.body;
+    const {subscribedTopics} = req.body;
     const file = req.file;
     const userId = req.params.userId;
 
     // Validate at least one update field exists
-    if (!file && !username) {
+    if (!file && !username && !subscribedTopics) {
       return res.status(400).json({ error: 'No update data provided' });
     }
 
@@ -45,6 +44,15 @@ const updateUserProfile = async (req, res) => {
         return res.status(409).json({ error: 'Username already taken' });
       }
       updateData.username = username;
+    }
+
+    //update subscribedTopics
+    if(subscribedTopics && subscribedTopics.length > 0 ) {
+      const existingTopics = await User.findOne({ subscribedTopics });
+      if (existingTopics) {
+        return res.status(409).json({ error: 'Subscribed topics already exist' });
+      }
+      updateData.subscribedTopics = subscribedTopics;
     }
 
     // Update database
@@ -76,7 +84,12 @@ const updateUserProfile = async (req, res) => {
         username: updatedUser.username,
         email: updatedUser.email,
         profilePic: updatedUser.profilePic,
-        role: updatedUser.role
+        role: updatedUser.role,
+        joined: updatedUser.createdAt,
+        queries: updatedUser.queries,
+        discussions: updatedUser.discussions,
+        achievements: updatedUser.achievements,
+        subscribedTopics: updatedUser.subscribedTopics,
       }
     });
 
