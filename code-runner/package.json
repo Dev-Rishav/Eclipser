@@ -1,0 +1,14 @@
+{
+  "name": "code-runner",
+  "version": "1.0.0",
+  "main": "worker.js",
+  "dependencies": {
+    "dockerode": "^3.3.4",
+    "amqplib": "^0.10.3",
+    "lodash": "^4.17.21",
+    "v8-profiler-next": "^1.7.0"
+  },
+  "scripts": {
+    "start": "node worker.js"
+  }
+}

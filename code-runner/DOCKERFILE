@@ -1,0 +1,20 @@
+FROM node:18
+
+# Install compilers/runtimes
+RUN apt-get update && apt-get install -y \
+    python3 \
+    openjdk-17-jdk \
+    g++ \
+    docker.io
+
+WORKDIR /app
+
+# Copy package files and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy application code
+COPY . .
+
+# Start the code runner
+CMD ["node", "runner.js"]

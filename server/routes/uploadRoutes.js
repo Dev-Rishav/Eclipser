@@ -5,6 +5,8 @@ const authMiddleware = require('../middlewares/auth');
 
 const router = express.Router();
 
+//* this route is for uploading files and updating user profile
+
 // Configure multer for file uploads
 const upload = multer({
   storage: multer.memoryStorage(), // Store files in memory for Cloudinary processing

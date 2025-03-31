@@ -25,6 +25,7 @@ exports.register = async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
+    console.log(error,"error");
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -53,6 +54,8 @@ exports.login = async (req, res) => {
       res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.log(error,"error");
+    
+    res.status(500).json({ message: 'Server error' , error: error.message });
   }
 };
