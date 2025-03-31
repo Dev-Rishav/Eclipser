@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  api:
+    build: ./server
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./server/.env.production
+    depends_on:
+      - mongo
+      - postgres
+      - redis
+
+  mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: eclipser
+      POSTGRES_PASSWORD: Str0ngP@ssw0rd!
+      POSTGRES_DB: contests
+
+  redis:
+    image: redis:latest
