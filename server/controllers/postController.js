@@ -33,7 +33,11 @@ exports.createPost = async (req, res) => {
     const sanitizedCodeSnippet = codeSnippet ? sanitizeCodeSnippet(codeSnippet.code) : null;
 
     const newPost = new Post({
-      userId: req.user.id,
+      author:{
+        userId:req.user.id,
+        username:req.user.username,
+        profilePic:req.user.profilePic,
+      },
       postType,
       title: sanitizedTitle,
       content: sanitizedContent,
@@ -104,6 +108,7 @@ exports.getPostsByUser = async (req, res) => {
       return res.json(JSON.parse(cachedUserPosts));
     }
 
+    //!userId is in user
     const posts = await Post.find({ userId: req.params.userId });
     if (posts?.length === 0) return res.status(404).json({ message: "Post not found" });
 
@@ -139,7 +144,10 @@ exports.getPostsByType = async (req, res) => {
 exports.likePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    if (!post) return res.status(404).json({ message: "Post not found" });
+    
+    
+    
+    if (!post) return res.status(404).json({ message: "Post not found" , post: post});
 
     const alreadyLiked = post.likes.some(
       (like) => like.userId.toString() === req.user.id
