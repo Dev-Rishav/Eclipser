@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { HighlightSyntax } from "../components/HighlightSyntax";
 import { toast } from "react-hot-toast";
 import { createPost } from "../utility/createPost";
+import LoadingPage from "../components/LoadingPage";
 
 const socket = io("http://localhost:3000");
 
@@ -136,6 +137,10 @@ const HomePage = () => {
       setLocalStorageUpdate(false);
      } //else console.log("NOT WRITING LOCAL storage");
   }, [posts, localStorageUpdate]);
+
+  if (isLoading) {
+    return <LoadingPage />; // Show the loading animation while fetching posts
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cosmic to-stellar">
