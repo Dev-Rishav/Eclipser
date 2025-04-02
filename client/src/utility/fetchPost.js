@@ -1,12 +1,14 @@
 import axios from "axios";
 
 export const fetchPosts = async () => {
-  const cachedPosts = localStorage.getItem("cachedPosts");
+  console.log("🔄 Fetching Posts");
+  
+  // const cachedPosts = localStorage.getItem("cachedPosts");
 
-  if (cachedPosts) {
-    console.log("♻️ Using LocalStorage Cache");
-    return JSON.parse(cachedPosts);
-  }
+  // if (cachedPosts) {
+  //   console.log("♻️ Using LocalStorage Cache");
+  //   return JSON.parse(cachedPosts);
+  // }
 
   try {
     console.log("🛠 Fetching from Backend");
