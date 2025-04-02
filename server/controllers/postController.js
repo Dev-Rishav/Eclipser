@@ -194,7 +194,16 @@ exports.commentOnPost = async (req, res) => {
       await client.setEx("allPosts", 3600, JSON.stringify(updatedPosts));
     }
 
-    res.status(201).json({ message: "Comment added" });
+    res.status(201).json({
+      postId: post._id,
+      content: content,
+      author:{
+        userId:req.user.id,
+        username:req.user.username,
+        profilePic:req.user.profilePic,
+      },
+      dateTime: new Date(),
+    });
   } catch (error) {
     res.status(500).json({ message: "Error adding comment", error });
   }

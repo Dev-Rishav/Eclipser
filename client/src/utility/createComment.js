@@ -26,7 +26,8 @@ export const createComment = async (postId, content) => {
         );
         localStorage.setItem("cachedPosts", JSON.stringify(updatedPosts));
       }
-
+      // console.log("res.data", res.data);
+      
       return res.data; // Return the created comment
     }
   } catch (error) {
