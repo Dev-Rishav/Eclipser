@@ -9,6 +9,8 @@ const Profile = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  //temp
+  const token=JSON.stringify(localStorage.getItem("authToken"));
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -215,13 +217,17 @@ const Profile = () => {
               </div>
             ))}
 
-            {user.achievements == null && (
+            {user.achievements == null || user.achievements.length===0 && (
               <div className="text-center py-8 text-stardust/60">
                 No achievements yet. Start contributing to the cosmos!
+                
               </div>
             )}
           </div>
         </div>
+      </div>
+      <div className="text-center mt-8 text-stardust/60">
+      {token}
       </div>
     </div>
   );
