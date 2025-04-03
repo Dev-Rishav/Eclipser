@@ -260,7 +260,7 @@ export const PostCard = ({ post }) => {
           </button>
         </div>
 
-        <button className="px-4 py-2 bg-gradient-to-r from-nebula to-supernova rounded-lg font-medium text-cosmic hover:brightness-110 transition-all text-sm">
+        <button className="px-4 py-2 bg-gradient-to-r from-nebula to-supernova rounded-lg font-medium text-cosmic hover:brightness-110 transition-all text-sm" onClick={()=>setShowComments(true)} >
           {post.postType === "query" ? "Transmit Answer" : "Engage Discussion"}
         </button>
       </div>
