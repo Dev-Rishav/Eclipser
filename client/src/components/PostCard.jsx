@@ -13,19 +13,16 @@ import { likePost } from "../utility/likePost.js";
 import { toast } from "react-hot-toast";
 import { createComment } from "../utility/createComment.js";
 import { fetchUsersByIds } from "../utility/fetchUsersByIds.js";
+import { CodeHighlighter } from "./CodeHighlighter.jsx";
 
 export const PostCard = ({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
-  const [newCommentContent, setNewCommentContent] = useState("");   //state to hold new comment content
-  const [showComments, setShowComments] = useState(false);  //state to toggle comments
+  const [newCommentContent, setNewCommentContent] = useState(""); //state to hold new comment content
+  const [showComments, setShowComments] = useState(false); //state to toggle comments
   const [enrichedComments, setEnrichedComments] = useState([]); //state to hold comments with user details
-  const timeAgo = formatDistanceToNow(
-    new Date(post.createdAt),
-    {
-      addSuffix: true,
-    }
-  );
-
+  const timeAgo = formatDistanceToNow(new Date(post.createdAt), {
+    addSuffix: true,
+  });
 
   // Preserved metadata section
   const MAX_VISIBLE_TAGS = 2;
@@ -71,7 +68,6 @@ export const PostCard = ({ post }) => {
     fetchCommentsWithUsers();
   }, [post]);
 
-
   // Check if the post is liked by the user
   useEffect(() => {
     const checkLikeStatus = () => {
@@ -105,7 +101,7 @@ export const PostCard = ({ post }) => {
     try {
       const newComment = await createComment(post._id, newCommentContent);
       // console.log("New comment created from backend:", newComment);
-      
+
       setEnrichedComments([...enrichedComments, newComment]);
       setNewCommentContent("");
       toast.success("Signal transmitted successfully!");
@@ -120,7 +116,6 @@ export const PostCard = ({ post }) => {
   //   console.log("Enriched comments:", enrichedComments);
   // }
   // , [enrichedComments]);
-    
 
   return (
     <div
@@ -162,9 +157,7 @@ export const PostCard = ({ post }) => {
           </span>
           <span
             className="text-sm text-stardust/60"
-            title={`"Created"} at ${new Date(
-              post.updatedAt
-            ).toLocaleString()}`}
+            title={`"Created"} at ${new Date(post.updatedAt).toLocaleString()}`}
           >
             {"⏳"} {timeAgo}
           </span>
@@ -198,10 +191,58 @@ export const PostCard = ({ post }) => {
         </div>
       </div>
 
-      {/* Preserved Content Section */}
-      <div className="mb-4 space-y-3">
-        <h3 className="text-xl font-orbitron text-corona">{post.title}</h3>
-        <p className="text-stardust/80 leading-relaxed">{post.content}</p>
+      {/* Enhanced Content Section */}
+      <div className="mb-6 space-y-4">
+        <h3 className="text-2xl font-orbitron text-corona bg-gradient-to-r from-nebula/20 to-transparent p-4 rounded-lg border border-nebula/30">
+          {post.title}
+        </h3>
+
+        <div className="relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-nebula/10 to-supernova/5 rounded-xl transition-opacity opacity-0 group-hover:opacity-100" />
+
+          <div className="relative space-y-4 text-stardust/90 leading-relaxed">
+          {post.content.split('\n```').map((section, index) => {
+  if (index % 2 === 1) {
+    const [language, ...codeLines] = section.split('\n');
+    const code = codeLines.join('\n');
+    
+    return (
+      <div key={index} className="my-4 rounded-xl overflow-hidden border border-nebula/30">
+        <div className="flex items-center justify-between px-4 py-2 bg-cosmic/80 border-b border-nebula/30">
+          <span className="text-xs font-mono text-supernova">
+            {language.trim() || 'CODE'}
+          </span>
+          <button 
+            onClick={() => navigator.clipboard.writeText(code)}
+            className="text-nebula hover:text-supernova transition-colors"
+          >
+            📋
+          </button>
+        </div>
+        <pre className="p-4 bg-cosmic/50 overflow-x-auto font-mono text-sm">
+          {/* This is where CodeHighlighter gets rendered */}
+          <CodeHighlighter code={code} language={language.trim().toLowerCase()} />
+        </pre>
+      </div>
+    );
+  }
+
+              // Regular text content
+              return (
+                <p
+                  key={index}
+                  className="p-4 bg-cosmic/30 rounded-xl border border-nebula/20 hover:border-nebula/40 transition-colors"
+                >
+                  {section.split("\n").map((line, lineIndex) => (
+                    <span key={lineIndex} className="block mb-3 last:mb-0">
+                      {line}
+                    </span>
+                  ))}
+                </p>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Preserved Attachments */}
@@ -260,78 +301,91 @@ export const PostCard = ({ post }) => {
           </button>
         </div>
 
-        <button className="px-4 py-2 bg-gradient-to-r from-nebula to-supernova rounded-lg font-medium text-cosmic hover:brightness-110 transition-all text-sm" onClick={()=>setShowComments(true)} >
-          {post.postType === "query" ? "Transmit Answer" : "Engage Discussion"}
+        <button
+          className="px-4 py-2 bg-gradient-to-r from-nebula to-supernova rounded-lg font-medium text-cosmic hover:brightness-110 transition-all text-sm"
+          onClick={() => setShowComments(!showComments)}
+        >
+          {post.postType === "query" ? 
+          showComments? "Close Comments" : "Transmit Answer"  :
+           showComments? "Close Discussion" :"Engage Discussion"
+           }
         </button>
       </div>
 
       {/* Added Comment Section */}
       {showComments && (
-  <div className="mt-4 pt-4 border-t border-nebula/20">
-    {/* Comment Input */}
-    <form onSubmit={handleNewCommentSubmit} className="mb-4 flex gap-2">
-      <input
-        type="text"
-        value={newCommentContent}
-        onChange={(e) => setNewCommentContent(e.target.value)}
-        placeholder="Transmit your signal..."
-        className="flex-1 px-4 py-2 rounded-lg bg-cosmic/50 border border-nebula/30 text-stardust focus:outline-none focus:border-supernova/50 placeholder-stardust/40"
-      />
-      <button
-        type="submit"
-        className="px-4 py-2 bg-gradient-to-r from-nebula/80 to-supernova/80 rounded-lg font-medium text-cosmic hover:brightness-110 transition-all"
-      >
-        Send
-      </button>
-    </form>
+        <div className="mt-4 pt-4 border-t border-nebula/20">
+          {/* Comment Input */}
+          <form onSubmit={handleNewCommentSubmit} className="mb-4 flex gap-2">
+            <input
+              type="text"
+              value={newCommentContent}
+              onChange={(e) => setNewCommentContent(e.target.value)}
+              placeholder="Transmit your signal..."
+              className="flex-1 px-4 py-2 rounded-lg bg-cosmic/50 border border-nebula/30 text-stardust focus:outline-none focus:border-supernova/50 placeholder-stardust/40"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-gradient-to-r from-nebula/80 to-supernova/80 rounded-lg font-medium text-cosmic hover:brightness-110 transition-all"
+            >
+              Send
+            </button>
+          </form>
 
-    {/* Scrollable Comments Container */}
-    <div className="space-y-4 max-h-96 overflow-y-auto pr-2"> {/* Added max height and scroll */}
-      {enrichedComments.map((comment) => (
-        <div 
-          key={comment._id}
-          className="flex items-start gap-3 p-3 rounded-lg bg-cosmic/30 hover:bg-cosmic/40 transition-colors"
-        >
-          <div className="shrink-0">
-            {comment.author.profilePic ? (
-              <img
-                src={comment.author.profilePic}
-                alt={comment.author.username}
-                className="w-7 h-7 rounded-full border border-nebula/50 object-cover"
-              />
-            ) : (
-              <div className="w-7 h-7 rounded-full bg-gradient-to-r from-nebula to-supernova flex items-center justify-center">
-                <span className="text-xs text-cosmic">
-                  {comment.author.username[0].toUpperCase()}
-                </span>
+          {/* Scrollable Comments Container */}
+          <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+            {" "}
+            {/* Added max height and scroll */}
+            {enrichedComments.map((comment) => (
+              <div
+                key={comment._id}
+                className="flex items-start gap-3 p-3 rounded-lg bg-cosmic/30 hover:bg-cosmic/40 transition-colors"
+              >
+                <div className="shrink-0">
+                  {comment.author.profilePic ? (
+                    <img
+                      src={comment.author.profilePic}
+                      alt={comment.author.username}
+                      className="w-7 h-7 rounded-full border border-nebula/50 object-cover"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-r from-nebula to-supernova flex items-center justify-center">
+                      <span className="text-xs text-cosmic">
+                        {comment.author.username[0].toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  {" "}
+                  {/* Added min-width to prevent overflow */}
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-medium text-stardust truncate">
+                      {comment.author.username}
+                    </span>
+                    <span className="text-xs text-nebula/60 shrink-0">
+                      {comment.dateTime
+                        ? formatDistanceToNow(new Date(comment.dateTime), {
+                            addSuffix: true,
+                          })
+                        : `Unknown Time`}
+                    </span>
+                  </div>
+                  <p className="text-stardust/80 text-sm break-words">
+                    {comment.content}
+                  </p>
+                </div>
+              </div>
+            ))}
+            {/* Empty State */}
+            {enrichedComments.length === 0 && (
+              <div className="text-center py-4 text-stardust/50">
+                No signals received yet. Be the first to respond!
               </div>
             )}
           </div>
-          <div className="flex-1 min-w-0"> {/* Added min-width to prevent overflow */}
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium text-stardust truncate">
-                {comment.author.username}
-              </span>
-              <span className="text-xs text-nebula/60 shrink-0">
-                {comment.dateTime? formatDistanceToNow(new Date(comment.dateTime), { addSuffix: true }):`Unknown Time`}
-              </span>
-            </div>
-            <p className="text-stardust/80 text-sm break-words">
-              {comment.content}
-            </p>
-          </div>
-        </div>
-      ))}
-      
-      {/* Empty State */}
-      {enrichedComments.length === 0 && (
-        <div className="text-center py-4 text-stardust/50">
-          No signals received yet. Be the first to respond!
         </div>
       )}
-    </div>
-  </div>
-)}
     </div>
   );
 };
