@@ -15,14 +15,17 @@ import { createComment } from "../utility/createComment.js";
 import { fetchUsersByIds } from "../utility/fetchUsersByIds.js";
 import { CodeHighlighter } from "./CodeHighlighter.jsx";
 
-export const PostCard = ({ post }) => {
+export const PostCard = ({ post: initialPost }) => {
+  const [post,setPost]=useState(initialPost);
   const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(post.likes.length || 0); //state to hold likes count
   const [newCommentContent, setNewCommentContent] = useState(""); //state to hold new comment content
   const [showComments, setShowComments] = useState(false); //state to toggle comments
   const [enrichedComments, setEnrichedComments] = useState([]); //state to hold comments with user details
   const timeAgo = formatDistanceToNow(new Date(post.createdAt), {
     addSuffix: true,
   });
+  const [user,setUser] = useState(localStorage.getItem("user")?JSON.parse(localStorage.getItem("user")):null);
 
   // Preserved metadata section
   const MAX_VISIBLE_TAGS = 2;
@@ -72,13 +75,13 @@ export const PostCard = ({ post }) => {
   useEffect(() => {
     const checkLikeStatus = () => {
       if (post.likes?.length > 0) {
-        const user = JSON.parse(localStorage.getItem("user"));
         const liked = post.likes.find((like) => like.userId === user?._id);
         if (liked) setIsLiked(true);
       }
     };
     checkLikeStatus();
-  }, [post.likes]);
+  }, [post.likes, user]);
+  //! 2nd like nhi araha
 
   // Handle like button click
   const handleLike = () => {
@@ -110,6 +113,81 @@ export const PostCard = ({ post }) => {
       console.error("Comment error:", error);
     }
   };
+
+  //using SSE to dynamically update comments and likes
+  useEffect(() => {
+    console.log("Initializing EventSource for post:");
+    
+    const eventSource = new EventSource("http://localhost:3000/stream",{withCredentials:true});
+    // console.log("EventSource initialized for post:", post._id);
+    
+  
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Received SSE data:", data);
+      
+      if (data.type === "like" && data.postId === post._id) {
+        // Check if the userId already exists in the likes array
+        const alreadyLiked = post.likes.some((like) => like.userId === data.userId); 
+        if (!alreadyLiked) {
+          
+          // Update the likes array immutably
+           post.likes.push({
+            userId: data.userId});
+            const updatedLikes = [...post.likes];
+          
+          setPost((prevPost) => ({ ...prevPost, likes: updatedLikes }));
+    
+          // Update the isLiked state if the current user liked the post
+          if (data.userId === user._id) {
+            setIsLiked(true);
+            toast.success("Post liked successfully!");
+          }
+    
+          // Update local storage with the entire cached posts array
+          const cachedPosts = JSON.parse(localStorage.getItem("cachedPosts")) || [];
+          console.log("cachedPost._id === post._id ",cachedPosts.map((cachedPost)=> cachedPost._id === post._id));
+          
+          const updatedPosts = cachedPosts.map((cachedPost) =>
+            cachedPost._id === post._id ? { ...cachedPost, likes: updatedLikes } : cachedPost
+          );
+
+          
+          console.log("Updated posts in local storage:", updatedPosts);
+          
+          localStorage.setItem("cachedPosts", JSON.stringify(updatedPosts));
+          setLikesCount(updatedLikes.length);
+        }
+      }  else if (data.type === "comment" && data.postId === post._id) {
+        setEnrichedComments((prev) => [
+          ...prev,
+          {
+            author: {
+              userId: data.userId,
+              username: "New User", // Update with proper user info
+              profilePic: null,
+            },
+            postId: data.postId,
+            content: data.content,
+            dateTime: new Date().toISOString(),
+          },
+        ]);
+        console.log("New comment received:", data);
+        
+      }
+    };
+
+    eventSource.onerror = () => {
+      console.log("EventSource failed. Closing connection.");
+      eventSource.close();
+    };
+  
+    return () => {
+      eventSource.close();
+    };
+  }, [ post._id, user._id, post.likes, post.comments]);
+  
+
 
   //? debugging purposes
   // useEffect(() => {
@@ -283,7 +361,9 @@ export const PostCard = ({ post }) => {
               <FaRegHeart className="w-4 h-4" />
             )}
             <span className="text-sm">
-              {post.likes.length + (isLiked ? 1 : 0)}
+              {/* {post.likes.length + (isLiked ? 1 : 0)}
+               */}
+               {likesCount}
             </span>
           </button>
 

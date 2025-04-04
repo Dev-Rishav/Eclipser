@@ -10,6 +10,7 @@ const { createServer } = require('http');
 const uploadRoutes = require('./routes/uploadRoutes');
 const { Server } = require('socket.io');
 const userRoutes = require('./routes/userRoutes');
+const { streamUpdates } = require('./controllers/postController');
 
 // Load environment variables from the root directory
 dotenv.config({ path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env' });
@@ -34,14 +35,28 @@ initSocket(server);
 
 // Middleware
 app.use(express.json());
-app.use(cors({ origin: '*' }));
 
+
+// CORS configuration
+app.use(cors({
+  origin: "http://localhost:5173", // Replace with your frontend URL
+  methods: ["GET", "POST","OPTIONS","PUT","DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+}));
+
+
+
+
+// SSE Endpoint
+app.get('/stream', streamUpdates);
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/user', uploadRoutes);
 app.use('/api/users',userRoutes)
+
 
 // Health check route
 app.use('/greet', (req, res) => {
