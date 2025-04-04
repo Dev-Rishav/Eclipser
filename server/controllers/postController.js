@@ -140,14 +140,54 @@ exports.getPostsByType = async (req, res) => {
   }
 };
 
+//? SSE (Server-Sent Events) for real-time updates on likes comments and views
+
+
+// SSE Clients storage
+let clients = [];
+
+// Helper function to broadcast updates to connected clients
+const broadcastUpdate = (data) => {
+  clients.forEach((client) =>
+    client.res.write(`data: ${JSON.stringify(data)}\n\n`)
+  );
+};
+
+// Register SSE endpoint to receive updates
+exports.streamUpdates = (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173"); // Use your frontend URL
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  console.log("New SSE connection established");
+  
+  // Add client to the list
+  const clientId = Date.now();
+  clients.push({ id: clientId, res });
+
+  // Send initial connection success message
+  res.write(`data: ${JSON.stringify({ message: "Connection established" })}\n\n`);
+
+    // Periodically send a heartbeat to keep the connection alive
+    const heartbeat = setInterval(() => {
+      res.write(`data: ${JSON.stringify({ message: "heartbeat" })}\n\n`);
+    }, 60000); // Every 60 seconds
+
+  // Remove client on connection close
+  req.on("close", () => {
+    console.log("SSE connection closed");
+    clearInterval(heartbeat);
+    clients = clients.filter((client) => client.id !== clientId);
+  });
+};
+
 // Like a Post & Update Redis Cache
 exports.likePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    
-    
-    
-    if (!post) return res.status(404).json({ message: "Post not found" , post: post});
+    if (!post) return res.status(404).json({ message: "Post not found" });
 
     const alreadyLiked = post.likes.some(
       (like) => like.userId.toString() === req.user.id
@@ -168,6 +208,14 @@ exports.likePost = async (req, res) => {
       await client.setEx("allPosts", 3600, JSON.stringify(updatedPosts));
     }
 
+    // Broadcast like event via SSE
+    broadcastUpdate({
+      type: "like",
+      postId: post._id,
+      userId: req.user.id,
+      username: req.user.username,
+    });
+
     res.status(200).json({ message: "Post liked", likes: post.likes.length });
   } catch (error) {
     res.status(500).json({ message: "Error liking post", error });
@@ -181,7 +229,13 @@ exports.commentOnPost = async (req, res) => {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });
 
-    post.comments.push({ userId: req.user.id, content });
+    const newComment = {
+      userId: req.user.id,
+      content,
+      timestamp: new Date(),
+    };
+
+    post.comments.push(newComment);
     await post.save();
 
     // Update Redis cache for all posts
@@ -194,13 +248,26 @@ exports.commentOnPost = async (req, res) => {
       await client.setEx("allPosts", 3600, JSON.stringify(updatedPosts));
     }
 
-    res.status(201).json({
+    // Broadcast comment event via SSE
+    broadcastUpdate({
+      type: "comment",
       postId: post._id,
       content: content,
-      author:{
-        userId:req.user.id,
-        username:req.user.username,
-        profilePic:req.user.profilePic,
+      author: {
+        userId: req.user.id,
+        username: req.user.username,
+        profilePic: req.user.profilePic,
+      },
+      dateTime: new Date(),
+    });
+
+    res.status(201).json({
+      postId: post._id,
+      content,
+      author: {
+        userId: req.user.id,
+        username: req.user.username,
+        profilePic: req.user.profilePic,
       },
       dateTime: new Date(),
     });
@@ -208,6 +275,7 @@ exports.commentOnPost = async (req, res) => {
     res.status(500).json({ message: "Error adding comment", error });
   }
 };
+
 
 //  Increase View Count & Update Redis
 exports.increaseViewCount = async (req, res) => {
