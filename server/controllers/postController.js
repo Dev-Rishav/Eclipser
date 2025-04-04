@@ -105,15 +105,17 @@ exports.getPostsByUser = async (req, res) => {
     const cachedUserPosts = await client.get(cacheKey);
 
     if (cachedUserPosts) {
+      console.log("♻️ Serving from Cache");
       return res.json(JSON.parse(cachedUserPosts));
     }
 
     //!userId is in user
-    const posts = await Post.find({ userId: req.params.userId });
+    const posts = await Post.find({ "author.userId" : req.params.userId });
     if (posts?.length === 0) return res.status(404).json({ message: "Post not found" });
 
     await client.setEx(cacheKey, 3600, JSON.stringify(posts));
 
+    console.log("🛠 Fetching from Database");
     res.status(200).json(posts);
   } catch (error) {
     res.status(500).json({ message: "Error fetching user posts", error });

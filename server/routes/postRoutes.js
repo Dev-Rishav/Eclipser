@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post("/", authMiddleware, createPost);
 router.get("/", getAllPosts);
-router.get("/user/:userId", getPostsByUser);
+router.get("/user/:userId",authMiddleware, getPostsByUser);
 router.get("/type/:type", getPostsByType);
 router.put("/like/:id", authMiddleware, likePost);
 router.post("/comment/:id", authMiddleware, commentOnPost);

@@ -27,6 +27,8 @@ export const PostCard = ({ post: initialPost }) => {
   });
   const [user,setUser] = useState(localStorage.getItem("user")?JSON.parse(localStorage.getItem("user")):null);
 
+  //TODO post can be fetched from localstorage,no need to pass it as prop
+
   // Preserved metadata section
   const MAX_VISIBLE_TAGS = 2;
   const visibleTags = post.tags.slice(0, MAX_VISIBLE_TAGS);
@@ -81,7 +83,6 @@ export const PostCard = ({ post: initialPost }) => {
     };
     checkLikeStatus();
   }, [post.likes, user]);
-  //! 2nd like nhi araha
 
   // Handle like button click
   const handleLike = () => {
