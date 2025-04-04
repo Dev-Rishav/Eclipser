@@ -7,8 +7,10 @@ import {
 import { FaEdit } from "react-icons/fa";
 import { fetchPostsByUser } from "../utility/fetchPostsByUser";
 import { PostCard } from "../components/PostCard";
+import { useParams } from "react-router-dom";
 
 const Profile = () => {
+  const {userId} = useParams();
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState("");
@@ -16,16 +18,43 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [userPost, setUserPost] = useState(null);
 
-  //temp
-  const token = JSON.stringify(localStorage.getItem("authToken"));
+  //to load user from local storage
   useEffect(() => {
+    if(!userId){
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const userData = JSON.parse(storedUser);
       setUser(userData);
       setNewUsername(userData.username);
     }
-  }, []);
+  }else{
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/users/getUser/${userId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        const data = await response.json();
+        setUser(data);
+        setNewUsername(data.username);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    }
+    fetchUser();
+  }
+  }, [userId]);
+
 
   //function to fetch user posts
   const fetchUserPosts = async () => {
@@ -273,7 +302,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      <div className="text-center mt-8 text-stardust/60">{token}</div>
     </div>
   );
 };
