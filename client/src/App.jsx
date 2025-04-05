@@ -24,10 +24,10 @@ const App = () => {
           {/* Private routes with persistent layout */}
           <Route element={<PrivateRoute />}>
             <Route element={<PersistentLayout />}>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<PostList />} />
               <Route path="/contest" element={<Contest />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/posts" element={<PostList />} />
+              {/* <Route path="/posts" element={<PostList />} /> */}
               {/* Add other authenticated routes here */}
             </Route>
           </Route>
