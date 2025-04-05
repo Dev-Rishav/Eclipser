@@ -1,11 +1,12 @@
 const express = require('express');
-const { createPost, getAllPosts, getPostsByUser, getPostsByType, likePost, commentOnPost, deletePost, streamUpdates } = require('../controllers/postController');
+const { createPost, getAllPostsByTags,getAllRemainingPosts , getPostsByUser, getPostsByType, likePost, commentOnPost, deletePost, streamUpdates } = require('../controllers/postController');
 const authMiddleware = require('../middlewares/auth');
 
 const router = express.Router();
 
 router.post("/", authMiddleware, createPost);
-router.get("/", getAllPosts);
+router.post("/remainingPosts", authMiddleware, getAllRemainingPosts);
+router.post("/tags",authMiddleware, getAllPostsByTags)
 router.get("/user/:userId",authMiddleware, getPostsByUser);
 router.get("/type/:type", getPostsByType);
 router.put("/like/:id", authMiddleware, likePost);

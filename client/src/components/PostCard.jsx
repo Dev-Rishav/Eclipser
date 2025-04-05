@@ -207,6 +207,7 @@ export const PostCard = ({ post: initialPost }) => {
           : "border-l-4 border-supernova"
       } bg-gradient-to-br from-stellar/80 to-cosmic/90 backdrop-blur-lg transition-all hover:-translate-y-1`}
     >
+      
       {/* Preserved Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3">
         {/* Tags */}
