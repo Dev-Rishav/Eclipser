@@ -5,13 +5,14 @@ import { LiveActivity } from "../components/LiveActivity";
 import { ChatPreview } from "../components/ChatPreview";
 import { PostCard } from "../components/PostCard";
 import FeedControlBar from "../components/FeedControlBar";
-import { fetchPosts } from "../utility/fetchPost";
+import { fetchPostsByTags, fetchRemainingPosts } from "../utility/fetchPost";
 import { io } from "socket.io-client";
 import { AnimatePresence, motion } from "framer-motion";
 import { HighlightSyntax } from "../components/HighlightSyntax";
 import { toast } from "react-hot-toast";
 import { createPost } from "../utility/createPost";
 import LoadingPage from "../components/LoadingPage";
+import {useSelector} from "react-redux";
 
 const socket = io("http://localhost:3000");
 
@@ -31,6 +32,9 @@ const HomePage = () => {
     language: "javascript",
   });
   const [localStorageUpdate, setLocalStorageUpdate] = useState(false);
+  const user=useSelector((state) => state.auth.user);
+  let counter=1;
+
 
   //! [TODO]: code snippet is broken
   //! [TODO]: add a loading state for the post creation
@@ -123,7 +127,7 @@ const HomePage = () => {
   }, []);
 
   const getPosts = async () => {
-    const data = await fetchPosts();
+    const data = await fetchPosts(user.SubscribedTopics,1,10);
     setPosts(data);
   };
 
@@ -139,7 +143,7 @@ const HomePage = () => {
   }, [posts, localStorageUpdate]);
 
   if (isLoading) {
-    return <LoadingPage />; // Show the loading animation while fetching posts
+    return (<div>Loading...</div>); // Show the loading animation while fetching posts
   }
 
   return (

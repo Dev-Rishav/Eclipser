@@ -14,6 +14,7 @@ import { toast } from "react-hot-toast";
 import { createComment } from "../utility/createComment.js";
 import { fetchUsersByIds } from "../utility/fetchUsersByIds.js";
 import { CodeHighlighter } from "./CodeHighlighter.jsx";
+import { useNavigate } from "react-router-dom";
 
 export const PostCard = ({ post: initialPost }) => {
   const [post,setPost]=useState(initialPost);
@@ -26,6 +27,10 @@ export const PostCard = ({ post: initialPost }) => {
     addSuffix: true,
   });
   const [user,setUser] = useState(localStorage.getItem("user")?JSON.parse(localStorage.getItem("user")):null);
+  const navigate= useNavigate();
+
+  //? post can be fetched from localstorage,no need to pass it as prop.
+  //* This component is rendered on  multiple pages, so we can not use the same post object
 
   // Preserved metadata section
   const MAX_VISIBLE_TAGS = 2;
@@ -81,7 +86,6 @@ export const PostCard = ({ post: initialPost }) => {
     };
     checkLikeStatus();
   }, [post.likes, user]);
-  //! 2nd like nhi araha
 
   // Handle like button click
   const handleLike = () => {
@@ -203,6 +207,7 @@ export const PostCard = ({ post: initialPost }) => {
           : "border-l-4 border-supernova"
       } bg-gradient-to-br from-stellar/80 to-cosmic/90 backdrop-blur-lg transition-all hover:-translate-y-1`}
     >
+      
       {/* Preserved Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3">
         {/* Tags */}
@@ -243,7 +248,8 @@ export const PostCard = ({ post: initialPost }) => {
       </div>
 
       {/* Preserved Author Section */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-4 cursor-pointer" onClick={()=> navigate(`/profile/${post.author.userId}`)}
+        title={`View ${post.author?.username || "Unknown User"}'s profile`}>
         {post.author?.profilePic ? (
           <img
             src={post.author.profilePic}

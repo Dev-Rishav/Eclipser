@@ -75,28 +75,66 @@ exports.createPost = async (req, res) => {
   }
 };
 
-// Get All Posts
-exports.getAllPosts = async (req, res) => {
+// Get All Remaining Posts (POST)
+exports.getAllRemainingPosts = async (req, res) => {
   try {
-    // Check if posts exist in Redis cache
-    const cachedPosts = await client.get("allPosts");
+    const { tags = [], page = 1, limit = 10 } = req.body;
+
+    // Cache key based on tags and page
+    const cacheKey = `remainingPosts:${tags.join(",")}:${page}`;
+    const cachedPosts = await client.get(cacheKey);
 
     if (cachedPosts) {
-      console.log("♻️ Serving from Cache");
+      console.log("♻️ Serving Remaining Posts from Cache");
       return res.json(JSON.parse(cachedPosts)); // Return cached data
     }
 
-    console.log("🛠 Fetching from Database");
-    const posts = await Post.find().sort({ createdAt: -1 });
+    console.log("🛠 Fetching Remaining Posts from Database");
+    // Fetch posts not matching the subscribed tags
+    const posts = await Post.find({ tags: { $nin: tags } })
+      .sort({ createdAt: -1 }) // Newest first
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     // Store fetched data in Redis for 1 hour
-    await client.setEx("allPosts", 3600, JSON.stringify(posts));
+    await client.setEx(cacheKey, 3600, JSON.stringify(posts));
 
     res.json(posts);
   } catch (error) {
     res.status(500).json({ message: "Server Error", error });
   }
 };
+
+// Get All Posts by Tags (POST)
+exports.getAllPostsByTags = async (req, res) => {
+  try {
+    const { tags = [], page = 1, limit = 10 } = req.body;
+
+    // Cache key based on tags and page
+    const cacheKey = `postsByTags:${tags.join(",")}:${page}`;
+    const cachedPosts = await client.get(cacheKey);
+
+    if (cachedPosts) {
+      console.log("♻️ Serving Posts by Tags from Cache");
+      return res.json(JSON.parse(cachedPosts)); // Return cached data
+    }
+
+    console.log("🛠 Fetching Posts by Tags from Database");
+    // Fetch posts matching the subscribed tags
+    const posts = await Post.find({ tags: { $in: tags } })
+      .sort({ createdAt: -1 }) // Newest first
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    // Store fetched data in Redis for 1 hour
+    await client.setEx(cacheKey, 3600, JSON.stringify(posts));
+
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+};
+
 
 // Get Posts by User
 exports.getPostsByUser = async (req, res) => {
@@ -105,15 +143,17 @@ exports.getPostsByUser = async (req, res) => {
     const cachedUserPosts = await client.get(cacheKey);
 
     if (cachedUserPosts) {
+      console.log("♻️ Serving from Cache");
       return res.json(JSON.parse(cachedUserPosts));
     }
 
     //!userId is in user
-    const posts = await Post.find({ userId: req.params.userId });
+    const posts = await Post.find({ "author.userId" : req.params.userId });
     if (posts?.length === 0) return res.status(404).json({ message: "Post not found" });
 
     await client.setEx(cacheKey, 3600, JSON.stringify(posts));
 
+    console.log("🛠 Fetching from Database");
     res.status(200).json(posts);
   } catch (error) {
     res.status(500).json({ message: "Error fetching user posts", error });
