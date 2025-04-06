@@ -17,13 +17,13 @@ const PostList = () => {
     setLivePosts,
   } = usePostLoader(user);
 
-  
+
 
   //   onreload clear posts cache
-  useEffect(() => {
-    if (!user || !token) return;
-    clearPostCache();
-  }, [user, token]);
+//   useEffect(() => {
+//     if (!user || !token) return;
+//     clearPostCache();
+//   }, [user, token]);
 
   return (
     <div className="post-list px-4">

@@ -8,7 +8,7 @@ const REMAINING_PAGE_KEY = "cached_page_remaining";
 const EXHAUST_TAG_KEY = "tag_posts_exhausted";
 const EXHAUST_ALL_KEY = "all_posts_exhausted";
 
-// const socket = io('http://localhost:3000');
+const socket = io('http://localhost:3000/');
 
 export const usePostLoader = (user) => {
   const [posts, setPosts] = useState(() => {
@@ -80,7 +80,6 @@ export const usePostLoader = (user) => {
 
       //handling the case where user has no subscriptions
       const hasSubscriptions = user.subscribedTopics?.length > 0;
-      console.log("hasSubscriptions:", hasSubscriptions);
 
       if (!hasSubscriptions) {
         setTagPostsExhausted(true);
@@ -90,7 +89,7 @@ export const usePostLoader = (user) => {
           pageRemaining,
           10
         );
-        console.log("Remaining posts:", rem);
+        // console.log("Remaining posts:", rem);
 
         if (rem.length === 0) {
           setAllPostsExhausted(true);
@@ -120,14 +119,14 @@ export const usePostLoader = (user) => {
       }
 
       if (tagPostsExhausted && hasSubscriptions) {
-        console.log("Fetching remaining posts...");
+        // console.log("Fetching remaining posts...");
 
         const rem = await fetchRemainingPosts(
           user.subscribedTopics,
           pageRemaining,
           10
         );
-        console.log("Remaining posts:", rem);
+        // console.log("Remaining posts:", rem);
 
         if (rem.length === 0) {
           setAllPostsExhausted(true);
@@ -168,17 +167,20 @@ export const usePostLoader = (user) => {
     if (posts.length === 0) loadMorePosts();
   }, []);
 
-  //   useEffect(() => {
+    // useEffect(() => {
 
-  //     socket.on('newPost', (post) => {
-  //       const isSubscribed = user.subscribedTopics.some(tag => post.tags.includes(tag));
-  //       if (isSubscribed) {
-  //         setLivePosts(prev => [post, ...prev]);
-  //       }
-  //     });
+    //   socket.on('newPost', (post) => {
+    //     const isSubscribed = user.subscribedTopics.some(tag => post.tags.includes(tag));
+    //     if (isSubscribed) {
+    //         console.log("New post received:", post);
+            
+    //       setLivePosts(prev => [post, ...prev]);
 
-  //     return () => socket.disconnect();
-  //   }, []);
+    //     }
+    //   });
+
+    //   return () => socket.disconnect();
+    // }, []);
 
   return {
     posts,
