@@ -1,8 +1,11 @@
 const Post = require("../models/Post");
 const sanitizeHtml = require("sanitize-html");
 const client = require("../configs/redis");
-const {getIo}=require("../configs/socket");
+const { getIo } = require("../configs/socket");
+const { postObjectFlattener } = require("../utils/postObjectFlattener");
 
+//! Took: 18hours to implement the redis cache and denormalization, dont touch this code you have wasted a lot of time on this
+//TODO: in redis cache, its making temp:taggedPosts which temporaily holds the postIds that is to be retrieved, and is deleted after the request is completed. What if two users tries to fetch at the same time and same object is overridden, so use a unique key for each request or implement a locking mechanism
 
 // Function to sanitize user inputs (XSS Protection)
 const sanitizeInput = (input) => {
@@ -21,54 +24,94 @@ const sanitizeCodeSnippet = (code) => {
   });
 };
 
-
-//  Create a New Post & Update Redis Cache
+//  Create a New Post & Update Redis Cache with Set-Based + Denormalization Data Modeling
 exports.createPost = async (req, res) => {
   try {
-    const io=getIo();
-    const { title, content, postType, tags, attachments,codeSnippet } = req.body;
+    const io = getIo();
+    const {
+      title,
+      content,
+      postType,
+      tags = [],
+      attachments = [],
+      codeSnippet,
+    } = req.body;
+
+    // Basic validation
+    if (!title || !content || !postType) {
+      return res
+        .status(400)
+        .json({ message: "Title, content, and postType are required." });
+    }
+
+    if (!Array.isArray(tags)) {
+      return res.status(400).json({ message: "Tags must be an array." });
+    }
 
     const sanitizedContent = sanitizeInput(content);
     const sanitizedTitle = sanitizeInput(title);
-    const sanitizedCodeSnippet = codeSnippet ? sanitizeCodeSnippet(codeSnippet.code) : null;
+    const sanitizedCodeSnippet = codeSnippet
+      ? sanitizeCodeSnippet(codeSnippet.code)
+      : null;
 
-    const newPost = new Post({
-      author:{
-        userId:req.user.id,
-        username:req.user.username,
-        profilePic:req.user.profilePic,
+    const postPayload = {
+      author: {
+        userId: req.user.id,
+        username: req.user.username,
+        profilePic: req.user.profilePic,
       },
       postType,
       title: sanitizedTitle,
       content: sanitizedContent,
       tags,
       attachments,
-      codeSnippet: codeSnippet ? { language: codeSnippet.language, code: sanitizedCodeSnippet } : null,
-    });
+      codeSnippet: codeSnippet
+        ? {
+            language: codeSnippet.language,
+            code: sanitizedCodeSnippet,
+          }
+        : null,
+    };
 
     //Save new post to MongoDB
-    await newPost.save();
+    const newPost = new Post(postPayload);
+    const savedPost = await newPost.save();
 
-    //  Fetch cached posts from Redis
-    const cachedPosts = await client.get("allPosts");
+    //* using Set-Based + Denormalization Data Modeling in Redis
 
-    if (cachedPosts) {
-      const postsArray = JSON.parse(cachedPosts);
+    // Flattened object for Redis hash
+    const flatPost = postObjectFlattener(savedPost);
+    // console.log("Flat Post for Redis:", flatPost);
 
-      //  Add new post to cache (prepend to keep latest posts first)
-      postsArray.unshift(newPost);
+    try {
+      const timestamp = new Date(savedPost.createdAt).getTime();
+      const postId = savedPost._id.toString();
 
-      // Emit event to WebSocket clients
-      io.emit("newPost", newPost);
+      // Save the new post as a Redis hash
+      await client.hSet(`post:${postId}`, flatPost);
 
-      // Update Redis cache with new post
-      await client.setEx("allPosts", 3600, JSON.stringify(postsArray));
-    } else {
-      // If cache doesn't exist, create new cache
-      await client.setEx("allPosts", 3600, JSON.stringify([newPost]));
+      // Add post ID to global sorted set with timestamp as score
+      await client.zAdd("allPostIDsSorted", {
+        score: new Date(savedPost.createdAt).getTime(),
+        value: savedPost._id.toString(),
+      });
+
+      // Add post ID to each tag's sorted set (to preserve order within tags too)
+      for (const tag of savedPost.tags) {
+        await client.zAdd(`tag:${tag}:sorted`, {
+          score: timestamp,
+          value: postId,
+        });
+      }
+    } catch (error) {
+      console.error("Error saving post to Redis:", error);
+      return res.status(500).json({ message: "Server Error", error });
     }
 
-    return res.status(201).json(newPost);
+    //emit event to WebSocket clients
+    io.emit("newPost", savedPost);
+
+    return res.status(201).json(savedPost);
   } catch (error) {
     console.error("Error creating post:", error);
     return res.status(500).json({ message: "Server Error", error });
@@ -80,13 +123,75 @@ exports.getAllRemainingPosts = async (req, res) => {
   try {
     const { tags = [], page = 1, limit = 10 } = req.body;
 
-    // Cache key based on tags and page
-    const cacheKey = `remainingPosts:${tags.join(",")}:${page}`;
-    const cachedPosts = await client.get(cacheKey);
+    const start = (page - 1) * limit;
+    const end = start + limit - 1;
 
-    if (cachedPosts) {
+    let excludedIds = [];
+
+    // Collect excluded post IDs (based on subscribed tags)
+    if (tags.length) {
+      const tagSortedKeys = tags.map((tag) => `tag:${tag}:sorted`);
+      await client.zUnionStore(
+        "temp:excluded:postIDs",
+        tagSortedKeys
+      );
+
+      excludedIds = await client.zRange("temp:excluded:postIDs", 0, -1);
+      // console.log("excludedIds", excludedIds);
+      
+    }
+
+    // Get all post IDs sorted (from latest to oldest)
+    const allPostIDs = await client.zRange("allPostIDsSorted", 0, -1,{REV: true});
+
+    // Filter out excluded IDs (if any)
+    const remainingPostIDs = excludedIds.length
+      ? allPostIDs.filter((id) => !excludedIds.includes(id))
+      : allPostIDs;
+
+      // console.log("remainingPostIDs", remainingPostIDs);
+      
+
+    // Apply pagination
+    const paginatedIds = remainingPostIDs.slice(start, end + 1);
+
+    // Fetch corresponding posts from Redis hash
+    const pipeline = client.multi();
+    paginatedIds.forEach((postId) => pipeline.hGetAll(`post:${postId}`));
+    const results = await pipeline.exec();
+    // console.log("results", results);
+
+    // Flatten results -> Mongoose model
+    const cachedPosts = results
+      .map((post) => {
+        if (!post || Object.keys(post).length === 0) return null;
+        return {
+          _id: post._id,
+          author: {
+            userId: post.userId,
+            username: post.username,
+            profilePic: post.profilePic,
+          },
+          postType: post.postType,
+          title: post.title,
+          content: post.content,
+          createdAt: new Date(post.createdAt),
+          updatedAt: new Date(post.updatedAt),
+          likes: post.likes ? JSON.parse(post.likes) : [],
+          comments: post.comments ? JSON.parse(post.comments) : [],
+          views: post.views ? JSON.parse(post.views) : 0,
+          tags: JSON.parse(post.tags || "[]"),
+          attachments: JSON.parse(post.attachments || "[]"),
+          codeSnippet: post.codeSnippet ? JSON.parse(post.codeSnippet) : null,
+        };
+      })
+      .filter(Boolean); // Remove nulls
+
+    console.log("cachedPosts", cachedPosts.length);
+
+    if (cachedPosts.length !== 0) {
       console.log("♻️ Serving Remaining Posts from Cache");
-      return res.json(JSON.parse(cachedPosts)); // Return cached data
+      return res.json(cachedPosts); // Return cached data
     }
 
     console.log("🛠 Fetching Remaining Posts from Database");
@@ -97,7 +202,7 @@ exports.getAllRemainingPosts = async (req, res) => {
       .limit(limit);
 
     // Store fetched data in Redis for 1 hour
-    await client.setEx(cacheKey, 3600, JSON.stringify(posts));
+    // await client.setEx(cacheKey, 3600, JSON.stringify(posts));
 
     res.json(posts);
   } catch (error) {
@@ -110,14 +215,63 @@ exports.getAllPostsByTags = async (req, res) => {
   try {
     const { tags = [], page = 1, limit = 10 } = req.body;
 
-    // Cache key based on tags and page
-    const cacheKey = `postsByTags:${tags.join(",")}:${page}`;
-    const cachedPosts = await client.get(cacheKey);
+    const start = (page - 1) * limit;
+    const end = start + limit - 1;
 
-    if (cachedPosts) {
+    // Map tags to their corresponding ZSET keys
+    const tagSortedKeys = tags.map((tag) => `tag:${tag}:sorted`);
+    // console.log("tagKeys", tagSortedKeys, "page", page, "limit", limit);
+
+    // Merge ZSETs into a temporary key (union of all relevant tag-based posts)
+    await client.zUnionStore("temp:taggedPosts", tagSortedKeys, {
+      AGGREGATE: "MAX",
+      WEIGHTS: tagSortedKeys.map(() => 1),
+    });
+
+    // Get sorted post IDs directly from Redis using pagination
+    const postIds = await client.zRange("temp:taggedPosts", start, end, {
+      REV: true,
+    });
+    // console.log("postIds", postIds);
+
+    // Use pipeline to fetch actual post content
+    const pipeline = client.multi();
+    postIds.forEach((postId) => pipeline.hGetAll(`post:${postId}`));
+    const results = await pipeline.exec();
+
+    // console.log("flattenPosts", results);
+
+    // Flatten results -> Mongoose model
+    const cachedPosts = results
+      .map((post) => {
+        if (!post || Object.keys(post).length === 0) return null;
+        return {
+          _id: post._id,
+          author: {
+            userId: post.userId,
+            username: post.username,
+            profilePic: post.profilePic,
+          },
+          postType: post.postType,
+          title: post.title,
+          content: post.content,
+          createdAt: new Date(post.createdAt),
+          updatedAt: new Date(post.updatedAt),
+          likes: post.likes ? JSON.parse(post.likes) : [],
+          comments: post.comments ? JSON.parse(post.comments) : [],
+          views: post.views ? JSON.parse(post.views) : 0,
+          tags: JSON.parse(post.tags || "[]"),
+          attachments: JSON.parse(post.attachments || "[]"),
+          codeSnippet: post.codeSnippet ? JSON.parse(post.codeSnippet) : null,
+        };
+      })
+      .filter(Boolean); // Remove nulls
+
+    if (cachedPosts.length > 0) {
       console.log("♻️ Serving Posts by Tags from Cache");
-      return res.json(JSON.parse(cachedPosts)); // Return cached data
+      return res.status(200).json(cachedPosts); // Return cached data
     }
+    //! after exhausting the cache, it is fetching from database, which is redundant, need to pass a flag to stop sending requests if page>1 and cache is empty
 
     console.log("🛠 Fetching Posts by Tags from Database");
     // Fetch posts matching the subscribed tags
@@ -126,15 +280,12 @@ exports.getAllPostsByTags = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
-    // Store fetched data in Redis for 1 hour
-    await client.setEx(cacheKey, 3600, JSON.stringify(posts));
-
     res.json(posts);
   } catch (error) {
+    console.error("Error fetching posts by tags:", error);
     res.status(500).json({ message: "Server Error", error });
   }
 };
-
 
 // Get Posts by User
 exports.getPostsByUser = async (req, res) => {
@@ -148,8 +299,9 @@ exports.getPostsByUser = async (req, res) => {
     }
 
     //!userId is in user
-    const posts = await Post.find({ "author.userId" : req.params.userId });
-    if (posts?.length === 0) return res.status(404).json({ message: "Post not found" });
+    const posts = await Post.find({ "author.userId": req.params.userId });
+    if (posts?.length === 0)
+      return res.status(404).json({ message: "Post not found" });
 
     await client.setEx(cacheKey, 3600, JSON.stringify(posts));
 
@@ -182,7 +334,6 @@ exports.getPostsByType = async (req, res) => {
 
 //? SSE (Server-Sent Events) for real-time updates on likes comments and views
 
-
 // SSE Clients storage
 let clients = [];
 
@@ -202,18 +353,20 @@ exports.streamUpdates = (req, res) => {
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
   console.log("New SSE connection established");
-  
+
   // Add client to the list
   const clientId = Date.now();
   clients.push({ id: clientId, res });
 
   // Send initial connection success message
-  res.write(`data: ${JSON.stringify({ message: "Connection established" })}\n\n`);
+  res.write(
+    `data: ${JSON.stringify({ message: "Connection established" })}\n\n`
+  );
 
-    // Periodically send a heartbeat to keep the connection alive
-    const heartbeat = setInterval(() => {
-      res.write(`data: ${JSON.stringify({ message: "heartbeat" })}\n\n`);
-    }, 60000); // Every 60 seconds
+  // Periodically send a heartbeat to keep the connection alive
+  const heartbeat = setInterval(() => {
+    res.write(`data: ${JSON.stringify({ message: "heartbeat" })}\n\n`);
+  }, 60000); // Every 60 seconds
 
   // Remove client on connection close
   req.on("close", () => {
@@ -315,7 +468,6 @@ exports.commentOnPost = async (req, res) => {
     res.status(500).json({ message: "Error adding comment", error });
   }
 };
-
 
 //  Increase View Count & Update Redis
 exports.increaseViewCount = async (req, res) => {

@@ -1,87 +1,51 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { PostCard } from '../components/PostCard';
-import { fetchPostsByTags, fetchRemainingPosts } from '../utility/fetchPost';
-import { useSelector } from 'react-redux';
-import { usePostLoader } from '../hooks/usePostLoader';
+import { PostCard } from "../components/PostCard";
+import { useSelector } from "react-redux";
+import { usePostLoader } from "../hooks/usePostLoader";
+import { useEffect } from "react";
+import { clearPostCache } from "../utility/storageCleaner";
 
 const PostList = () => {
   const user = useSelector((state) => state.auth.user);
-//   const [posts, setPosts] = useState([]);
-//   const [pageTags, setPageTags] = useState(1);
-//   const [pageRemaining, setPageRemaining] = useState(1);
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [tagPostsExhausted, setTagPostsExhausted] = useState(false);
-//   const [allPostsExhausted, setAllPostsExhausted] = useState(false);
+  const token = user.token;
+  const {
+    posts,
+    setPosts,
+    isLoading,
+    lastPostRef,
+    allPostsExhausted,
+    livePosts,
+    setLivePosts,
+  } = usePostLoader(user);
 
-//   const observer = useRef();
-//   const fetchLock = useRef(false); // Prevents double-fetch
-  
 
-//   const loadMorePosts = async () => {
-//     if (isLoading || allPostsExhausted || fetchLock.current) return;
 
-//     fetchLock.current = true; // Lock the fetch
-//     setIsLoading(true);
-
-//     try {
-//       let newPosts = [];
-
-//       if (!tagPostsExhausted) {
-//         const fetched = await fetchPostsByTags(user.subscribedTopics, pageTags, 10);
-//         if (fetched.length === 0) {
-//           setTagPostsExhausted(true);
-//         } else {
-//           newPosts = fetched;
-//           setPageTags((prev) => prev + 1);
-//         }
-//       }
-
-//       if (tagPostsExhausted) {
-//         const remaining = await fetchRemainingPosts(user.subscribedTopics, pageRemaining, 10);
-//         if (remaining.length === 0) {
-//           setAllPostsExhausted(true);
-//         } else {
-//           newPosts = remaining;
-//           setPageRemaining((prev) => prev + 1);
-//         }
-//       }
-
-//       setPosts((prev) => [...prev, ...newPosts]);
-//     } catch (err) {
-//       console.error("Error loading posts:", err);
-//     } finally {
-//       setIsLoading(false);
-//       fetchLock.current = false; // Unlock fetch for next scroll
-//     }
-//   };
-
-//   // Intersection Observer to detect when the last post is in view
-//   //? what is intersection observer?
-//   //* The Intersection Observer API is a browser API that allows you to asynchronously observe changes in the intersection of a target element with an ancestor element or with a top-level document's viewport.
-//   //? how does it work?
-//   //* It works by creating an observer instance and passing it a callback function that will be called whenever the target element enters or exits the viewport. You can specify options such as the root element, root margin, and threshold to control when the callback is triggered.
-//   const lastPostRef = useCallback((node) => {
-//     if (isLoading || allPostsExhausted) return;
-
-//     if (observer.current) observer.current.disconnect();
-
-//     observer.current = new IntersectionObserver((entries) => {
-//       if (entries[0].isIntersecting) {
-//         loadMorePosts();
-//       }
-//     });
-
-//     if (node) observer.current.observe(node);
-//   }, [isLoading, allPostsExhausted, tagPostsExhausted]);
-
+  //   onreload clear posts cache
 //   useEffect(() => {
-//     loadMorePosts(); // Initial fetch
-//   }, []);
-
-const { posts, isLoading, lastPostRef, allPostsExhausted } = usePostLoader(user);
+//     if (!user || !token) return;
+//     clearPostCache();
+//   }, [user, token]);
 
   return (
-    <div className="post-list">
+    <div className="post-list px-4">
+        <div>
+      {(user?.subscribedTopics || []).length === 0 && (
+        <div className="bg-blue-100 text-blue-800 p-2 rounded mb-3 text-center">
+          You're not subscribed to any topics. Showing general posts instead.
+        </div>
+      )}
+      </div>
+      {livePosts.length > 0 && (
+        <div
+          className="text-center bg-yellow-200 text-black p-2 rounded mb-4 cursor-pointer hover:bg-yellow-300 transition"
+          onClick={() => {
+            setPosts((prev) => [...livePosts, ...prev]);
+            setLivePosts([]);
+          }}
+        >
+          🔔 {livePosts.length} new post(s) available. Click to load!
+        </div>
+      )}
+
       {posts.map((post, index) => {
         const isLast = index === posts.length - 1;
         return (
@@ -91,7 +55,10 @@ const { posts, isLoading, lastPostRef, allPostsExhausted } = usePostLoader(user)
         );
       })}
 
-      {isLoading && <p className="text-center text-gray-500">Loading...</p>}
+      {isLoading && (
+        <p className="text-center text-gray-500 mt-4">Loading...</p>
+      )}
+
       {allPostsExhausted && (
         <p className="text-center text-green-600 font-bold mt-4">
           🌌 You have reached the end of the universe!
