@@ -4,7 +4,7 @@ import { loginUser } from "../Redux/actions/authActions";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 
-const Login = () => {
+const Login = ({onLogin}) => {
   const dispatch = useDispatch();
   const { error, isAuthenticated, loading } = useSelector(state => state.auth);
   const [user, setUser] = useState({
@@ -15,8 +15,8 @@ const Login = () => {
   const formRef = useRef(null);
 
   useEffect(() => {
-    if (isAuthenticated) navigate("/");
-  }, [isAuthenticated, navigate]);
+    if (isAuthenticated) onLogin(navigate);
+  }, [isAuthenticated, navigate,onLogin]);
 
   useEffect(() => {
     if (error) {

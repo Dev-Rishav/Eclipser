@@ -167,20 +167,21 @@ export const usePostLoader = (user) => {
     if (posts.length === 0) loadMorePosts();
   }, []);
 
-    // useEffect(() => {
-
-    //   socket.on('newPost', (post) => {
-    //     const isSubscribed = user.subscribedTopics.some(tag => post.tags.includes(tag));
-    //     if (isSubscribed) {
-    //         console.log("New post received:", post);
-            
-    //       setLivePosts(prev => [post, ...prev]);
-
-    //     }
-    //   });
-
-    //   return () => socket.disconnect();
-    // }, []);
+  //listens for new posts from the server
+  useEffect(() => {
+    const handleNewPost = (post) => {
+      const isSubscribed = user.subscribedTopics.some(tag => post.tags.includes(tag));
+      if (isSubscribed) {
+        console.log("New post received:", post);
+        setLivePosts(prev => [post, ...prev]);
+      }
+    };
+  
+    socket.off('newPost', handleNewPost); // Remove any existing listener
+    socket.on('newPost', handleNewPost); // Register the new listener
+  
+    return () => socket.off('newPost', handleNewPost); // Cleanup on unmount
+  }, [user.subscribedTopics]);
 
   return {
     posts,
@@ -190,5 +191,6 @@ export const usePostLoader = (user) => {
     allPostsExhausted,
     livePosts,
     setLivePosts,
+    setIsLoading
   };
 };

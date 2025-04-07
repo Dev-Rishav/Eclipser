@@ -1,10 +1,19 @@
 import { PostCard } from "../components/PostCard";
 import { useSelector } from "react-redux";
 import { usePostLoader } from "../hooks/usePostLoader";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { clearPostCache } from "../utility/storageCleaner";
+import LoadingPage from "../components/LoadingPage";
+import { QuickAccess } from "../components/QuickAccess";
+import { LiveActivity } from "../components/LiveActivity";
+import { ChatPreview } from "../components/ChatPreview";
+import { createPost } from "../utility/createPost";
+import { SubscribedTopicsList } from "../components/SubscribedTopicsList";
+
+
 
 const PostList = () => {
+  const [showLoadingAnimation, setShowLoadingAnimation] = useState(true); // State to control loading screen
   const user = useSelector((state) => state.auth.user);
   const token = user.token;
   const {
@@ -19,11 +28,26 @@ const PostList = () => {
 
 
 
-  //   onreload clear posts cache
-//   useEffect(() => {
-//     if (!user || !token) return;
-//     clearPostCache();
-//   }, [user, token]);
+  useEffect(() => {
+    setTimeout(() => {
+      setShowLoadingAnimation(false); // Hide loading screen after 3 seconds
+    }, 3000);
+  }, [showLoadingAnimation]);
+
+    // onreload clear posts cache
+  useEffect(() => {
+    if (!user || !token) return;
+    clearPostCache();
+  }, [user, token]);
+
+  if(showLoadingAnimation){
+    return (
+      <>
+      <LoadingPage/ >
+        </>
+      
+    );
+  }
 
   return (
     <div className="post-list px-4">
