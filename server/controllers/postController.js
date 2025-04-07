@@ -390,25 +390,41 @@ exports.likePost = async (req, res) => {
     if (alreadyLiked)
       return res.status(400).json({ message: "You already liked this post" });
 
-    post.likes.push({ userId: req.user.id });
+    const userPayload= {
+      userId: req.user.id,
+      username: req.user.username,
+      profilePic: req.user.profilePic,
+      dateTime: new Date(),
+    };
+
+    post.likes.push(userPayload);
     await post.save();
 
-    // Update Redis cache for all posts
-    const cachedPosts = await client.get("allPosts");
-    if (cachedPosts) {
-      const postsArray = JSON.parse(cachedPosts);
-      const updatedPosts = postsArray.map((p) =>
-        p._id === post.id ? post : p
-      );
-      await client.setEx("allPosts", 3600, JSON.stringify(updatedPosts));
-    }
+    // Update Redis cache for the particular post
+    try{
+    const cachedPost = await client.hGetAll(`post:${post._id}`);
+    if(!cachedPost) return res.status(404).json({ message: "Post not found in cache" });
+
+    const currentLikes=cachedPost.likes ? JSON.parse(cachedPost.likes) : [];
+    currentLikes.push(userPayload);
+    // console.log("currentLikes", currentLikes);
+    
+
+    await client.hSet(`post:${post._id}`, {
+      ...cachedPost,
+      likes: JSON.stringify(currentLikes),
+    });
+  }catch(error){
+    console.error("Error updating Redis cache for likes:", error);
+    return res.status(500).json({ message: "Error writing likes in redis", error });
+  }
+
 
     // Broadcast like event via SSE
     broadcastUpdate({
       type: "like",
       postId: post._id,
-      userId: req.user.id,
-      username: req.user.username,
+      ...userPayload,
     });
 
     res.status(200).json({ message: "Post liked", likes: post.likes.length });
@@ -434,13 +450,33 @@ exports.commentOnPost = async (req, res) => {
     await post.save();
 
     // Update Redis cache for all posts
-    const cachedPosts = await client.get("allPosts");
-    if (cachedPosts) {
-      const postsArray = JSON.parse(cachedPosts);
-      const updatedPosts = postsArray.map((p) =>
-        p._id === post.id ? post : p
-      );
-      await client.setEx("allPosts", 3600, JSON.stringify(updatedPosts));
+    // const cachedPosts = await client.get("allPosts");
+    // if (cachedPosts) {
+    //   const postsArray = JSON.parse(cachedPosts);
+    //   const updatedPosts = postsArray.map((p) =>
+    //     p._id === post.id ? post : p
+    //   );
+    //   await client.setEx("allPosts", 3600, JSON.stringify(updatedPosts));
+    // }
+
+    try {
+      const cachedPost = await client.hGetAll(`post:${post._id}`);
+      if (!cachedPost) return res.status(404).json({ message: "Post not found in cache" });
+
+
+      const currentComments = cachedPost.comments
+        ? JSON.parse(cachedPost.comments)
+        : [];
+      currentComments.push(newComment);
+
+      await client.hSet(`post:${post._id}`, {
+        ...cachedPost,
+        comments: JSON.stringify(currentComments),
+      });
+
+    } catch (error) {
+      console.error("Error updating Redis cache for comments:", error);
+      return res.status(500).json({ message: "Error writing comments in redis", error });
     }
 
     // Broadcast comment event via SSE

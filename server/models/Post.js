@@ -23,7 +23,14 @@ const postSchema = new mongoose.Schema(
       code: { type: String }, // Actual code snippet
     },
     tags: [{ type: String }],
-    likes: [{ userId: mongoose.Schema.Types.ObjectId, timestamp: Date }],
+    likes: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        username: { type: String },
+        profilePic: { type: String },
+        dateTime: { type: Date, default: Date.now },
+      },
+    ],
     comments: [
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

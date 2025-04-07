@@ -130,53 +130,67 @@ export const PostCard = ({ post: initialPost }) => {
       const data = JSON.parse(event.data);
       console.log("Received SSE data:", data);
       
+      //handle like manupulation
       if (data.type === "like" && data.postId === post._id) {
         // Check if the userId already exists in the likes array
         const alreadyLiked = post.likes.some((like) => like.userId === data.userId); 
         if (!alreadyLiked) {
-          
+
+          const userPayload = {
+            userId: data.userId,
+            username: data.username,
+            profilePic: data.profilePic,
+            dateTime: data.dateTime,
+          };
           // Update the likes array immutably
-           post.likes.push({
-            userId: data.userId});
+           post.likes.push(userPayload);
             const updatedLikes = [...post.likes];
           
           setPost((prevPost) => ({ ...prevPost, likes: updatedLikes }));
+          setLikesCount(updatedLikes.length);
     
           // Update the isLiked state if the current user liked the post
           if (data.userId === user._id) {
             setIsLiked(true);
             toast.success("Post liked successfully!");
           }
-    
-          // Update local storage with the entire cached posts array
-          const cachedPosts = JSON.parse(localStorage.getItem("cachedPosts")) || [];
-          console.log("cachedPost._id === post._id ",cachedPosts.map((cachedPost)=> cachedPost._id === post._id));
+          console.log("AFter like post",post.likes);
+
+          // Update the likes count
           
-          const updatedPosts = cachedPosts.map((cachedPost) =>
-            cachedPost._id === post._id ? { ...cachedPost, likes: updatedLikes } : cachedPost
-          );
+    
+          //! No need to update the likes count here, as it's already being handled by the state update above
+          // Update local storage with the entire cached posts array
+          // const cachedPosts = JSON.parse(localStorage.getItem("cachedPosts")) || [];
+          // console.log("cachedPost._id === post._id ",cachedPosts.map((cachedPost)=> cachedPost._id === post._id));
+          
+          // const updatedPosts = cachedPosts.map((cachedPost) =>
+          //   cachedPost._id === post._id ? { ...cachedPost, likes: updatedLikes } : cachedPost
+          // );
 
           
-          console.log("Updated posts in local storage:", updatedPosts);
+          // console.log("Updated posts in local storage:", updatedPosts);
           
-          localStorage.setItem("cachedPosts", JSON.stringify(updatedPosts));
-          setLikesCount(updatedLikes.length);
+          // localStorage.setItem("cachedPosts", JSON.stringify(updatedPosts));
+          // setLikesCount(updatedLikes.length);
         }
-      }  else if (data.type === "comment" && data.postId === post._id) {
+      } 
+      //handle comment manipulation
+      else if (data.type === "comment" && data.postId === post._id) {
         setEnrichedComments((prev) => [
           ...prev,
           {
             author: {
-              userId: data.userId,
-              username: "New User", // Update with proper user info
-              profilePic: null,
+              userId: data.author.userId,
+              username: data.author.username, // Update with proper user info
+              profilePic: data.author.profilePic,
             },
             postId: data.postId,
             content: data.content,
-            dateTime: new Date().toISOString(),
+            dateTime: data.dateTime,
           },
         ]);
-        console.log("New comment received:", data);
+        // console.log("New comment received:", data);
         
       }
     };
