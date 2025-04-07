@@ -36,7 +36,7 @@ const App = () => {
           {/* Private routes with persistent layout */}
           <Route element={<PrivateRoute />}>
             <Route element={<PersistentLayout />}>
-              <Route path="/" element={<PostList />} />
+              <Route path="/" element={<Home />} />
               <Route path="/contest" element={<Contest />} />
               <Route path="/profile" element={<Profile />} />
               {/* <Route path="/posts" element={<PostList />} /> */}

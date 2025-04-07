@@ -1,28 +1,22 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { SubscribedTopicsList } from "../components/SubscribedTopicsList";
 import { QuickAccess } from "../components/QuickAccess";
 import { LiveActivity } from "../components/LiveActivity";
 import { ChatPreview } from "../components/ChatPreview";
 import { PostCard } from "../components/PostCard";
 import FeedControlBar from "../components/FeedControlBar";
-import { fetchPostsByTags, fetchRemainingPosts } from "../utility/fetchPost";
-import { io } from "socket.io-client";
 import { AnimatePresence, motion } from "framer-motion";
 import { HighlightSyntax } from "../components/HighlightSyntax";
 import { toast } from "react-hot-toast";
 import { createPost } from "../utility/createPost";
-import LoadingPage from "../components/LoadingPage";
-import {useSelector} from "react-redux";
-
-const socket = io("http://localhost:3000");
+import { useSelector } from "react-redux";
+import { clearPostCache } from "../utility/storageCleaner";
+import { usePostLoader } from "../hooks/usePostLoader";
 
 const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [selectedSort, setSelectedSort] = useState("newest");
-  const [posts, setPosts] = useState([]);
-  const [scrollY, setScrollY] = useState(0);
   const [isCreatingPost, setIsCreatingPost] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [newPost, setNewPost] = useState({
     title: "",
     content: "",
@@ -31,51 +25,39 @@ const HomePage = () => {
     codeSnippet: "",
     language: "javascript",
   });
-  const [localStorageUpdate, setLocalStorageUpdate] = useState(false);
-  const user=useSelector((state) => state.auth.user);
-  let counter=1;
+  const user = useSelector((state) => state.auth.user);
+  const token = user.token;
 
+  const {
+    posts,
+    setPosts,
+    isLoading,
+    lastPostRef,
+    allPostsExhausted,
+    livePosts,
+    setLivePosts,
+    setIsLoading,
+  } = usePostLoader(user);
 
-  //! [TODO]: code snippet is broken
-  //! [TODO]: add a loading state for the post creation
-  //! [TODO]: add a loading state for the post fetching
-  //! [TODO]: add a loading state for the post deletion
-  //! [TODO]: add a loading state for the post update
-  //! [TODO]: side components are getting mounted multiple times while scrolling
+    // onreload clear posts cache
+    useEffect(() => {
+      if (!user || !token) return;
+      clearPostCache();
+    }, [user, token]);
 
-  // Fetch posts from the API and update local storage
-  const fetchAndUpdatePosts = async () => {
-    try {
-      setIsLoading(true);
-      const latestPosts = await fetchPosts(); // Fetch posts from the API
-      console.log("latest Posts", latestPosts);  
-      setPosts(latestPosts); // Update the UI
-    } catch (error) {
-      console.error("Failed to fetch posts:", error.message);
-      toast.error("Failed to fetch the latest posts. Showing cached data.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // Check for cached posts in local storage
-    const cachedPosts = localStorage.getItem("cachedPosts");
-    if (cachedPosts) {
-      setPosts(JSON.parse(cachedPosts)); // Display cached posts immediately
-      fetchAndUpdatePosts(); // Fetch latest posts in the background
-    } else {
-      // If no cached posts, fetch directly from the API
-      fetchAndUpdatePosts();
-    }
-  }, []);
-
+  // //! [TODO]: code snippet is broken
+  // //! [TODO]: add a loading state for the post creation
+  // //! [TODO]: add a loading state for the post fetching
+  // //! [TODO]: add a loading state for the post deletion
+  // //! [TODO]: add a loading state for the post update
+  // //! [TODO]: side components are getting mounted multiple times while scrolling
 
   //* handle post creation
   const handleCreatePost = async () => {
     try {
       const createdPost = await createPost(newPost); // Use the utility function
       setPosts([createdPost, ...posts]); // Add the new post to the state
+      localStorage.setItem("cachedPosts", JSON.stringify([createdPost, ...posts]));
       setIsCreatingPost(false); // Close the modal
       setNewPost({
         title: "",
@@ -86,65 +68,20 @@ const HomePage = () => {
         language: "javascript",
       }); // Reset the form fields
     } catch (error) {
+      console.error("Error creating post:", error);
       toast.error("Failed to create post"); // Show an error toast
     }
   };
 
+  // Show loading animation for 1.5 seconds
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
+    setIsLoading(true); // Show loading screen
+    setTimeout(() => {
+      setIsLoading(false); // Hide loading screen after 3 seconds
+    }, 1500);
+  }, [setIsLoading]);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
-  // Listen for new posts via WebSocket
-  useEffect(() => {
-    getPosts();
-
-    // Listen for new posts via WebSocket
-    socket.on("newPost", (newPost) => {
-      setPosts((prevPosts) => [newPost, ...prevPosts]);
-      setLocalStorageUpdate(true);
-      //write it in local storage too
-      console.log("new post binded", newPost);
-    });
-
-    return () => {
-      socket.off("newPost");
-    };
-  }, []);
-
-  //! koi post delete karne se both local storage and backend k redis se hatana padega
-
-  // Polling every 60 seconds to fetch new posts
-  useEffect(() => {
-    const interval = setInterval(() => {
-      getPosts(); // Use getPosts to fetch and update the posts state
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const getPosts = async () => {
-    const data = await fetchPosts(user.SubscribedTopics,1,10);
-    setPosts(data);
-  };
-
-  //! set an order that this local storage state gets triggered only after the socket is checked for new posts
-
-  // local storage needed to be updated whenever posts state are updated
-  useEffect(() => {
-    if (localStorageUpdate) {
-      localStorage.setItem("cachedPosts", JSON.stringify(posts));
-      // console.log("WRITING LOCAL storage");
-      setLocalStorageUpdate(false);
-     } //else console.log("NOT WRITING LOCAL storage");
-  }, [posts, localStorageUpdate]);
-
-  if (isLoading) {
-    return (<div>Loading...</div>); // Show the loading animation while fetching posts
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cosmic to-stellar">
@@ -162,8 +99,8 @@ const HomePage = () => {
         {/* Left Sidebar */}
         <div className="hidden lg:block lg:col-span-3">
           <div
-            className={`space-y-6 sticky transition-all duration-300 
-        ${scrollY > 100 ? "-translate-x-[120%]" : "translate-x-0"}`}
+            className={`space-y-6  transition-all duration-300 
+        `}
           >
             <SubscribedTopicsList />
             <QuickAccess />
@@ -181,20 +118,61 @@ const HomePage = () => {
             />
           </div>
 
-          {/* Existing Posts */}
-          <div className="space-y-4">
-            {posts.map((post) => (
-              <PostCard key={post._id} post={post} />
-            ))}
-          </div>
+          {isLoading ? (
+            <p className="text-center text-corona mt-4 text-lg text-orbitron">Summoning your cosmic feed...</p>
+          ) : (
+            <>
+              {/* Existing Posts */}
+              <div className="space-y-4 mb-4">
+                {(user?.subscribedTopics || []).length === 0 && (
+                  <div className="bg-gradient-to-br from-stellar/80 to-cosmic/90 p-3  rounded-xl border-2 border-nebula/30 backdrop-blur-sm text-center">
+                  <span className="text-lg font-orbitron text-stardust/80 mb-2 inline-block">
+                    🌌 No Celestial Tags Locked In
+                  </span>
+                  <p className="text-stardust/60 text-sm">
+                    Catching stardust from across the universe...
+                    <span className="ml-2 animate-pulse">✨</span>
+                  </p>
+                </div>
+                )}
+              </div>
+              {livePosts.length > 0 && (
+                <div
+                  className="text-center bg-yellow-200 text-black p-2 rounded mb-4 cursor-pointer hover:bg-yellow-300 transition"
+                  onClick={() => {
+                    setPosts((prev) => [...livePosts, ...prev]);
+                    localStorage.setItem(
+                      "cachedPosts",
+                      JSON.stringify([...livePosts, ...posts])
+                    );
+                    setLivePosts([]);
+                  }}
+                >
+                  🔔 {livePosts.length} new post(s) available. Click to load!
+                </div>
+              )}
+
+              {posts.map((post, index) => {
+                const isLast = index === posts.length - 1;
+                return (
+                  <div key={post._id} ref={isLast ? lastPostRef : null}>
+                    <PostCard post={post} />
+                  </div>
+                );
+              })}
+
+              {allPostsExhausted && (
+                <p className="text-center text-blue-300 font-bold mt-4">
+                  All posts eclipsed. Await the next cosmic alignment!
+                </p>
+              )}
+            </>
+          )}
         </main>
 
         {/* Right Sidebar */}
         <div className="hidden lg:block lg:col-span-3">
-          <div
-            className={`space-y-6 sticky transition-all duration-300 
-        ${scrollY > 100 ? "translate-x-[120%]" : "translate-x-0"}`}
-          >
+          <div className={`space-y-6 sticky transition-all duration-300 `}>
             <LiveActivity />
             <ChatPreview />
           </div>
