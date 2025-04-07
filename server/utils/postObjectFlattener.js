@@ -16,7 +16,7 @@
         : "",
       createdAt: savedPost.createdAt.toISOString(),
       updatedAt: savedPost.updatedAt.toISOString(),
-      like: (savedPost.like ? savedPost.like.toString() : []).toString(),
+      likes: (savedPost.like ? savedPost.like.toString() : []).toString(),
       comment: (savedPost.comment ? savedPost.comment : [] ).toString(),
       views: savedPost.views.length !== 0 ? savedPost.views : 0,
 }
