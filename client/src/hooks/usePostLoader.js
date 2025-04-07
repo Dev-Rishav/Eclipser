@@ -171,7 +171,7 @@ export const usePostLoader = (user) => {
   useEffect(() => {
     const handleNewPost = (post) => {
       const isSubscribed = user.subscribedTopics.some(tag => post.tags.includes(tag));
-      if (isSubscribed) {
+      if (isSubscribed && post.author.userId !== user._id) {
         console.log("New post received:", post);
         setLivePosts(prev => [post, ...prev]);
       }

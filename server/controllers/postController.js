@@ -76,6 +76,8 @@ exports.createPost = async (req, res) => {
     //Save new post to MongoDB
     const newPost = new Post(postPayload);
     const savedPost = await newPost.save();
+    // console.log("Post saved to MongoDB:", savedPost);
+    
 
     //* using Set-Based + Denormalization Data Modeling in Redis
 

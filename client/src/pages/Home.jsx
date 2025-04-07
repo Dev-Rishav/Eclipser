@@ -41,9 +41,17 @@ const HomePage = () => {
 
     // onreload clear posts cache
     useEffect(() => {
-      if (!user || !token) return;
-      clearPostCache();
-    }, [user, token]);
+      const handleBeforeUnload = () => {
+        clearPostCache();
+      };
+    
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
+    }, []);
+    
 
   // //! [TODO]: code snippet is broken
   // //! [TODO]: add a loading state for the post creation
