@@ -17,7 +17,7 @@ import { CodeHighlighter } from "./CodeHighlighter.jsx";
 import { useNavigate } from "react-router-dom";
 
 export const PostCard = ({ post: initialPost }) => {
-  const [post,setPost]=useState(initialPost);
+  const [post, setPost] = useState(initialPost);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes.length || 0); //state to hold likes count
   const [newCommentContent, setNewCommentContent] = useState(""); //state to hold new comment content
@@ -26,8 +26,13 @@ export const PostCard = ({ post: initialPost }) => {
   const timeAgo = formatDistanceToNow(new Date(post.createdAt), {
     addSuffix: true,
   });
-  const [user,setUser] = useState(localStorage.getItem("user")?JSON.parse(localStorage.getItem("user")):null);
-  const navigate= useNavigate();
+  const [user, setUser] = useState(
+    localStorage.getItem("user")
+      ? JSON.parse(localStorage.getItem("user"))
+      : null
+  );
+  const navigate = useNavigate();
+  const [isLoading,setIsLoading]=useState(false)
 
   //? post can be fetched from localstorage,no need to pass it as prop.
   //* This component is rendered on  multiple pages, so we can not use the same post object
@@ -36,6 +41,16 @@ export const PostCard = ({ post: initialPost }) => {
   const MAX_VISIBLE_TAGS = 2;
   const visibleTags = post.tags.slice(0, MAX_VISIBLE_TAGS);
   const hiddenTagsCount = post.tags.length - MAX_VISIBLE_TAGS;
+
+
+//set loader
+useEffect(()=>{
+  setIsLoading(true);
+  setTimeout(()=>{
+    setIsLoading(false);
+  },500)
+},[setIsLoading,showComments])
+
 
   //fetch usersIds with their comments
   useEffect(() => {
@@ -121,21 +136,23 @@ export const PostCard = ({ post: initialPost }) => {
   //using SSE to dynamically update comments and likes
   useEffect(() => {
     console.log("Initializing EventSource for post:");
-    
-    const eventSource = new EventSource("http://localhost:3000/stream",{withCredentials:true});
+
+    const eventSource = new EventSource("http://localhost:3000/stream", {
+      withCredentials: true,
+    });
     // console.log("EventSource initialized for post:", post._id);
-    
-  
+
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log("Received SSE data:", data);
-      
+
       //handle like manupulation
       if (data.type === "like" && data.postId === post._id) {
         // Check if the userId already exists in the likes array
-        const alreadyLiked = post.likes.some((like) => like.userId === data.userId); 
+        const alreadyLiked = post.likes.some(
+          (like) => like.userId === data.userId
+        );
         if (!alreadyLiked) {
-
           const userPayload = {
             userId: data.userId,
             username: data.username,
@@ -143,38 +160,36 @@ export const PostCard = ({ post: initialPost }) => {
             dateTime: data.dateTime,
           };
           // Update the likes array immutably
-           post.likes.push(userPayload);
-            const updatedLikes = [...post.likes];
-          
+          post.likes.push(userPayload);
+          const updatedLikes = [...post.likes];
+
           setPost((prevPost) => ({ ...prevPost, likes: updatedLikes }));
           setLikesCount(updatedLikes.length);
-    
+
           // Update the isLiked state if the current user liked the post
           if (data.userId === user._id) {
             setIsLiked(true);
             toast.success("Post liked successfully!");
           }
-          console.log("AFter like post",post.likes);
+          // console.log("AFter like post", post.likes);
 
           // Update the likes count
-          
-    
+
           //! No need to update the likes count here, as it's already being handled by the state update above
           // Update local storage with the entire cached posts array
           // const cachedPosts = JSON.parse(localStorage.getItem("cachedPosts")) || [];
           // console.log("cachedPost._id === post._id ",cachedPosts.map((cachedPost)=> cachedPost._id === post._id));
-          
+
           // const updatedPosts = cachedPosts.map((cachedPost) =>
           //   cachedPost._id === post._id ? { ...cachedPost, likes: updatedLikes } : cachedPost
           // );
 
-          
           // console.log("Updated posts in local storage:", updatedPosts);
-          
+
           // localStorage.setItem("cachedPosts", JSON.stringify(updatedPosts));
           // setLikesCount(updatedLikes.length);
         }
-      } 
+      }
       //handle comment manipulation
       else if (data.type === "comment" && data.postId === post._id) {
         setEnrichedComments((prev) => [
@@ -191,7 +206,6 @@ export const PostCard = ({ post: initialPost }) => {
           },
         ]);
         // console.log("New comment received:", data);
-        
       }
     };
 
@@ -199,13 +213,11 @@ export const PostCard = ({ post: initialPost }) => {
       console.log("EventSource failed. Closing connection.");
       eventSource.close();
     };
-  
+
     return () => {
       eventSource.close();
     };
-  }, [ post._id, user._id, post.likes, post.comments]);
-  
-
+  }, [post._id, user._id, post.likes, post.comments]);
 
   //? debugging purposes
   // useEffect(() => {
@@ -221,7 +233,6 @@ export const PostCard = ({ post: initialPost }) => {
           : "border-l-4 border-supernova"
       } bg-gradient-to-br from-stellar/80 to-cosmic/90 backdrop-blur-lg transition-all hover:-translate-y-1`}
     >
-      
       {/* Preserved Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3">
         {/* Tags */}
@@ -262,8 +273,11 @@ export const PostCard = ({ post: initialPost }) => {
       </div>
 
       {/* Preserved Author Section */}
-      <div className="flex items-center gap-3 mb-4 cursor-pointer" onClick={()=> navigate(`/profile/${post.author.userId}`)}
-        title={`View ${post.author?.username || "Unknown User"}'s profile`}>
+      <div
+        className="flex items-center gap-3 mb-4 cursor-pointer"
+        onClick={() => navigate(`/profile/${post.author.userId}`)}
+        title={`View ${post.author?.username || "Unknown User"}'s profile`}
+      >
         {post.author?.profilePic ? (
           <img
             src={post.author.profilePic}
@@ -299,31 +313,37 @@ export const PostCard = ({ post: initialPost }) => {
           <div className="absolute inset-0 bg-gradient-to-br from-nebula/10 to-supernova/5 rounded-xl transition-opacity opacity-0 group-hover:opacity-100" />
 
           <div className="relative space-y-4 text-stardust/90 leading-relaxed">
-          {post.content.split('\n```').map((section, index) => {
-  if (index % 2 === 1) {
-    const [language, ...codeLines] = section.split('\n');
-    const code = codeLines.join('\n');
-    
-    return (
-      <div key={index} className="my-4 rounded-xl overflow-hidden border border-nebula/30">
-        <div className="flex items-center justify-between px-4 py-2 bg-cosmic/80 border-b border-nebula/30">
-          <span className="text-xs font-mono text-supernova">
-            {language.trim() || 'CODE'}
-          </span>
-          <button 
-            onClick={() => navigator.clipboard.writeText(code)}
-            className="text-nebula hover:text-supernova transition-colors"
-          >
-            📋
-          </button>
-        </div>
-        <pre className="p-4 bg-cosmic/50 overflow-x-auto font-mono text-sm">
-          {/* This is where CodeHighlighter gets rendered */}
-          <CodeHighlighter code={code} language={language.trim().toLowerCase()} />
-        </pre>
-      </div>
-    );
-  }
+            {post.content.split("\n```").map((section, index) => {
+              if (index % 2 === 1) {
+                const [language, ...codeLines] = section.split("\n");
+                const code = codeLines.join("\n");
+
+                return (
+                  <div
+                    key={index}
+                    className="my-4 rounded-xl overflow-hidden border border-nebula/30"
+                  >
+                    <div className="flex items-center justify-between px-4 py-2 bg-cosmic/80 border-b border-nebula/30">
+                      <span className="text-xs font-mono text-supernova">
+                        {language.trim() || "CODE"}
+                      </span>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(code)}
+                        className="text-nebula hover:text-supernova transition-colors"
+                      >
+                        📋
+                      </button>
+                    </div>
+                    <pre className="p-4 bg-cosmic/50 overflow-x-auto font-mono text-sm">
+                      {/* This is where CodeHighlighter gets rendered */}
+                      <CodeHighlighter
+                        code={code}
+                        language={language.trim().toLowerCase()}
+                      />
+                    </pre>
+                  </div>
+                );
+              }
 
               // Regular text content
               return (
@@ -383,7 +403,7 @@ export const PostCard = ({ post: initialPost }) => {
             <span className="text-sm">
               {/* {post.likes.length + (isLiked ? 1 : 0)}
                */}
-               {likesCount}
+              {likesCount}
             </span>
           </button>
 
@@ -405,15 +425,23 @@ export const PostCard = ({ post: initialPost }) => {
           className="px-4 py-2 bg-gradient-to-r from-nebula to-supernova rounded-lg font-medium text-cosmic hover:brightness-110 transition-all text-sm"
           onClick={() => setShowComments(!showComments)}
         >
-          {post.postType === "query" ? 
-          showComments? "Close Comments" : "Transmit Answer"  :
-           showComments? "Close Discussion" :"Engage Discussion"
-           }
+          {post.postType === "query"
+            ? showComments
+              ? "Close Comments"
+              : "Transmit Answer"
+            : showComments
+            ? "Close Discussion"
+            : "Engage Discussion"}
         </button>
       </div>
 
       {/* Added Comment Section */}
       {showComments && (
+        isLoading ? 
+        (<div className="text-corona text-center">
+          Loading...
+          </div>)
+        :
         <div className="mt-4 pt-4 border-t border-nebula/20">
           {/* Comment Input */}
           <form onSubmit={handleNewCommentSubmit} className="mb-4 flex gap-2">
@@ -485,6 +513,8 @@ export const PostCard = ({ post: initialPost }) => {
             )}
           </div>
         </div>
+        
+        
       )}
     </div>
   );

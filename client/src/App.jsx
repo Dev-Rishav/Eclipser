@@ -9,7 +9,6 @@ import { Toaster } from "react-hot-toast";
 import PersistentLayout from "./components/PersistentLayout";
 import Contest from "./components/Contest";
 import Profile from "./pages/Profile";
-import PostList from "./pages/PostList";
 import { useState } from "react";
 import LoadingPage from "./components/LoadingPage";
 
