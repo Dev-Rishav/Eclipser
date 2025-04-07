@@ -26,8 +26,6 @@ const HomePage = () => {
     language: "javascript",
   });
   const user = useSelector((state) => state.auth.user);
-  const token = user.token;
-
   const {
     posts,
     setPosts,
@@ -39,11 +37,19 @@ const HomePage = () => {
     setIsLoading,
   } = usePostLoader(user);
 
-    // onreload clear posts cache
+    //* onreload clear posts cache
     useEffect(() => {
-      if (!user || !token) return;
-      clearPostCache();
-    }, [user, token]);
+      const handleBeforeUnload = () => {
+        clearPostCache();
+      };
+    
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
+    }, []);
+    
 
   // //! [TODO]: code snippet is broken
   // //! [TODO]: add a loading state for the post creation
@@ -73,11 +79,11 @@ const HomePage = () => {
     }
   };
 
-  // Show loading animation for 1.5 seconds
+  //* Show loading animation for 1.5 seconds
   useEffect(() => {
-    setIsLoading(true); // Show loading screen
+    setIsLoading(true);
     setTimeout(() => {
-      setIsLoading(false); // Hide loading screen after 3 seconds
+      setIsLoading(false);
     }, 1500);
   }, [setIsLoading]);
 
@@ -95,9 +101,11 @@ const HomePage = () => {
       >
         ✨ New Transmission
       </button>
+      
       <div className="lg:grid lg:grid-cols-12 gap-3 p-3 mx-auto">
+
         {/* Left Sidebar */}
-        <div className="hidden lg:block lg:col-span-3">
+        <div className="hidden lg:block lg:col-span-3 ">
           <div
             className={`space-y-6  transition-all duration-300 
         `}
@@ -108,7 +116,7 @@ const HomePage = () => {
         </div>
 
         {/* Main Feed */}
-        <main className="lg:col-span-6">
+        <main className="lg:col-span-6 ">
           <div className="sticky top-0 z-10 bg-gradient-to-b from-cosmic to-cosmic/90 backdrop-blur-lg pb-2">
             <FeedControlBar
               selectedFilter={selectedFilter}
@@ -171,7 +179,7 @@ const HomePage = () => {
         </main>
 
         {/* Right Sidebar */}
-        <div className="hidden lg:block lg:col-span-3">
+        <div className=" lg:block lg:col-span-3 hidden">
           <div className={`space-y-6 sticky transition-all duration-300 `}>
             <LiveActivity />
             <ChatPreview />
