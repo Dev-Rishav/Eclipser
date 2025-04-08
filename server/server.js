@@ -11,6 +11,8 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const { Server } = require('socket.io');
 const userRoutes = require('./routes/userRoutes');
 const { streamUpdates } = require('./controllers/postController');
+const client = require('./configs/redis');
+const startTagStatsJob = require('./jobs/tagsStatsWorker');
 
 // Load environment variables from the root directory
 dotenv.config({ path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env' });
@@ -40,7 +42,7 @@ app.use(express.json());
 // CORS configuration
 app.use(cors({
   origin: "http://localhost:5173", // Replace with your frontend URL
-  methods: ["GET", "POST","OPTIONS","PUT","DELETE"],
+  methods: ["GET", "POST","OPTIONS","PUT","DELETE","PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 }));
@@ -50,6 +52,8 @@ app.use(cors({
 
 // SSE Endpoint
 app.get('/stream', streamUpdates);
+
+
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -62,6 +66,10 @@ app.use('/api/users',userRoutes)
 app.use('/greet', (req, res) => {
   res.send('Hello, World!');
 });
+
+
+//Background jobs
+startTagStatsJob();
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
