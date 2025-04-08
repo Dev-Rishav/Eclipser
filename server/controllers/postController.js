@@ -448,17 +448,7 @@ exports.commentOnPost = async (req, res) => {
 
     post.comments.push(newComment);
     await post.save();
-
-    // Update Redis cache for all posts
-    // const cachedPosts = await client.get("allPosts");
-    // if (cachedPosts) {
-    //   const postsArray = JSON.parse(cachedPosts);
-    //   const updatedPosts = postsArray.map((p) =>
-    //     p._id === post.id ? post : p
-    //   );
-    //   await client.setEx("allPosts", 3600, JSON.stringify(updatedPosts));
-    // }
-
+    // Update Redis cache for the particular post
     try {
       const cachedPost = await client.hGetAll(`post:${post._id}`);
       if (!cachedPost) return res.status(404).json({ message: "Post not found in cache" });
@@ -557,3 +547,17 @@ exports.deletePost = async (req, res) => {
     res.status(500).json({ message: "Error deleting post", error });
   }
 };
+
+
+//fetch tags stats
+exports.getTagStats = async (req, res) => {
+  try {
+    const tagStats = await client.get("tagStats");
+    if (!tagStats) return res.status(404).json({ message: "No tag stats found" });
+
+    res.status(200).json(JSON.parse(tagStats));
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching tag stats", error });
+  }
+};
+

@@ -1,5 +1,5 @@
 const express = require('express');
-const { createPost, getAllPostsByTags,getAllRemainingPosts , getPostsByUser, getPostsByType, likePost, commentOnPost, deletePost, streamUpdates } = require('../controllers/postController');
+const { createPost, getAllPostsByTags,getAllRemainingPosts , getPostsByUser, getPostsByType, likePost, commentOnPost, deletePost, getTagStats } = require('../controllers/postController');
 const authMiddleware = require('../middlewares/auth');
 
 const router = express.Router();
@@ -12,6 +12,7 @@ router.get("/type/:type", getPostsByType);
 router.put("/like/:id", authMiddleware, likePost);
 router.post("/comment/:id", authMiddleware, commentOnPost);
 router.delete("/:id", authMiddleware, deletePost);
+router.get("/tagStats",authMiddleware,getTagStats);
 // router.get("/stream",streamUpdates); //this routes is for SSE
 
 
