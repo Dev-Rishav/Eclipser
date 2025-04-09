@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import useUpdateTags from "../hooks/useUpdateTags";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { fetchTagsList } from "../utility/fetchTagsList";
 
 export const SubscribedTopicsList = () => {
