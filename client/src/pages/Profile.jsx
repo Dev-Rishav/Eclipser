@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   TrophyIcon,
   ChatBubbleLeftIcon,
@@ -8,9 +8,11 @@ import { FaEdit } from "react-icons/fa";
 import { fetchPostsByUser } from "../utility/fetchPostsByUser";
 import { PostCard } from "../components/PostCard";
 import { useParams } from "react-router-dom";
+import Followers from "../assets/icons/Friends.svg"; 
+import Follwing from "../assets/icons/notFriends.svg";
 
 const Profile = () => {
-  const {userId} = useParams();
+  const { userId } = useParams();
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState("");
@@ -20,41 +22,40 @@ const Profile = () => {
 
   //to load user from local storage
   useEffect(() => {
-    if(!userId){
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      setUser(userData);
-      setNewUsername(userData.username);
-    }
-  }else{
-    const fetchUser = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:3000/api/users/getUser/${userId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-
-        const data = await response.json();
-        setUser(data);
-        setNewUsername(data.username);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+    if (!userId) {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+        setNewUsername(userData.username);
       }
-    }
-    fetchUser();
-  }
-  }, [userId]);
+    } else {
+      const fetchUser = async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/users/getUser/${userId}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              },
+            }
+          );
 
+          if (!response.ok) {
+            throw new Error("Failed to fetch user data");
+          }
+
+          const data = await response.json();
+          setUser(data);
+          setNewUsername(data.username);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      };
+      fetchUser();
+    }
+  }, [userId]);
 
   //function to fetch user posts
   const fetchUserPosts = async () => {
@@ -69,6 +70,7 @@ const Profile = () => {
       console.error("Error fetching user posts:", error);
     }
   };
+
   useEffect(() => {
     if (user) {
       fetchUserPosts();
@@ -190,7 +192,8 @@ const Profile = () => {
               <div className="flex items-center gap-4 text-stardust/80">
                 <span>{user.email}</span>
                 <span className="text-sm bg-nebula/20 px-3 py-1 rounded-full">
-                  {user.achievements == null ?  0 : user.achievements} Achievements
+                  {user.achievements == null ? 0 : user.achievements}{" "}
+                  Achievements
                 </span>
               </div>
               <p className="text-stardust/60 text-sm">
@@ -199,6 +202,20 @@ const Profile = () => {
               </p>
             </div>
           </div>
+          {/* New social stats section */}
+      <div className="flex items-center gap-4 mb-3 mt-5">
+        <div className="flex items-center gap-1 text-stardust/80 hover:text-supernova transition-colors cursor-pointer">
+          <img className="w-9 h-9 " alt="Followers" src={Followers}/>
+          <span className="font-orbitron">{user.followerCount? user.followerCount : 0}</span>
+          <span>Followers</span>
+        </div>
+        
+        <div className="flex items-center gap-1 text-stardust/80 hover:text-nebula transition-colors cursor-pointer">
+          <img className="w-8 h-8" src={Follwing} alt="Following"/>
+          <span className="font-orbitron">{user.followingCount || 0}</span>
+          <span>Following</span>
+        </div>
+      </div>
 
           {isEditing && (
             <div className="mt-4 flex gap-4">
@@ -284,7 +301,7 @@ const Profile = () => {
 
           <div className="grid gap-6">
             {userPost?.map((post) => (
-              <PostCard key={post._id} post={post}/>
+              <PostCard key={post._id} post={post} />
             ))}
 
             {(userPost == null || userPost?.length === 0) && (

@@ -48,6 +48,8 @@ exports.login = async (req, res) => {
         discussions: user.discussions,
         achievements: user.achievements,
         subscribedTopics: user.subscribedTopics,
+        followerCount: user.followerCount,
+        followingCount: user.followingCount,
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
