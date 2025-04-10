@@ -32,7 +32,7 @@ const fetchSingleUserById = async (req, res) => {
     }
 
     // Fetch the user whose ID matches the given userId
-    const user = await User.findById(userId).select("_id username profilePic email createdAt");
+    const user = await User.findById(userId).select("_id username profilePic email createdAt followerCount followingCount");
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });

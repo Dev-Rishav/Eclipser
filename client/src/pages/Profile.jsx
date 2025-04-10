@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   TrophyIcon,
   ChatBubbleLeftIcon,
@@ -7,54 +7,95 @@ import {
 import { FaEdit } from "react-icons/fa";
 import { fetchPostsByUser } from "../utility/fetchPostsByUser";
 import { PostCard } from "../components/PostCard";
-import { useParams } from "react-router-dom";
+import { useLocation} from "react-router-dom";
+import Followers from "../assets/icons/Friends.svg"; 
+import Follwing from "../assets/icons/notFriends.svg";
+import { useDispatch, useSelector } from "react-redux";
+import {follow,unfollow} from "../utility/updateFollower"
+import toast from "react-hot-toast";
+import {getFollowStatus} from "../utility/getFollowStatus"
 
 const Profile = () => {
-  const {userId} = useParams();
+  //? the only reason I am passing props but not using state is this component is used in multiple places to populate multiple users.
+  const location= useLocation();
+  const { userId } = location.state || {};  //this is the current user Id
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [userPost, setUserPost] = useState(null);
+  const [isAuthor, setIsAuthor] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(null);
+  const author=useSelector((state)=>state.auth.user);
+  const authorId=useSelector((state) => state.auth.user._id); //this the user Id that is stored in redux store
+  const dispatch=useDispatch();
+
+
+  //load the follow state
+  useEffect(()=>{
+    const fetchFollowStatus=async()=>{
+      try {
+        const res=await getFollowStatus(userId);
+        if(res!=null)
+          toast.success("follow status fetched successfully!");
+        console.log(res,"res");
+        
+        setIsFollowing(res);
+      } catch (error) {
+        console.error("error fetching follow status ",error);
+        toast.error("error fetching follow status ");
+      }
+    }
+    fetchFollowStatus();
+  },[userId]);
+
+  //handle author identification
+  useEffect(() => {
+    if(authorId===userId){
+      setIsAuthor(true);
+    }
+      else{
+        setIsAuthor(false);
+      }
+  },[userId,authorId]);
 
   //to load user from local storage
   useEffect(() => {
-    if(!userId){
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      setUser(userData);
-      setNewUsername(userData.username);
-    }
-  }else{
-    const fetchUser = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:3000/api/users/getUser/${userId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-
-        const data = await response.json();
-        setUser(data);
-        setNewUsername(data.username);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+    if (!userId) {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+        setNewUsername(userData.username);
       }
-    }
-    fetchUser();
-  }
-  }, [userId]);
+    } else {
+      const fetchUser = async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/users/getUser/${userId}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              },
+            }
+          );
 
+          if (!response.ok) {
+            throw new Error("Failed to fetch user data");
+          }
+
+          const data = await response.json();
+          setUser(data);
+          setNewUsername(data.username);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      };
+      fetchUser();
+    }
+  }, [userId]);
 
   //function to fetch user posts
   const fetchUserPosts = async () => {
@@ -69,6 +110,7 @@ const Profile = () => {
       console.error("Error fetching user posts:", error);
     }
   };
+
   useEffect(() => {
     if (user) {
       fetchUserPosts();
@@ -120,6 +162,53 @@ const Profile = () => {
     setLoading(false);
   };
 
+  //handle follow/unfollow
+  const handleFollow = async () => {
+    if(isFollowing == null){
+      toast.error("APIs are working, slow down!")
+      return;
+    }
+    const followerId = authorId;
+    const followingId = userId;
+  
+    if (!followerId || !followingId) {
+      toast.error("Invalid user IDs. Please try again.");
+      return;
+    }
+  
+    try {
+      if (isFollowing) {
+        // Unfollow user
+        await unfollow(followerId, followingId);
+        setIsFollowing(false);
+        toast.success("User unfollowed successfully!");
+        const updatedCount=user.followerCount-1;
+        setUser({...user,followerCount:updatedCount});
+        //update the redux user
+        dispatch({
+          type:"UPDATE_FOLLOWING_COUNT",
+          payload:{followingCount:author.followerCount-1}
+        })
+        //dispatch is broken
+
+      } else {
+        // Follow user
+        await follow(followerId, followingId);
+        setIsFollowing(true);
+        toast.success("User followed successfully!");
+        const updatedCount=user.followerCount+1;
+        setUser({...user,followerCount:updatedCount});
+        dispatch({
+          type:"UPDATE_FOLLOWING_COUNT",
+          payload:{followingCount:author.followerCount+1}
+        })
+      }
+    } catch (error) {
+      console.error("Error in follow/unfollow operation:", error);
+      toast.error("Failed to update follow status. Please try again.");
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cosmic to-stellar">
@@ -133,12 +222,30 @@ const Profile = () => {
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Profile Header */}
         <div className="bg-gradient-to-br from-stellar to-cosmic rounded-2xl p-8 border border-nebula/30 backdrop-blur-lg relative">
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="absolute top-4 right-4 text-stardust hover:text-supernova transition-colors"
-          >
-            <FaEdit className="w-6 h-6" />
-          </button>
+        {/* Edit/Follower Section */}
+  <div className="absolute top-4 right-4 flex gap-3">
+    {isAuthor ? (
+      <button
+        onClick={() => setIsEditing(!isEditing)}
+        className="text-stardust hover:text-supernova transition-colors"
+      >
+        <FaEdit className="w-6 h-6" />
+      </button>
+    ) : (
+      <button
+        onClick={()=>handleFollow()}
+        className={`px-4 py-2 rounded-lg font-orbitron transition-all ${
+          isFollowing 
+            ? 'border border-nebula/50 text-stardust hover:border-supernova/50 '
+            : 'bg-gradient-to-r from-corona to-supernova text-black hover:brightness-110 '
+        }`}
+      >
+        {isFollowing ? 'Following ' : 'Follow '}
+      </button>
+    )}
+  </div>
+        
+          
 
           <div className="flex items-center gap-6">
             <div className="relative">
@@ -190,15 +297,30 @@ const Profile = () => {
               <div className="flex items-center gap-4 text-stardust/80">
                 <span>{user.email}</span>
                 <span className="text-sm bg-nebula/20 px-3 py-1 rounded-full">
-                  {user.achievements == null ?  0 : user.achievements} Achievements
+                  {user.achievements == null ? 0 : user.achievements}{" "}
+                  Achievements
                 </span>
               </div>
               <p className="text-stardust/60 text-sm">
                 Joined the cosmos on{" "}
-                {new Date(user.joined).toLocaleDateString()}
+                {new Date(user.createdAt).toLocaleDateString()}
               </p>
             </div>
           </div>
+          {/* New social stats section */}
+      <div className="flex items-center gap-4 mb-3 mt-5">
+        <div className="flex items-center gap-1 text-stardust/80 hover:text-supernova transition-colors cursor-pointer">
+          <img className="w-9 h-9 " alt="Followers" src={Followers}/>
+          <span className="font-orbitron">{user.followerCount? user.followerCount : 0}</span>
+          <span>Followers</span>
+        </div>
+        
+        <div className="flex items-center gap-1 text-stardust/80 hover:text-nebula transition-colors cursor-pointer">
+          <img className="w-8 h-8" src={Follwing} alt="Following"/>
+          <span className="font-orbitron">{user.followingCount || 0}</span>
+          <span>Following</span>
+        </div>
+      </div>
 
           {isEditing && (
             <div className="mt-4 flex gap-4">
@@ -284,7 +406,7 @@ const Profile = () => {
 
           <div className="grid gap-6">
             {userPost?.map((post) => (
-              <PostCard key={post._id} post={post}/>
+              <PostCard key={post._id} post={post} />
             ))}
 
             {(userPost == null || userPost?.length === 0) && (

@@ -275,7 +275,9 @@ useEffect(()=>{
       {/* Preserved Author Section */}
       <div
         className="flex items-center gap-3 mb-4 cursor-pointer"
-        onClick={() => navigate(`/profile/${post.author.userId}`)}
+        onClick={() => navigate("/profile",{
+          state: { userId: post.author.userId }
+        })}
         title={`View ${post.author?.username || "Unknown User"}'s profile`}
       >
         {post.author?.profilePic ? (

@@ -8,7 +8,8 @@ import {
     SIGNUP_SUCCESS,
     SIGNUP_FAILURE,
     LOGOUT,
-    UPDATE_USER
+    UPDATE_USER,
+    UPDATE_FOLLOWING_COUNT
 } from './authActionTypes';
 
 export const loginUser = (credentials) => async (dispatch) => {
@@ -107,3 +108,26 @@ export const patchUserTopics = (targetTopic, isRemoving) => async (dispatch) => 
     throw error;
   }
 };
+
+
+export const updateFollowerCount=(newFollowingCount)=>(dispatch)=>{
+  try {
+    // Update the Redux state
+    console.log("newFollowingCount", newFollowingCount);
+    
+    dispatch({
+      type: UPDATE_FOLLOWING_COUNT,
+      payload: { followingCount: newFollowingCount },
+    });
+    // console.log("yes");
+    
+    // Update localStorage to keep it in sync
+    const user = JSON.parse(localStorage.getItem('user'));
+    const updatedUser = { ...user, followingCount: newFollowingCount };
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  } catch (error) {
+    console.error("Error updating follower count:", error);
+    throw error;
+  }
+
+}

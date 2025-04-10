@@ -6,7 +6,8 @@ import {
   SIGNUP_SUCCESS,
   SIGNUP_FAILURE,
   LOGOUT,
-  UPDATE_USER
+  UPDATE_USER,
+  UPDATE_FOLLOWING_COUNT
 } from "../actions/authActionTypes";
 
 const initialState = {
@@ -76,6 +77,17 @@ const authReducer = (state = initialState, action) => {
         ...state,
         user: action.payload,
       };
+
+    case UPDATE_FOLLOWING_COUNT:
+      console.log("Following count updated:", action.payload.followingCount);
+      
+      return {
+        ...state,
+        user:{
+          ...state.user,
+          followingCount:action.payload.followingCount,
+        }
+      }
 
     default:
       return state;

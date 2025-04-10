@@ -84,7 +84,10 @@ const Navbar = () => {
                   <div className="relative">
                     <div
                       className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-nebula to-supernova font-bold text-cosmic cursor-pointer"
-                      onClick={() => navigate("/profile")}
+                      onClick={() => navigate("/profile",{
+                        state: { userId: user._id }
+                      })}
+                      alt="Profile"
                     >
                       {user?.username[0].toUpperCase()}
                     </div>
@@ -94,7 +97,9 @@ const Navbar = () => {
                   <div className="flex flex-col cursor-pointer">
                     <span
                       className="text-sm text-stardust"
-                      onClick={() => navigate("/profile")}
+                      onClick={() => navigate("/profile",{
+                        state: { userId: user._id }
+                      })}
                     >
                       {user?.username}
                     </span>
