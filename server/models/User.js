@@ -50,6 +50,14 @@ const userSchema = new mongoose.Schema({
     type: [String], // Array of topic names
     default: [], // Default to an empty array
   },
+  followerCount: {
+    type: Number,
+    default: 0,
+  },
+  followingCount: {
+    type: Number,
+    default: 0,
+  },
 }, { timestamps: true });
 
 // Hash the password before saving the user

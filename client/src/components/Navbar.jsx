@@ -85,6 +85,7 @@ const Navbar = () => {
                     <div
                       className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-nebula to-supernova font-bold text-cosmic cursor-pointer"
                       onClick={() => navigate("/profile")}
+                      alt="Profile"
                     >
                       {user?.username[0].toUpperCase()}
                     </div>
