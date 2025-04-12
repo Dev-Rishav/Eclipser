@@ -11,8 +11,8 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const { Server } = require('socket.io');
 const userRoutes = require('./routes/userRoutes');
 const { streamUpdates } = require('./controllers/postController');
-const client = require('./configs/redis');
 const startTagStatsJob = require('./jobs/tagsStatsWorker');
+const messageRoutes = require('./routes/messageRoutes');
 
 // Load environment variables from the root directory
 dotenv.config({ path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env' });
@@ -60,6 +60,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/user', uploadRoutes);
 app.use('/api/users',userRoutes)
+app.use("/api/messages",messageRoutes);
 
 
 // Health check route
