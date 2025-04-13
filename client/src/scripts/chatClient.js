@@ -17,9 +17,9 @@ socket.on("connect", () => {
 
   // Emit a message to the server
   socket.emit("privateMessage", {
-    senderId: "661fcde4a80cdbba9e6c88d2",
-    receiverId: "6625a0a65b4096d8a7e4b342",
-    content: "Hey there! This is a test message from CLI.",
+    senderId: "67e91e7adc8b54a63145b0a8",
+    receiverId: "67efe809bcd3d854041263f2",
+    content: "Hey there! This is  wodfheiwsjfhsduhusdf.",
   });
 });
 

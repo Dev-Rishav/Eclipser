@@ -12,6 +12,7 @@ import { createPost } from "../utility/createPost";
 import { useSelector } from "react-redux";
 import { clearPostCache } from "../utility/storageCleaner";
 import { usePostLoader } from "../hooks/usePostLoader";
+import { fetchRecentChats } from "../utility/chatUtils";
 
 const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -36,6 +37,7 @@ const HomePage = () => {
     setLivePosts,
     setIsLoading,
   } = usePostLoader(user);
+  const [chats, setChats] = useState([]);
 
     //* onreload clear posts cache
     useEffect(() => {
@@ -86,6 +88,16 @@ const HomePage = () => {
       setIsLoading(false);
     }, 1500);
   }, [setIsLoading]);
+
+
+  //load recent chats
+  useEffect(() => {
+    const loadChats = async () => {
+      const recentChats = await fetchRecentChats();
+      setChats(recentChats.chats);
+    };
+    loadChats();
+  }, []);
 
 
 
@@ -182,7 +194,13 @@ const HomePage = () => {
         <div className=" lg:block lg:col-span-3 hidden">
           <div className={`space-y-6 sticky transition-all duration-300 `}>
             <LiveActivity />
-            <ChatPreview />
+            <ChatPreview
+            chats={chats}
+            title="Stellar Communications"
+            onStartNewChat={() => {
+              console.log("Starting new chat...");
+            }}
+            />
           </div>
         </div>
 

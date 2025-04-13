@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const  syncIndexes  = require('../scripts/syncIndexes');
 
 const connectDB = async () => {
   try {
@@ -6,6 +7,7 @@ const connectDB = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
+    await syncIndexes();
     console.log('MongoDB connected');
   } catch (error) {
     console.error('MongoDB connection failed:', error.message);

@@ -1,11 +1,16 @@
 const Message = require("../models/Message");
+const client = require("../configs/redis");
+
 
 const connectedUsers = new Map();
 
 const handleChatSocket = (io, socket) => {
-  socket.on("register", (userId) => {
+  socket.on("register", async (userId) => {
     connectedUsers.set(userId, socket.id);
-    console.log(`User ${userId} registered for chat.`);
+    socket.userId = userId;
+    
+    await client.sAdd("online_users", userId);
+    console.log(`✅ User ${userId} registered & marked online`);
   });
 
   socket.on("privateMessage", async ({ senderId, receiverId, content }) => {
@@ -28,10 +33,17 @@ const handleChatSocket = (io, socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
+  socket.on('ping_server', async () => {
+    if (socket.userId) {
+      await client.expire(`online:${socket.userId}`, 60); // Refresh TTL
+    }
+  });
+
+  socket.on("disconnect", async() => {
     for (const [userId, sockId] of connectedUsers.entries()) {
       if (sockId === socket.id) {
         connectedUsers.delete(userId);
+        await client.sRem("online_users", userId);
         break;
       }
     }
