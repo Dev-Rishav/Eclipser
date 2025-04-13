@@ -12,9 +12,9 @@ export const AnimatedModal = ({ isOpen, onClose, children }) => {
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
+            initial={{ scale: 0.75, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
+            exit={{ scale: 0.65, opacity: 0 }}
             className="bg-gradient-to-br from-stellar to-cosmic rounded-xl 
             border border-nebula/30 w-full max-w-2xl p-6"
             onClick={(e) => e.stopPropagation()}

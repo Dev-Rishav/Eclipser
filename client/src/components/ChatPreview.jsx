@@ -12,23 +12,23 @@ export const ChatPreview = ({
   onSelectChat = () => {},
 }) => {
   
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMoreChats) {
-          loadMoreChats();
-          toast.success("Loading more chats...");
-        }
-      },
-      { threshold: 1.0 }
-    );
+  // useEffect(() => {
+  //   const observer = new IntersectionObserver(
+  //     (entries) => {
+  //       if (entries[0].isIntersecting && hasMoreChats) {
+  //         loadMoreChats();
+  //         toast.success("Loading more chats...");
+  //       }
+  //     },
+  //     { threshold: 1.0 }
+  //   );
   
-    if (lastChatRef.current) {
-      observer.observe(lastChatRef.current);
-    }
+  //   if (lastChatRef.current) {
+  //     observer.observe(lastChatRef.current);
+  //   }
   
-    return () => observer.disconnect();
-  }, [chats, hasMoreChats]);
+  //   return () => observer.disconnect();
+  // }, [chats, hasMoreChats]);
 
   return (
     <div className="p-4 bg-gradient-to-br from-cosmic to-stellar rounded-lg border border-nebula/30 backdrop-blur-lg">

@@ -14,3 +14,23 @@
     background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
   }
 }
+
+/* Custom cosmic scrollbar */
+.cosmic-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #6366f1 transparent;
+}
+
+.cosmic-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cosmic-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cosmic-scroll::-webkit-scrollbar-thumb {
+  background-color: #6366f1; /* Nebula color */
+  border-radius: 3px;
+  border: 1px solid #4f46e5;
+}

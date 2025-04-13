@@ -17,6 +17,7 @@ exports.sendMessage = async (req, res) => {
   }
 };
 
+//gets all messages between two users
 exports.getMessages = async (req, res) => {
   const { userId } = req.params; // person you are chatting with
     if (!userId) {
@@ -28,7 +29,7 @@ exports.getMessages = async (req, res) => {
         { senderId: req.user._id, receiverId: userId },
         { senderId: userId, receiverId: req.user._id },
       ],
-    }).sort({ timestamp: 1 });
+    }).sort({ timestamp: -1 });
     res.status(200).json({ success: true, messages });
   } catch (error) {
     console.error("error happened while fetching messages", error);
