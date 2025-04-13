@@ -43,6 +43,12 @@ export const fetchRecentChats = async (page = 1, limit = 10) => {
   };
   
   export const generateUserAvatar = (username, isOnline) => {
+    if(!username) {
+      return {
+        initials: '??',
+        gradient: 'bg-gray-500'
+      };
+    }
     const initials = username.split(' ').map(n => n[0]).join('').toUpperCase();
     const gradient = `bg-gradient-to-br from-nebula to-supernova`;
     

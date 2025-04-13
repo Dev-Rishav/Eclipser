@@ -1,11 +1,35 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { formatCosmicTime, generateUserAvatar } from "../utility/chatUtils";
+import toast from "react-hot-toast";
 
 export const ChatPreview = ({
   chats = [],
   title = "Quantum Comm",
   onStartNewChat = () => {},
+  hasMoreChats = false,
+  loadMoreChats = () => {},
+  lastChatRef = React.createRef(),
+  onSelectChat = () => {},
 }) => {
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMoreChats) {
+          loadMoreChats();
+          toast.success("Loading more chats...");
+        }
+      },
+      { threshold: 1.0 }
+    );
+  
+    if (lastChatRef.current) {
+      observer.observe(lastChatRef.current);
+    }
+  
+    return () => observer.disconnect();
+  }, [chats, hasMoreChats]);
+
   return (
     <div className="p-4 bg-gradient-to-br from-cosmic to-stellar rounded-lg border border-nebula/30 backdrop-blur-lg">
       <h3 className="text-corona font-bold mb-4 pb-2 border-b border-nebula/30">
@@ -23,6 +47,7 @@ export const ChatPreview = ({
             <div
               key={chat.id}
               className="flex items-start p-3 rounded-lg border border-nebula/30 hover:bg-nebula/10 transition-colors cursor-pointer"
+              onClick={()=> onSelectChat(chat)}
             >
               {/* Avatar */}
               <div className="relative mr-3">

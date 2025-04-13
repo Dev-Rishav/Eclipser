@@ -13,6 +13,8 @@ import { useSelector } from "react-redux";
 import { clearPostCache } from "../utility/storageCleaner";
 import { usePostLoader } from "../hooks/usePostLoader";
 import { fetchRecentChats } from "../utility/chatUtils";
+import { AnimatedModal } from "../components/AnimateModal";
+import { ChatModal } from "../components/ChatModal";
 
 const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -38,20 +40,23 @@ const HomePage = () => {
     setIsLoading,
   } = usePostLoader(user);
   const [chats, setChats] = useState([]);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMoreChats, setHasMoreChats] = useState(true);
 
-    //* onreload clear posts cache
-    useEffect(() => {
-      const handleBeforeUnload = () => {
-        clearPostCache();
-      };
-    
-      window.addEventListener('beforeunload', handleBeforeUnload);
-    
-      return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-      };
-    }, []);
-    
+  //* onreload clear posts cache
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      clearPostCache();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   // //! [TODO]: code snippet is broken
   // //! [TODO]: add a loading state for the post creation
@@ -65,7 +70,10 @@ const HomePage = () => {
     try {
       const createdPost = await createPost(newPost); // Use the utility function
       setPosts([createdPost, ...posts]); // Add the new post to the state
-      localStorage.setItem("cachedPosts", JSON.stringify([createdPost, ...posts]));
+      localStorage.setItem(
+        "cachedPosts",
+        JSON.stringify([createdPost, ...posts])
+      );
       setIsCreatingPost(false); // Close the modal
       setNewPost({
         title: "",
@@ -89,7 +97,6 @@ const HomePage = () => {
     }, 1500);
   }, [setIsLoading]);
 
-
   //TODO: add infinite scroll for the recent chats its best to show upto 3 recent chats at a time
   //load recent chats
   useEffect(() => {
@@ -100,7 +107,23 @@ const HomePage = () => {
     loadChats();
   }, []);
 
+  // Infinite scroll for chats
+  const loadMoreChats = async () => {
+    if (!hasMoreChats) return;
 
+    const response = await fetchRecentChats(page + 1);
+    setChats((prev) => [...prev, ...response.chats]);
+    setPage((prev) => prev + 1);
+    setHasMoreChats(response.chats.length > 0);
+  };
+
+  // useEffect(() => {
+  //   if (isChatOpen) {
+  //     // Initialize chat or fetch existing chat data
+  //     console.log("Opening chat interface...");
+  //     // You can add additional initialization logic here
+  //   }
+  // }, [isChatOpen]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cosmic to-stellar">
@@ -114,9 +137,8 @@ const HomePage = () => {
       >
         ✨ New Transmission
       </button>
-      
-      <div className="lg:grid lg:grid-cols-12 gap-3 p-3 mx-auto">
 
+      <div className="lg:grid lg:grid-cols-12 gap-3 p-3 mx-auto">
         {/* Left Sidebar */}
         <div className="hidden lg:block lg:col-span-3 ">
           <div
@@ -140,21 +162,23 @@ const HomePage = () => {
           </div>
 
           {isLoading ? (
-            <p className="text-center text-corona mt-4 text-lg text-orbitron">Summoning your cosmic feed...</p>
+            <p className="text-center text-corona mt-4 text-lg text-orbitron">
+              Summoning your cosmic feed...
+            </p>
           ) : (
             <>
               {/* Existing Posts */}
               <div className="space-y-4 mb-4">
                 {(user?.subscribedTopics || []).length === 0 && (
                   <div className="bg-gradient-to-br from-stellar/80 to-cosmic/90 p-3  rounded-xl border-2 border-nebula/30 backdrop-blur-sm text-center">
-                  <span className="text-lg font-orbitron text-stardust/80 mb-2 inline-block">
-                    🌌 No Celestial Tags Locked In
-                  </span>
-                  <p className="text-stardust/60 text-sm">
-                    Catching stardust from across the universe...
-                    <span className="ml-2 animate-pulse">✨</span>
-                  </p>
-                </div>
+                    <span className="text-lg font-orbitron text-stardust/80 mb-2 inline-block">
+                      🌌 No Celestial Tags Locked In
+                    </span>
+                    <p className="text-stardust/60 text-sm">
+                      Catching stardust from across the universe...
+                      <span className="ml-2 animate-pulse">✨</span>
+                    </p>
+                  </div>
                 )}
               </div>
               {livePosts.length > 0 && (
@@ -192,141 +216,149 @@ const HomePage = () => {
         </main>
 
         {/* Right Sidebar */}
-        <div className=" lg:block lg:col-span-3 hidden">
-          <div className={`space-y-6 sticky transition-all duration-300 `}>
+        {/* Updated Chat Preview with infinite scroll */}
+        <div className="lg:block lg:col-span-3 hidden">
+          <div className={`space-y-6 sticky transition-all duration-300`}>
             <LiveActivity />
             <ChatPreview
-            chats={chats}
-            title="Stellar Communications"
-            onStartNewChat={() => {
-              console.log("Starting new chat...");
-            }}
+              chats={chats}
+              title="Stellar Communications"
+              onStartNewChat={() => {
+                setIsChatOpen(true);
+                setSelectedChat(null);
+              }}
+              onLoadMore={loadMoreChats}
+              hasMore={hasMoreChats}
+              onSelectChat={(chat) => {
+                setSelectedChat(chat);
+                setIsChatOpen(true);
+              }}
             />
           </div>
         </div>
+        {/* chat modal rendering */}
+        <AnimatedModal
+          isOpen={isChatOpen}
+          onClose={() => {
+            setIsChatOpen(false);
+            setSelectedChat(null);
+          }}
+        >
+          <ChatModal
+            chat={selectedChat}
+            onClose={() => setIsChatOpen(false)}
+            onSubmit={(message) => {
+              // Handle message sending
+              console.log("Sending message:", message);
+              // Add your message sending logic here
+            }}
+          />
+        </AnimatedModal>
 
         {/* Creation Modal Overlay */}
-        <AnimatePresence>
-          {isCreatingPost && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center"
+        <AnimatedModal
+          isOpen={isCreatingPost}
+          onClose={() => setIsCreatingPost(false)}
+        >
+          <div className="flex justify-between items-start mb-6">
+            <h2 className="text-2xl text-corona font-orbitron">
+              Create Transmission
+            </h2>
+            <button
               onClick={() => setIsCreatingPost(false)}
+              className="text-stardust hover:text-supernova transition-colors"
             >
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-gradient-to-br from-stellar to-cosmic rounded-xl 
-                border border-nebula/30 w-full max-w-2xl p-6"
-                onClick={(e) => e.stopPropagation()}
+              ✕
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <input
+              type="text"
+              placeholder="Transmission Title"
+              value={newPost.title}
+              onChange={(e) =>
+                setNewPost({ ...newPost, title: e.target.value })
+              }
+              className="w-full px-4 py-2 bg-stellar rounded-lg border border-nebula/30 text-stardust"
+            />
+
+            <textarea
+              placeholder="Compose your cosmic message..."
+              value={newPost.content}
+              onChange={(e) =>
+                setNewPost({ ...newPost, content: e.target.value })
+              }
+              className="w-full h-32 px-4 py-2 bg-stellar rounded-lg border border-nebula/30 text-stardust"
+            />
+
+            <div className="flex flex-wrap gap-2">
+              <input
+                type="text"
+                placeholder="Tags (comma separated)"
+                value={newPost.tags}
+                onChange={(e) =>
+                  setNewPost({ ...newPost, tags: e.target.value })
+                }
+                className="flex-1 px-4 py-2 bg-stellar rounded-lg border border-nebula/30 text-stardust"
+              />
+
+              <select
+                value={newPost.postType}
+                onChange={(e) =>
+                  setNewPost({ ...newPost, postType: e.target.value })
+                }
+                className="px-3 py-2 bg-stellar rounded-lg border border-nebula/30 text-stardust"
               >
-                <div className="flex justify-between items-start mb-6">
-                  <h2 className="text-2xl text-corona font-orbitron">
-                    Create Transmission
-                  </h2>
-                  <button
-                    onClick={() => setIsCreatingPost(false)}
-                    className="text-stardust hover:text-supernova transition-colors"
-                  >
-                    ✕
-                  </button>
-                </div>
+                <option value="query">📡 Query</option>
+                <option value="achievement">🏆 Achievement</option>
+                <option value="discussion">💬 Discussion</option>
+              </select>
+            </div>
 
-                <div className="space-y-4">
-                  <input
-                    type="text"
-                    placeholder="Transmission Title"
-                    value={newPost.title}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => setNewPost({ ...newPost, codeSnippet: "" })}
+                className="px-3 py-2 bg-nebula/10 border border-nebula/30 rounded-lg text-stardust hover:bg-nebula/20"
+              >
+                {newPost.codeSnippet ? "Remove Code" : "Add Code Snippet"}
+              </button>
+
+              {newPost.codeSnippet && (
+                <div className="space-y-2">
+                  <select
+                    value={newPost.language}
                     onChange={(e) =>
-                      setNewPost({ ...newPost, title: e.target.value })
+                      setNewPost({ ...newPost, language: e.target.value })
                     }
-                    className="w-full px-4 py-2 bg-stellar rounded-lg border border-nebula/30 text-stardust"
-                  />
-
-                  <textarea
-                    placeholder="Compose your cosmic message..."
-                    value={newPost.content}
-                    onChange={(e) =>
-                      setNewPost({ ...newPost, content: e.target.value })
-                    }
-                    className="w-full h-32 px-4 py-2 bg-stellar rounded-lg border border-nebula/30 text-stardust"
-                  />
-
-                  <div className="flex flex-wrap gap-2">
-                    <input
-                      type="text"
-                      placeholder="Tags (comma separated)"
-                      value={newPost.tags}
-                      onChange={(e) =>
-                        setNewPost({ ...newPost, tags: e.target.value })
-                      }
-                      className="flex-1 px-4 py-2 bg-stellar rounded-lg border border-nebula/30 text-stardust"
-                    />
-
-                    <select
-                      value={newPost.postType}
-                      onChange={(e) =>
-                        setNewPost({ ...newPost, postType: e.target.value })
-                      }
-                      className="px-3 py-2 bg-stellar rounded-lg border border-nebula/30 text-stardust"
-                    >
-                      <option value="query">📡 Query</option>
-                      <option value="achievement">🏆 Achievement</option>
-                      <option value="discussion">💬 Discussion</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setNewPost({ ...newPost, codeSnippet: "" })
-                      }
-                      className="px-3 py-2 bg-nebula/10 border border-nebula/30 rounded-lg text-stardust hover:bg-nebula/20"
-                    >
-                      {newPost.codeSnippet ? "Remove Code" : "Add Code Snippet"}
-                    </button>
-
-                    {newPost.codeSnippet && (
-                      <div className="space-y-2">
-                        <select
-                          value={newPost.language}
-                          onChange={(e) =>
-                            setNewPost({ ...newPost, language: e.target.value })
-                          }
-                          className="px-3 py-2 bg-stellar rounded-lg border border-nebula/30 text-stardust"
-                        >
-                          <option value="javascript">JavaScript</option>
-                          <option value="python">Python</option>
-                          <option value="java">Java</option>
-                        </select>
-
-                        <HighlightSyntax
-                          language={newPost.language}
-                          value={newPost.codeSnippet}
-                          onChange={(value) =>
-                            setNewPost({ ...newPost, codeSnippet: value })
-                          }
-                          className="rounded-lg border border-nebula/30"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={handleCreatePost}
-                    className="w-full py-3 bg-gradient-to-r from-nebula to-supernova text-cosmic rounded-lg hover:brightness-110"
+                    className="px-3 py-2 bg-stellar rounded-lg border border-nebula/30 text-stardust"
                   >
-                    Transmit to Cosmos
-                  </button>
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                    <option value="java">Java</option>
+                  </select>
+
+                  <HighlightSyntax
+                    language={newPost.language}
+                    value={newPost.codeSnippet}
+                    onChange={(value) =>
+                      setNewPost({ ...newPost, codeSnippet: value })
+                    }
+                    className="rounded-lg border border-nebula/30"
+                  />
                 </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              )}
+            </div>
+
+            <button
+              onClick={handleCreatePost}
+              className="w-full py-3 bg-gradient-to-r from-nebula to-supernova text-cosmic rounded-lg hover:brightness-110"
+            >
+              Transmit to Cosmos
+            </button>
+          </div>
+        </AnimatedModal>
       </div>
     </div>
   );
