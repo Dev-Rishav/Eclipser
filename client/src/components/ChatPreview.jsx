@@ -42,7 +42,7 @@ export const ChatPreview = ({
                   <h4 className="text-stardust text-sm font-medium truncate">
                     {chat.user.username}
                   </h4>
-                  {chat.unread > 0 && (
+                  {chat.unreadCount > 0  && (
                     <span className="bg-supernova text-cosmic px-2 rounded-full text-xs">
                       {chat.unreadCount}
                     </span>

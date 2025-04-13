@@ -90,6 +90,7 @@ const HomePage = () => {
   }, [setIsLoading]);
 
 
+  //TODO: add infinite scroll for the recent chats its best to show upto 3 recent chats at a time
   //load recent chats
   useEffect(() => {
     const loadChats = async () => {
