@@ -1,21 +1,19 @@
-import { useState, useEffect, useRef } from "react";
+/* eslint-disable react/prop-types */
+import { useState, useEffect} from "react";
 import { formatCosmicTime, generateUserAvatar } from "../utility/chatUtils";
 import { useSelector } from "react-redux";
 import { fetchChatHistory } from "../utility/fetchMessages";
-import { io } from "socket.io-client";
-import { set } from "date-fns";
+import socket from "../config/socket";
 
-const socket = io("http://localhost:3000");
+export const ChatModal = ({ chat={}, onClose }) => {
 
-export const ChatModal = ({ chat, onClose, onSubmit }) => {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [isOnline, setIsOnline] = useState(false);
   const { user } = useSelector((state) => state.auth);
-  const bottomRef = useRef(null);
-  // console.log('Chat:', chat);
 
-  //chat History
+
+  //fetch chat History
   useEffect(() => {
     const fetchHistory = async () => {
       if (chat) {
@@ -37,24 +35,72 @@ export const ChatModal = ({ chat, onClose, onSubmit }) => {
   }, [chat]);
 
 
+  //event listeners
+  useEffect(() => {
+    if(!chat || !user?._id) return;
 
+    // this is for acknowledgment
+    socket.on("newPrivateMessage", (message) => {
+      console.log("New message sent:", message);
+    });
+
+    socket.on("private_message", (message) => {
+      console.log("New private message received:", message);
+      if(message.receiverId === user._id){
+        setMessages((prevMessages) => [
+          message,
+          ...prevMessages,
+        ]);
+
+      }
+    })
+
+    // Handle connection errors
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
+    });
+
+    // Handle disconnection
+    socket.on("disconnect", () => {
+      console.log("Disconnected from socket");
+    });
+
+    const interval = setInterval(() => socket.emit("ping_server"), 5000); // heartbeat every 5s
+
+    return () => {
+      socket.off("disconnect");
+      socket.off("newPrivateMessage");
+      socket.off("private_message");
+      socket.off("connect_error");
+      clearInterval(interval);
+    };
+  },[chat, user._id]);
+
+
+
+  //handle send messages 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (newMessage.trim()) {
-      onSubmit({
+      socket.emit("privateMessage", {
         senderId: user._id,
-        content: newMessage,
         receiverId: chat?.user._id,
+        content: newMessage,
       });
-      //api
+      setMessages((prevMessages) => [
+        {
+          senderId: user._id,
+          receiverId: chat?.user._id,
+          content: newMessage,
+          sentAt: new Date().toISOString(),
+          seen: false,
+        },
+        ...prevMessages,
+      ]);
       setNewMessage("");
     }
   };
 
-  const orderedMessages = [...messages].reverse();
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
 
   return (
@@ -89,40 +135,40 @@ export const ChatModal = ({ chat, onClose, onSubmit }) => {
         </button>
       </div>
 
-        {/* Chat messages */}
-        <div className="overflow-y-auto flex flex-col cosmic-scroll pb-4">
-  {orderedMessages.length > 0 ? (
-    orderedMessages.map((msg) => (
-      <div
-        key={msg._id}
-        className={`flex ${msg.senderId === user._id ? "justify-end" : "justify-start"}`}
-      >
-        <div
-          className={`max-w-[75%] p-3 rounded-lg ${
-            msg.senderId === user._id
-              ? "bg-gradient-to-br from-nebula to-supernova text-cosmic"
-              : "bg-stellar border border-nebula/30 text-white"
-          }`}
-        >
-          <p className="text-sm">{msg.content}</p>
-          <p className="text-xs mt-1 opacity-70">
-            {formatCosmicTime(msg.sentAt)}
-          </p>
-        </div>
-        <div ref={bottomRef} />
+      {/* Chat messages */}
+      <div className="overflow-y-auto h-full flex flex-col-reverse cosmic-scroll pb-4">
+        {messages.length > 0 ? (
+          messages.map((msg) => (
+            <div
+              key={msg._id}
+              className={`flex pb-2 ${
+                msg.senderId === user._id ? "justify-end" : "justify-start"
+              }`}
+            >
+              <div
+                className={`max-w-[75%] p-3 rounded-lg ${
+                  msg.senderId === user._id
+                    ? "bg-gradient-to-br from-nebula to-supernova text-cosmic"
+                    : "bg-stellar border border-nebula/30 text-white"
+                }`}
+              >
+                <p className="text-sm">{msg.content}</p>
+                <p className="text-xs mt-1 opacity-70">
+                  {formatCosmicTime(msg.sentAt)}
+                </p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="h-full flex items-center justify-center text-stardust/60">
+            No subspace messages detected !
+          </div>
+        )}
       </div>
-    ))
-  ) : (
-    <div className="h-full flex items-center justify-center text-stardust/60">
-      No subspace messages detected
-    </div>
-    
-  )}
-</div>
 
 
-
-      <form onSubmit={handleSubmit} className="border-t border-nebula/30 pt-3">
+      {/* Message input */}
+      <form onSubmit={handleSubmit} className="border-t border-nebula/30 pt-3 ">
         <div className="flex gap-2">
           <input
             type="text"

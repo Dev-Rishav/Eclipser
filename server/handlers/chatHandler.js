@@ -22,7 +22,7 @@ const handleChatSocket = (io, socket) => {
       }
       await message.save();
       console.log("Message saved:", message);
-      socket.emit("newPrivateMessage", message);  //used for acknowledgment
+      io.to(senderId).emit("newPrivateMessage", message);  //used for acknowledgment
       
 
       const receiverSocketId = connectedUsers.get(receiverId);
