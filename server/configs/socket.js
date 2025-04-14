@@ -1,5 +1,5 @@
 const { Server } = require("socket.io");
-const handleChatSocket = require("./chatHandler");
+const handleChatSocket = require("../handlers/chatHandler");
 
 
 let io;
@@ -25,9 +25,9 @@ const initSocket = (server) => {
     handleChatSocket(io,socket);
 
     // Handle user disconnect
-    socket.on("disconnect", () => {
-      console.log(`${socket.id} User Disconnected`);
-    });
+    // socket.on("disconnect", () => {
+    //   console.log(`${socket.id} User Disconnected`);
+    // });
   });
   
 };

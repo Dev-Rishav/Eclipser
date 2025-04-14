@@ -13,6 +13,7 @@ const userRoutes = require('./routes/userRoutes');
 const { streamUpdates } = require('./controllers/postController');
 const startTagStatsJob = require('./jobs/tagsStatsWorker');
 const messageRoutes = require('./routes/messageRoutes');
+require("./jobs/onlineCleanup")
 
 // Load environment variables from the root directory
 dotenv.config({ path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env' });

@@ -2,7 +2,7 @@
 import React from 'react';
 
 const Footer = () => {
-  console.log("footer painted");
+  // console.log("footer painted");
   
   return (
     <footer className="bg-gradient-to-r from-cosmic to-stellar border-t border-nebula border-opacity-30 backdrop-filter backdrop-blur-lg">

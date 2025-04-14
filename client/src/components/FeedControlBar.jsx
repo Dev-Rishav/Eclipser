@@ -2,7 +2,7 @@
 import React from 'react';
 
 const FeedControlBar = ({ filter, sort, onFilterChange, onSortChange }) => {
-  console.log("FeedControlBar Rendered");
+  // console.log("FeedControlBar Rendered");
   
   return (
     <div className="flex justify-between items-center p-4 bg-gradient-to-br from-stellar/90 to-cosmic/90 border border-nebula/30 rounded-xl mb-6 backdrop-blur-lg">
