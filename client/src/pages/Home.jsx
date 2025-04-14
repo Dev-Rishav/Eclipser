@@ -8,19 +8,16 @@ import FeedControlBar from "../components/FeedControlBar";
 import { HighlightSyntax } from "../components/HighlightSyntax";
 import { toast } from "react-hot-toast";
 import { createPost } from "../utility/createPost";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { clearPostCache } from "../utility/storageCleaner";
 import { usePostLoader } from "../hooks/usePostLoader";
 import { fetchRecentChats } from "../utility/chatUtils";
 import { AnimatedModal } from "../components/AnimateModal";
 import { ChatModal } from "../components/ChatModal";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
+// import { set } from "date-fns";
 
-const socket = io("http://localhost:3000", {
-  transports: ["websocket"],
-  autoConnect: false, // connect manually after registering user
-});
-
+import socket from "../config/socket";
 
 const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -50,10 +47,6 @@ const HomePage = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [page, setPage] = useState(1);
   const [hasMoreChats, setHasMoreChats] = useState(true);
-  // const socket=useMemo(()=>io("http://localhost:3000"))
-
-
-
 
   //* onreload clear posts cache
   useEffect(() => {
@@ -128,87 +121,26 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-  console.log("selectedChat", selectedChat);
+    console.log("selectedChat", selectedChat);
   }, [selectedChat]);
-  
 
+  // Socket connection
+  useEffect(() => {
 
-    // Socket connection
-    useEffect(() => {
-      // // Initialize socket connection
-      // const socket = io(
-      //   "http://localhost:3000"
-      // );
-  
-      // Register user when socket connects
-      // socket.on("connect", () => {
-      //   console.log(`Connected with ID: ${socket.id}`);
-      //   // if (selectedChat?.user._id) {
-      //   //   socket.emit("register", selectedChat.user._id);
-      //   // }
-        socket.connect();
-        console.log("Socket connected");
-        socket.emit("register", user._id);
-      // });
+    socket.connect();
+    console.log("Socket connected");
+    socket.emit("register", user._id);
 
-  
-      
-  
-      // Handle new private messages
-      socket.on("newPrivateMessage", (message) => {
-        console.log("New message received:", message);
-        // if (message.receiverId === selectedChat?.user._id) {
-        //   // setMessages((prevMessages) => [...prevMessages, message]);
-        //   setSelectedChat((prev) => ({
-        //     ...prev,
-        //     messages: [ message,...prev.messages],
-        //   }));
-        // }
-      });
+    // Handle disconnection
+    socket.on("disconnect", () => {
+      console.log("Disconnected from socket");
+    });
 
-      socket.on("private_message", (message) => {
-        console.log("New private message received:", message);
-      })
-  
-      // Handle user status updates
-      // socket.on("userStatus", (status) => {
-      //   console.log("User status:", status);
-      //   if (status.userId === chat?.user._id) {
-      //     setIsOnline(status.isOnline);
-      //   }
-      // });
-  
-      // Handle connection errors
-      // socket.on("connect_error", (error) => {
-      //   console.error("Socket connection error:", error);
-      // });
-
-      // Handle disconnection
-      socket.on("disconnect", () => {
-        console.log("Disconnected from socket");
-      });
-
-      const interval = setInterval(() => socket.emit("ping_server"), 5000); // heartbeat every 5s
-  
-      // Cleanup on component unmount or chat change
-      return () => {
-        // socket.off("connect");
-        // socket.off("disconnect");
-        // socket.off("newPrivateMessage");
-      //   socket.off("userStatus");
-        // socket.off("connect_error");
-        clearInterval(interval);
-        socket.disconnect(); // Disconnect the socket
-      };
-    },[user._id]);
-
-
-    //ensure that you close the WebSocket connection when the page is about to unload.
-    // window.addEventListener('beforeunload', () => {
-    //   socket.disconnect();
-    // });
-    
-
+    // Cleanup on component unmount or chat change
+    return () => {
+      socket.disconnect();
+    };
+  }, [user._id]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cosmic to-stellar">
@@ -316,6 +248,7 @@ const HomePage = () => {
               hasMore={hasMoreChats}
               onSelectChat={(chat) => {
                 setSelectedChat(chat);
+                //manupulate the selectChat state to show the chat modal,it is designed to handle recent chats
                 setIsChatOpen(true);
               }}
             />
@@ -328,25 +261,25 @@ const HomePage = () => {
             // this thing wont even working
             // setIsChatOpen(false);
             // console.log("Chat closed");
-            
             // setSelectedChat(null);
           }}
         >
           <ChatModal
             chat={selectedChat}
-            onClose={() => {setIsChatOpen(false)
+            onClose={() => {
+              setIsChatOpen(false);
               console.log("Chat closed");
               setSelectedChat(null);
             }}
-            onSubmit={(newMessage) => {
-              // Handle message sending
-              console.log("Sending message:", newMessage);
-              socket.emit("privateMessage", newMessage);
-              // setSelectedChat((prevMessages) => [
-              //   newMessage,
-              //   ...prevMessages])
-              // Add your message sending logic here
-            }}
+            // onSubmit={(newMessage) => {
+            //   // Handle message sending
+            //   console.log("Sending message:", newMessage);
+            //   socket.emit("privateMessage", newMessage);
+            //   // setSelectedChat((prevMessages) => [
+            //   //   newMessage,
+            //   //   ...prevMessages])
+            //   // Add your message sending logic here
+            // }}
           />
         </AnimatedModal>
 
