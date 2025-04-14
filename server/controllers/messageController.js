@@ -29,7 +29,7 @@ exports.getMessages = async (req, res) => {
         { senderId: req.user._id, receiverId: userId },
         { senderId: userId, receiverId: req.user._id },
       ],
-    }).sort({ timestamp: -1 });
+    }).sort({ sentAt: -1 });
     res.status(200).json({ success: true, messages });
   } catch (error) {
     console.error("error happened while fetching messages", error);

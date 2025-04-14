@@ -1,20 +1,19 @@
-import { useState, useEffect, useRef } from "react";
+/* eslint-disable react/prop-types */
+import { useState, useEffect} from "react";
 import { formatCosmicTime, generateUserAvatar } from "../utility/chatUtils";
 import { useSelector } from "react-redux";
 import { fetchChatHistory } from "../utility/fetchMessages";
-
 import socket from "../config/socket";
 
-export const ChatModal = ({ chat, onClose }) => {
+export const ChatModal = ({ chat={}, onClose }) => {
 
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [isOnline, setIsOnline] = useState(false);
   const { user } = useSelector((state) => state.auth);
-  const bottomRef = useRef(null);
-  // console.log('Chat:', chat);
 
-  //chat History
+
+  //fetch chat History
   useEffect(() => {
     const fetchHistory = async () => {
       if (chat) {
@@ -35,6 +34,8 @@ export const ChatModal = ({ chat, onClose }) => {
     fetchHistory(); // Call the async function
   }, [chat]);
 
+
+  //event listeners
   useEffect(() => {
     if(!chat || !user?._id) return;
 
@@ -76,32 +77,29 @@ export const ChatModal = ({ chat, onClose }) => {
   },[chat, user._id]);
 
 
+
+  //handle send messages 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (newMessage.trim()) {
-      // onSubmit({
-      //   senderId: user._id,
-      //   content: newMessage,
-      //   receiverId: chat?.user._id,
-      // });
-      //api
       socket.emit("privateMessage", {
         senderId: user._id,
         receiverId: chat?.user._id,
         content: newMessage,
       });
-      // console.log("Message sent:", {
-
+      setMessages((prevMessages) => [
+        {
+          senderId: user._id,
+          receiverId: chat?.user._id,
+          content: newMessage,
+          sentAt: new Date().toISOString(),
+          seen: false,
+        },
+        ...prevMessages,
+      ]);
       setNewMessage("");
     }
   };
-
-  const orderedMessages = [...messages].reverse();
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-
 
 
 
@@ -138,12 +136,12 @@ export const ChatModal = ({ chat, onClose }) => {
       </div>
 
       {/* Chat messages */}
-      <div className="overflow-y-auto flex flex-col cosmic-scroll pb-4">
-        {orderedMessages.length > 0 ? (
-          orderedMessages.map((msg) => (
+      <div className="overflow-y-auto h-full flex flex-col-reverse cosmic-scroll pb-4">
+        {messages.length > 0 ? (
+          messages.map((msg) => (
             <div
               key={msg._id}
-              className={`flex ${
+              className={`flex pb-2 ${
                 msg.senderId === user._id ? "justify-end" : "justify-start"
               }`}
             >
@@ -159,19 +157,18 @@ export const ChatModal = ({ chat, onClose }) => {
                   {formatCosmicTime(msg.sentAt)}
                 </p>
               </div>
-              <div ref={bottomRef} />
             </div>
           ))
         ) : (
           <div className="h-full flex items-center justify-center text-stardust/60">
-            No subspace messages detected
+            No subspace messages detected !
           </div>
         )}
       </div>
 
 
       {/* Message input */}
-      <form onSubmit={handleSubmit} className="border-t border-nebula/30 pt-3">
+      <form onSubmit={handleSubmit} className="border-t border-nebula/30 pt-3 ">
         <div className="flex gap-2">
           <input
             type="text"
