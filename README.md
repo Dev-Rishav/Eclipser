@@ -1,54 +1,92 @@
 # Eclipser
 
-**Eclipser** is an open-source platform for student networking, collaboration, and competitive coding. Built on the motto **"Creating Better Individuals"**, Eclipser empowers students to connect, share ideas, and improve their coding skills through challenges and community engagement.
+**Eclipser** is a full-stack open-source platform for student networking, collaboration, and competitive programming. Built on the motto _"Creating Better Individuals"_, it enables students to:
 
-## Features
+- Connect via one-to-one messaging
+- Share posts and discussions on topics they care about
+- Compete in coding contests with real-time leaderboards
 
-- **User Management:** Secure registration, authentication, and profile management.
-- **Real-time Communication:** Integrated chat and discussion forums powered by WebSockets.
-- **Coding Contests:** Automated code evaluation with real-time leaderboards.
-- **Collaboration Tools:** Discussion boards and group chats for enhanced learning and mentorship.
+---
 
-## Tech Stack
+## 🚀 Features
 
-- **Backend:** Spring Boot, PostgreSQL, WebSockets
-- **Frontend:** React
+- 👥 **User Authentication**: JWT-based secure login, signup, and profile management.
+- 💬 **Real-time Chat**: One-to-one messaging using Socket.IO and MongoDB.
+- 📰 **Post System**:
+  - Tag-based post creation, subscription, and filtering
+  - Real-time post updates via WebSockets
+  - Infinite scroll with caching (Service Worker)
+- ⚔️ **Coding Contests**:
+  - Create and participate in programming contests
+  - Live evaluation and leaderboard tracking
+- 🎯 **Topic Subscriptions**: Personalized feeds by following specific topics/tags.
+- 🔄 **Redis Optimization**: Online presence tracking, real-time subscriptions, and pub/sub for performance.
 
-## Getting Started
+---
 
-### Prerequisites
+## 🛠️ Tech Stack
 
-- Java 11 or higher
-- Node.js and npm (or yarn)
-- PostgreSQL
+### Backend
+- **Node.js** + **Express.js**
+- **MongoDB** (Mongoose ODM)
+- **Redis** (for pub/sub, caching, online user tracking)
+- **Socket.IO** (real-time chat & updates)
 
-### Installation
+### Frontend
+- **React + Vite**
+- **Tailwind CSS**
+- **React Router**
+- **Socket.IO Client**
+- **Service Workers** (for offline cache & infinite scroll)
 
-1. **Clone the repository:**
+---
+
+## 🧑‍💻 Getting Started
+
+### ✅ Prerequisites
+
+- Node.js (v18 or later)
+- MongoDB (local or cloud like MongoDB Atlas)
+- Redis (local or Docker)
+
+---
+
+### 🔧 Installation
+
+1. **Clone the repository**
    ```bash
    git clone https://github.com/yourusername/eclipser.git
-   cd eclipser
+   cd eclipser```
 
-2. **Backend Setup:**
-   
-   Configure your PostgreSQL connection in the application.properties file.
-   Build and run the Spring Boot application:
+2.**Backend Setup**
 
-        cd backend
-        ./mvnw spring-boot:run
+    Configure environment variables in backend/.env (MongoDB URI, Redis URI, JWT secret, etc.)
 
-3. **Frontend Setup:**
+    Install dependencies and start:
+      
+       cd backend
+       npm install
+       npm run dev
 
-    Install dependencies and start the React development server:
+3.**Frontend Setup**
 
-        cd frontend
-        npm install
-        npm start
+    Install and start the React app:
+         
+           cd frontend
+           npm install
+           npm run dev
 
-## Contributing
+---
 
-Contributions are welcome! Please refer to our CONTRIBUTING.md for guidelines on how to get involved.
+###🤝 Contributing
 
-## License
+We welcome contributions! Please check out CONTRIBUTING.md for more info.
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+---
+
+###📄 License
+
+Licensed under the MIT License. See the LICENSE file for details.
+
+
+---
