@@ -10,8 +10,8 @@ export const fetchChatHistory=async(id)=>{
         })
         console.log("res ",res.data);
         
-        if(!res.data.sucess)
-            console.error("Error occured while fetching messages")
+        // if(!res.data.sucess)
+        //     console.error("Error occured while fetching messages")
     
         const data=res.data.messages;
     

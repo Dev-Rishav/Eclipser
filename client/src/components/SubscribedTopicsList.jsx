@@ -24,7 +24,7 @@ export const SubscribedTopicsList = () => {
         setLoading(true);
         const response = await fetchTagsList();
         const tagsArray=Object.keys(response);  //convert object keys to array
-        console.log("Fetched tags:", tagsArray);
+        // console.log("Fetched tags:", tagsArray);
         setAllTags(tagsArray);
       } catch (error) {
         console.error("Error fetching tags:", error);

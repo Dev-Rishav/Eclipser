@@ -9,7 +9,7 @@ export const fetchTagsList = async () =>{
                 },
             }
         );
-        console.log("Tags List:", response.data);
+        // console.log("Tags List:", response.data);
         
         return response.data;
     } catch (error) {

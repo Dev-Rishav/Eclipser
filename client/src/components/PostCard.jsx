@@ -135,7 +135,7 @@ useEffect(()=>{
 
   //using SSE to dynamically update comments and likes
   useEffect(() => {
-    console.log("Initializing EventSource for post:");
+    // console.log("Initializing EventSource for post:");
 
     const eventSource = new EventSource("http://localhost:3000/stream", {
       withCredentials: true,
@@ -144,7 +144,7 @@ useEffect(()=>{
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("Received SSE data:", data);
+      // console.log("Received SSE data:", data);
 
       //handle like manupulation
       if (data.type === "like" && data.postId === post._id) {
@@ -210,7 +210,7 @@ useEffect(()=>{
     };
 
     eventSource.onerror = () => {
-      console.log("EventSource failed. Closing connection.");
+      // console.log("EventSource failed. Closing connection.");
       eventSource.close();
     };
 

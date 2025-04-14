@@ -25,9 +25,9 @@ const initSocket = (server) => {
     handleChatSocket(io,socket);
 
     // Handle user disconnect
-    socket.on("disconnect", () => {
-      console.log(`${socket.id} User Disconnected`);
-    });
+    // socket.on("disconnect", () => {
+    //   console.log(`${socket.id} User Disconnected`);
+    // });
   });
   
 };

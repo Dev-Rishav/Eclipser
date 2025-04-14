@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SubscribedTopicsList } from "../components/SubscribedTopicsList";
 import { QuickAccess } from "../components/QuickAccess";
 import { LiveActivity } from "../components/LiveActivity";
 import { ChatPreview } from "../components/ChatPreview";
 import { PostCard } from "../components/PostCard";
 import FeedControlBar from "../components/FeedControlBar";
-import { AnimatePresence, motion } from "framer-motion";
 import { HighlightSyntax } from "../components/HighlightSyntax";
 import { toast } from "react-hot-toast";
 import { createPost } from "../utility/createPost";
@@ -15,6 +14,13 @@ import { usePostLoader } from "../hooks/usePostLoader";
 import { fetchRecentChats } from "../utility/chatUtils";
 import { AnimatedModal } from "../components/AnimateModal";
 import { ChatModal } from "../components/ChatModal";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3000", {
+  transports: ["websocket"],
+  autoConnect: false, // connect manually after registering user
+});
+
 
 const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -44,6 +50,10 @@ const HomePage = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [page, setPage] = useState(1);
   const [hasMoreChats, setHasMoreChats] = useState(true);
+  // const socket=useMemo(()=>io("http://localhost:3000"))
+
+
+
 
   //* onreload clear posts cache
   useEffect(() => {
@@ -117,13 +127,88 @@ const HomePage = () => {
     setHasMoreChats(response.chats.length > 0);
   };
 
-  // useEffect(() => {
-  //   if (isChatOpen) {
-  //     // Initialize chat or fetch existing chat data
-  //     console.log("Opening chat interface...");
-  //     // You can add additional initialization logic here
-  //   }
-  // }, [isChatOpen]);
+  useEffect(() => {
+  console.log("selectedChat", selectedChat);
+  }, [selectedChat]);
+  
+
+
+    // Socket connection
+    useEffect(() => {
+      // // Initialize socket connection
+      // const socket = io(
+      //   "http://localhost:3000"
+      // );
+  
+      // Register user when socket connects
+      // socket.on("connect", () => {
+      //   console.log(`Connected with ID: ${socket.id}`);
+      //   // if (selectedChat?.user._id) {
+      //   //   socket.emit("register", selectedChat.user._id);
+      //   // }
+        socket.connect();
+        console.log("Socket connected");
+        socket.emit("register", user._id);
+      // });
+
+  
+      
+  
+      // Handle new private messages
+      socket.on("newPrivateMessage", (message) => {
+        console.log("New message received:", message);
+        // if (message.receiverId === selectedChat?.user._id) {
+        //   // setMessages((prevMessages) => [...prevMessages, message]);
+        //   setSelectedChat((prev) => ({
+        //     ...prev,
+        //     messages: [ message,...prev.messages],
+        //   }));
+        // }
+      });
+
+      socket.on("private_message", (message) => {
+        console.log("New private message received:", message);
+      })
+  
+      // Handle user status updates
+      // socket.on("userStatus", (status) => {
+      //   console.log("User status:", status);
+      //   if (status.userId === chat?.user._id) {
+      //     setIsOnline(status.isOnline);
+      //   }
+      // });
+  
+      // Handle connection errors
+      // socket.on("connect_error", (error) => {
+      //   console.error("Socket connection error:", error);
+      // });
+
+      // Handle disconnection
+      socket.on("disconnect", () => {
+        console.log("Disconnected from socket");
+      });
+
+      const interval = setInterval(() => socket.emit("ping_server"), 5000); // heartbeat every 5s
+  
+      // Cleanup on component unmount or chat change
+      return () => {
+        // socket.off("connect");
+        // socket.off("disconnect");
+        // socket.off("newPrivateMessage");
+      //   socket.off("userStatus");
+        // socket.off("connect_error");
+        clearInterval(interval);
+        socket.disconnect(); // Disconnect the socket
+      };
+    },[user._id]);
+
+
+    //ensure that you close the WebSocket connection when the page is about to unload.
+    // window.addEventListener('beforeunload', () => {
+    //   socket.disconnect();
+    // });
+    
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cosmic to-stellar">
@@ -240,16 +325,26 @@ const HomePage = () => {
         <AnimatedModal
           isOpen={isChatOpen}
           onClose={() => {
-            setIsChatOpen(false);
-            setSelectedChat(null);
+            // this thing wont even working
+            // setIsChatOpen(false);
+            // console.log("Chat closed");
+            
+            // setSelectedChat(null);
           }}
         >
           <ChatModal
             chat={selectedChat}
-            onClose={() => setIsChatOpen(false)}
-            onSubmit={(message) => {
+            onClose={() => {setIsChatOpen(false)
+              console.log("Chat closed");
+              setSelectedChat(null);
+            }}
+            onSubmit={(newMessage) => {
               // Handle message sending
-              console.log("Sending message:", message);
+              console.log("Sending message:", newMessage);
+              socket.emit("privateMessage", newMessage);
+              // setSelectedChat((prevMessages) => [
+              //   newMessage,
+              //   ...prevMessages])
               // Add your message sending logic here
             }}
           />

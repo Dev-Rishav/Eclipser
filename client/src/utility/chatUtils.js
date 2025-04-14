@@ -14,7 +14,7 @@ export const fetchRecentChats = async (page = 1, limit = 10) => {
     });
 
     const data = response.data;
-    console.log("Paginated Recent Chats:", data);
+    // console.log("Paginated Recent Chats:", data);
 
     return {
       chats: data.chats || [],

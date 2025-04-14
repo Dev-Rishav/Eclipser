@@ -9,7 +9,7 @@ const handleChatSocket = (io, socket) => {
     connectedUsers.set(userId, socket.id);
     socket.userId = userId;
     
-    await client.sAdd("online_users", userId);
+    await client.sAdd("online_users", userId.toString());
     console.log(`✅ User ${userId} registered & marked online`);
   });
 
@@ -22,6 +22,7 @@ const handleChatSocket = (io, socket) => {
       }
       await message.save();
       console.log("Message saved:", message);
+      socket.emit("newPrivateMessage", message);  //used for acknowledgment
       
 
       const receiverSocketId = connectedUsers.get(receiverId);
@@ -34,6 +35,8 @@ const handleChatSocket = (io, socket) => {
   });
 
   socket.on('ping_server', async () => {
+    console.log("Server pinged by client");
+    
     if (socket.userId) {
       await client.expire(`online:${socket.userId}`, 60); // Refresh TTL
     }
