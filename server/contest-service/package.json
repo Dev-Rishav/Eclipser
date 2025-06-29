@@ -2,7 +2,7 @@
   "name": "contest-service",
   "version": "1.0.0",
   "description": "",
-  "start": "index.js",
+  "start": "nodemon index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
