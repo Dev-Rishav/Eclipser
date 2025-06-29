@@ -1,43 +1,99 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect} from "react";
+import { useState, useEffect, useRef } from "react";
 import { formatCosmicTime, generateUserAvatar } from "../utility/chatUtils";
 import { useSelector } from "react-redux";
 import { fetchChatHistory } from "../utility/fetchMessages";
 import socket from "../config/socket";
 
-export const ChatModal = ({ chat={}, onClose }) => {
-
+export const ChatModal = ({ chat = {}, onClose }) => {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [isOnline, setIsOnline] = useState(false);
   const { user } = useSelector((state) => state.auth);
-
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const scrollRef = useRef(null);
+  const isFetchingRef = useRef(false); // prevent multiple fetches
 
   //fetch chat History
+  // useEffect(() => {
+  //   const fetchHistory = async () => {
+  //     if (chat) {
+  //       try {
+  //         const res = await fetchChatHistory(chat.user._id, page);
+  //         if (res?.success) {
+  //           const chatHistory = res?.messages;
+  //           setMessages((prev) => [...prev, ...chatHistory]);
+  //           setHasMore(res.pagination.hasMore);
+  //           setPage((prev) => prev + 1);
+
+  //         }
+  //       } catch (error) {
+  //         console.error("Error fetching chat history:", error);
+  //       }
+  //     }
+  //   };
+
+  //   fetchHistory(); // Call the async function
+  // }, [chat]);
+
+  //test
   useEffect(() => {
     const fetchHistory = async () => {
-      if (chat) {
-        try {
-          // Fetch full chat history
-          const chatHistory = await fetchChatHistory(chat.user._id);
-
-          if (chatHistory && Object.keys(chatHistory).length !== 0) {
-            // console.log("Chat history:", chatHistory);
-            setMessages(chatHistory); // Update the messages state
-          }
-        } catch (error) {
-          console.error("Error fetching chat history:", error);
+      if (!chat || isFetchingRef.current) return;
+  
+      isFetchingRef.current = true;
+      try {
+        const res = await fetchChatHistory(chat.user._id, page);
+        if (res?.success) {
+          const chatHistory = res.messages;
+  
+          // If it's the first load, replace. Otherwise, append
+          setMessages((prev) => (page === 1 ? chatHistory : [...prev, ...chatHistory]));
+  
+          // Set hasMore based on API's pagination info
+          setHasMore(res.pagination.hasMore);
+  
+          // Increment page only if we got messages equal to our page limit
+          // if (res.pagination.hasMore) {
+          //   setPage((prev) => prev + 1);
+          // }
         }
+      } catch (error) {
+        console.error("Error fetching chat history:", error);
+      } finally {
+        isFetchingRef.current = false;
+      }
+    };
+  
+    fetchHistory();
+  }, [chat, page]);
+
+
+  // Scroll event listener to trigger fetching more messages
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (container.scrollTop <= 10 && hasMore && !isFetchingRef.current) {
+        console.log("APi is preparing to fetch");
+        
+        setPage((prev) => prev + 1);
       }
     };
 
-    fetchHistory(); // Call the async function
-  }, [chat]);
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [hasMore]);
+  
 
+
+  //! infinite scroll is fetching messages whenever scrolling happens4
 
   //event listeners
   useEffect(() => {
-    if(!chat || !user?._id) return;
+    if (!chat || !user?._id) return;
 
     // this is for acknowledgment
     socket.on("newPrivateMessage", (message) => {
@@ -46,14 +102,10 @@ export const ChatModal = ({ chat={}, onClose }) => {
 
     socket.on("private_message", (message) => {
       console.log("New private message received:", message);
-      if(message.receiverId === user._id){
-        setMessages((prevMessages) => [
-          message,
-          ...prevMessages,
-        ]);
-
+      if (message.receiverId === user._id) {
+        setMessages((prevMessages) => [message, ...prevMessages]);
       }
-    })
+    });
 
     // Handle connection errors
     socket.on("connect_error", (error) => {
@@ -65,7 +117,7 @@ export const ChatModal = ({ chat={}, onClose }) => {
       console.log("Disconnected from socket");
     });
 
-    const interval = setInterval(() => socket.emit("ping_server"), 5000); // heartbeat every 5s
+    const interval = setInterval(() => socket.emit("ping_server"), 50000); // heartbeat every 50s, over 60s the server will disconnect
 
     return () => {
       socket.off("disconnect");
@@ -74,11 +126,9 @@ export const ChatModal = ({ chat={}, onClose }) => {
       socket.off("connect_error");
       clearInterval(interval);
     };
-  },[chat, user._id]);
+  }, [chat, user._id]);
 
-
-
-  //handle send messages 
+  //handle send messages
   const handleSubmit = (e) => {
     e.preventDefault();
     if (newMessage.trim()) {
@@ -100,8 +150,6 @@ export const ChatModal = ({ chat={}, onClose }) => {
       setNewMessage("");
     }
   };
-
-
 
   return (
     <div className="space-y-4 h-[70vh] flex flex-col">
@@ -136,11 +184,11 @@ export const ChatModal = ({ chat={}, onClose }) => {
       </div>
 
       {/* Chat messages */}
-      <div className="overflow-y-auto h-full flex flex-col-reverse cosmic-scroll pb-4">
+      <div ref={scrollRef} className=" overflow-y-auto h-full flex flex-col-reverse cosmic-scroll pb-4">
         {messages.length > 0 ? (
           messages.map((msg) => (
             <div
-              key={msg._id}
+              key={msg._id || msg.sentAt}
               className={`flex pb-2 ${
                 msg.senderId === user._id ? "justify-end" : "justify-start"
               }`}
@@ -165,7 +213,6 @@ export const ChatModal = ({ chat={}, onClose }) => {
           </div>
         )}
       </div>
-
 
       {/* Message input */}
       <form onSubmit={handleSubmit} className="border-t border-nebula/30 pt-3 ">

@@ -20,6 +20,9 @@ exports.sendMessage = async (req, res) => {
 //gets all messages between two users
 exports.getMessages = async (req, res) => {
   const { userId } = req.params; // person you are chatting with
+  const page = parseInt(req.query.page) || 1; // default to page 1
+  const limit = parseInt(req.query.limit) || 20; // default to 20 messages per page
+  const skip = (page - 1) * limit;
     if (!userId) {
         return res.status(400).json({ success: false, message: "User ID is required" });
     }
@@ -29,8 +32,29 @@ exports.getMessages = async (req, res) => {
         { senderId: req.user._id, receiverId: userId },
         { senderId: userId, receiverId: req.user._id },
       ],
-    }).sort({ sentAt: -1 });
-    res.status(200).json({ success: true, messages });
+    }).sort({ sentAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+
+    const totalMessages = await Message.countDocuments({
+      $or: [
+        { senderId: req.user._id, receiverId: userId },
+        { senderId: userId, receiverId: req.user._id },
+      ],
+    });
+
+
+    res.status(200).json({ 
+      success: true,
+       messages ,
+       pagination: {
+        totalMessages,
+        currentPage: page,
+        totalPages: Math.ceil(totalMessages / limit),
+        hasMore: skip + messages.length < totalMessages,
+      },
+      });
   } catch (error) {
     console.error("error happened while fetching messages", error);
     
