@@ -1,0 +1,21 @@
+{
+  "name": "contest-service",
+  "version": "1.0.0",
+  "description": "",
+  "start": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bull": "^4.16.5",
+    "dotenv": "^17.0.0",
+    "express": "^5.1.0",
+    "ioredis": "^5.6.1",
+    "mongoose": "^8.16.1",
+    "socket.io": "^4.8.1"
+  }
+}

@@ -2,6 +2,10 @@
 /server/main-service/.env
 /server/main-service/.env.production
 
+/server/contest-service/node_modules
+
+
 client/images/original-05df3a184ceaedc1e452f6afda4f215f.webp
 client/images/original-c3e41fbc965beb35d0567d8c3429cbb6.webp
 client/.env
+server/contest-service/.env
