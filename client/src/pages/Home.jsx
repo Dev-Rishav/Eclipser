@@ -248,7 +248,6 @@ const HomePage = () => {
               hasMore={hasMoreChats}
               onSelectChat={(chat) => {
                 setSelectedChat(chat);
-                //manupulate the selectChat state to show the chat modal,it is designed to handle recent chats
                 setIsChatOpen(true);
               }}
             />
@@ -257,12 +256,7 @@ const HomePage = () => {
         {/* chat modal rendering */}
         <AnimatedModal
           isOpen={isChatOpen}
-          onClose={() => {
-            // this thing wont even working
-            // setIsChatOpen(false);
-            // console.log("Chat closed");
-            // setSelectedChat(null);
-          }}
+          onClose={() => {}}
         >
           <ChatModal
             chat={selectedChat}
@@ -271,15 +265,7 @@ const HomePage = () => {
               console.log("Chat closed");
               setSelectedChat(null);
             }}
-            // onSubmit={(newMessage) => {
-            //   // Handle message sending
-            //   console.log("Sending message:", newMessage);
-            //   socket.emit("privateMessage", newMessage);
-            //   // setSelectedChat((prevMessages) => [
-            //   //   newMessage,
-            //   //   ...prevMessages])
-            //   // Add your message sending logic here
-            // }}
+
           />
         </AnimatedModal>
 
