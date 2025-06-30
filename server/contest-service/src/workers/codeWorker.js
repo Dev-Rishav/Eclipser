@@ -7,13 +7,10 @@ const socketService = require("../utils/socketService");
 const { exec } = require("child_process");
 const fs = require("fs");
 
-console.log("🚀 Worker starting...");
+console.log("🚀 Worker starting in main process...");
 
-mongoose
-  // .connect(process.env.MONGO_URI)
-  .connect("mongodb://localhost:27017/contest-service")
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB error:", err));
+// Don't connect to MongoDB here since we're in the same process as the main app
+// The main app.js already handles the MongoDB connection
 
 codeQueue.process(async (job) => {
   console.log("📥 Received job:", job.id, job.data);
@@ -37,7 +34,12 @@ codeQueue.process(async (job) => {
       timestamp: new Date()
     };
     
-    socketService.emitSubmissionUpdate(initialUpdate);
+    // Try to emit, but don't fail if Socket.IO isn't ready
+    try {
+      socketService.emitSubmissionUpdate(initialUpdate);
+    } catch (error) {
+      console.warn('⚠️  Could not emit initial update:', error.message);
+    }
 
     fs.writeFileSync(filename, code);
 
@@ -106,7 +108,7 @@ codeQueue.process(async (job) => {
           console.log("✅ Submission updated:", updatedSubmission._id);
 
           // Check if this submission wins the contest
-          await checkAndUpdateContestWinner(contestId, userId, result);
+          await checkAndUpdateContestWinner(contestId, userId, result); 
 
           // Send comprehensive update to client
           const finalUpdate = {
@@ -119,19 +121,23 @@ codeQueue.process(async (job) => {
             message: `Execution completed: ${result.status}`
           };
 
-          socketService.emitSubmissionUpdate(finalUpdate);
-          
-          // Also emit contest-specific update
-          socketService.emitContestUpdate({
-            contestId,
-            type: "new_submission",
-            submission: {
-              id: submissionId,
-              userId,
-              result,
-              submittedAt: updatedSubmission.submittedAt
-            }
-          });
+          try {
+            socketService.emitSubmissionUpdate(finalUpdate);
+            
+            // Also emit contest-specific update
+            socketService.emitContestUpdate({
+              contestId,
+              type: "new_submission",
+              submission: {
+                id: submissionId,
+                userId,
+                result,
+                submittedAt: updatedSubmission.submittedAt
+              }
+            });
+          } catch (socketError) {
+            console.warn('⚠️  Could not emit socket updates:', socketError.message);
+          }
 
           resolve(result);
 
@@ -147,7 +153,11 @@ codeQueue.process(async (job) => {
             timestamp: new Date()
           };
           
-          socketService.emitSubmissionUpdate(errorUpdate);
+          try {
+            socketService.emitSubmissionUpdate(errorUpdate);
+          } catch (socketError) {
+            console.warn('⚠️  Could not emit error update:', socketError.message);
+          }
           reject(updateErr);
         } finally {
           // Clean up temporary file
@@ -172,7 +182,11 @@ codeQueue.process(async (job) => {
       timestamp: new Date()
     };
     
-    socketService.emitSubmissionUpdate(errorUpdate);
+    try {
+      socketService.emitSubmissionUpdate(errorUpdate);
+    } catch (socketError) {
+      console.warn('⚠️  Could not emit error update:', socketError.message);
+    }
     throw err;
   }
 });
@@ -251,7 +265,11 @@ async function checkAndUpdateContestWinner(contestId, userId, result) {
         console.log("🏆 Contest winner declared:", userId);
         
         // Emit contest winner update
-        socketService.emitWinnerAnnouncement(contestId, userId);
+        try {
+          socketService.emitWinnerAnnouncement(contestId, userId);
+        } catch (socketError) {
+          console.warn('⚠️  Could not emit winner announcement:', socketError.message);
+        }
       }
     }
   } catch (error) {

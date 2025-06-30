@@ -17,6 +17,10 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/contest-ser
 app.initializeSocket = (io) => {
   socketService.init(io);
   console.log('✅ Socket service initialized');
+  
+  // Initialize the worker after socket is available
+  require('./workers/codeWorker');
+  console.log('✅ Code worker initialized');
 };
 
 app.use('/api/contest', contestRoutes);

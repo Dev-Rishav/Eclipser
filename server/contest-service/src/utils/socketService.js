@@ -12,15 +12,24 @@ class SocketService {
   // Get the io instance
   getIO() {
     if (!this.io) {
-      throw new Error('Socket.IO not initialized');
+      console.warn('⚠️  Socket.IO not initialized yet');
+      return null;
     }
     return this.io;
+  }
+
+  // Check if socket is ready
+  isReady() {
+    return this.io !== null;
   }
 
   // Emit to a specific contest room
   emitToContest(contestId, event, data) {
     if (this.io) {
       this.io.to(`contest_${contestId}`).emit(event, data);
+      console.log(`📤 Emitted '${event}' to contest_${contestId}`);
+    } else {
+      console.warn('⚠️  Socket.IO not ready, cannot emit to contest room');
     }
   }
 
@@ -28,6 +37,9 @@ class SocketService {
   emitToUser(userId, event, data) {
     if (this.io) {
       this.io.to(`user_${userId}`).emit(event, data);
+      console.log(`📤 Emitted '${event}' to user_${userId}`);
+    } else {
+      console.warn('⚠️  Socket.IO not ready, cannot emit to user room');
     }
   }
 
@@ -35,11 +47,19 @@ class SocketService {
   emitToAll(event, data) {
     if (this.io) {
       this.io.emit(event, data);
+      console.log(`📤 Emitted '${event}' to all clients`);
+    } else {
+      console.warn('⚠️  Socket.IO not ready, cannot emit to all clients');
     }
   }
 
   // Emit submission update
   emitSubmissionUpdate(submissionData) {
+    if (!this.isReady()) {
+      console.warn('⚠️  Socket.IO not ready, queuing submission update');
+      return;
+    }
+
     const { contestId, userId } = submissionData;
     
     // Emit to the contest room
@@ -51,6 +71,11 @@ class SocketService {
 
   // Emit contest update
   emitContestUpdate(contestData) {
+    if (!this.isReady()) {
+      console.warn('⚠️  Socket.IO not ready, queuing contest update');
+      return;
+    }
+
     const { contestId } = contestData;
     
     // Emit to the contest room

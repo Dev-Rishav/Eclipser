@@ -1,6 +1,15 @@
 require('dotenv').config();
 const http = require('http');
 const { Server } = require('socket.io');
+
+// Run startup diagnostics
+console.log('🔍 Running startup diagnostics...');
+try {
+  require('./startup-check');
+} catch (err) {
+  console.warn('⚠️  Startup check failed:', err.message);
+}
+
 const app = require('./src/app');
 
 const PORT = process.env.PORT || 3001;
