@@ -1,0 +1,217 @@
+{
+  "info": {
+    "name": "Contest Service Socket.IO Tests",
+    "description": "Collection to test Socket.IO events via HTTP endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Socket Info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/test/socket-info",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "socket-info"]
+        }
+      }
+    },
+    {
+      "name": "Test Submission Update",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"submissionId\": \"test_submission_123\",\n  \"contestId\": \"test_contest_456\",\n  \"userId\": \"test_user_789\",\n  \"status\": \"completed\",\n  \"result\": {\n    \"status\": \"accepted\",\n    \"executionTime\": 150,\n    \"memoryUsed\": 45.2,\n    \"testCasesPassed\": 10,\n    \"totalTestCases\": 10,\n    \"output\": \"Hello, World!\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/submission-update",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "submission-update"]
+        }
+      }
+    },
+    {
+      "name": "Test Contest Update",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contestId\": \"test_contest_456\",\n  \"type\": \"new_submission\",\n  \"userId\": \"test_user_789\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/contest-update",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "contest-update"]
+        }
+      }
+    },
+    {
+      "name": "Test Winner Announcement",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contestId\": \"test_contest_456\",\n  \"winner\": \"test_user_789\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/winner-announcement",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "winner-announcement"]
+        }
+      }
+    },
+    {
+      "name": "Emit to Specific Contest",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contestId\": \"test_contest_456\",\n  \"event\": \"custom_contest_event\",\n  \"data\": {\n    \"message\": \"This is a custom event for the contest\",\n    \"priority\": \"high\",\n    \"timestamp\": \"2025-06-30T12:00:00Z\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/emit-to-contest",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "emit-to-contest"]
+        }
+      }
+    },
+    {
+      "name": "Emit to Specific User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"test_user_789\",\n  \"event\": \"personal_notification\",\n  \"data\": {\n    \"message\": \"You have a new notification!\",\n    \"type\": \"info\",\n    \"action_required\": false\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/emit-to-user",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "emit-to-user"]
+        }
+      }
+    },
+    {
+      "name": "Broadcast to All Clients",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"event\": \"system_announcement\",\n  \"data\": {\n    \"message\": \"System maintenance in 10 minutes\",\n    \"type\": \"warning\",\n    \"duration\": \"5 minutes\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/emit-to-all",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "emit-to-all"]
+        }
+      }
+    },
+    {
+      "name": "Create Contest (with Socket notification)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"users\": [\"user1\", \"user2\", \"user3\"],\n  \"problemId\": \"problem_test_001\",\n  \"startTime\": \"2025-06-30T14:00:00Z\",\n  \"endTime\": \"2025-06-30T16:00:00Z\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/contest/create",
+          "host": ["{{base_url}}"],
+          "path": ["api", "contest", "create"]
+        }
+      }
+    },
+    {
+      "name": "Join Contest (with Socket notification)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contestId\": \"REPLACE_WITH_ACTUAL_CONTEST_ID\",\n  \"userId\": \"new_user_123\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/contest/join",
+          "host": ["{{base_url}}"],
+          "path": ["api", "contest", "join"]
+        }
+      }
+    },
+    {
+      "name": "Submit Code (triggers Socket events)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contestId\": \"REPLACE_WITH_ACTUAL_CONTEST_ID\",\n  \"userId\": \"test_user_789\",\n  \"code\": \"print('Hello, World!')\",\n  \"language\": \"python\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/contest/submit",
+          "host": ["{{base_url}}"],
+          "path": ["api", "contest", "submit"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "type": "string"
+    }
+  ]
+}

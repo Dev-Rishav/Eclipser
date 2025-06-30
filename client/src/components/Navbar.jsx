@@ -47,7 +47,7 @@ const Navbar = () => {
                 Topics
               </NavLink>
               <NavLink
-                to="/contests"
+                to="/contest"
                 className={({ isActive }) =>
                   `flex items-center ${
                     isActive ? "text-corona" : "text-stardust"

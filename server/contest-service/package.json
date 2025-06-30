@@ -1,0 +1,27 @@
+{
+  "name": "contest-service",
+  "version": "1.0.0",
+  "description": "",
+  "start": "nodemon server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pull-images": "node scripts/pull-docker-images.js",
+    "setup": "npm run pull-images",
+    "dev": "nodemon server.js",
+    "start:prod": "node server.js",
+    "seed": "node src/data/seedDatabase.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bull": "^4.16.5",
+    "dotenv": "^17.0.0",
+    "express": "^5.1.0",
+    "ioredis": "^5.6.1",
+    "mongoose": "^8.16.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  }
+}

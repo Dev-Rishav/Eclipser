@@ -7,7 +7,7 @@ import PrivateRoute from "./Redux/PrivateRoute";
 import Signup from "./components/Signup";
 import { Toaster } from "react-hot-toast";
 import PersistentLayout from "./components/PersistentLayout";
-import Contest from "./components/Contest";
+import Contest from "./pages/Contest";
 import Profile from "./pages/Profile";
 import { useState } from "react";
 import LoadingPage from "./components/LoadingPage";
@@ -22,6 +22,8 @@ const App = () => {
       navigate("/"); // Navigate to home
     }, 3000);
   };
+
+
   return (
     <Provider store={store}>
       <Router>
