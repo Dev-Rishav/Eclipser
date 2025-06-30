@@ -2,9 +2,14 @@
   "name": "contest-service",
   "version": "1.0.0",
   "description": "",
-  "start": "nodemon index.js",
+  "start": "nodemon server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pull-images": "node scripts/pull-docker-images.js",
+    "setup": "npm run pull-images",
+    "dev": "nodemon server.js",
+    "start:prod": "node server.js",
+    "seed": "node src/data/seedDatabase.js"
   },
   "keywords": [],
   "author": "",

@@ -43,13 +43,22 @@ codeQueue.process(async (job) => {
 
     fs.writeFileSync(filename, code);
 
+    // For Java, we need to ensure the class name matches the filename
+    if (language === 'java') {
+      // Simple regex to replace the class name with 'code' to match our filename
+      const correctedCode = code.replace(/public\s+class\s+\w+/g, 'public class code');
+      fs.writeFileSync(filename, correctedCode);
+    } else {
+      fs.writeFileSync(filename, code);
+    }
+
     const command = getExecutionCommand(language, filename);
     console.log("🔧 Running command:", command);
 
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
       
-      exec(command, { timeout: 10000 }, async (err, stdout, stderr) => {
+      exec(command, { timeout: 30000 }, async (err, stdout, stderr) => {
         const executionTime = Date.now() - startTime;
         
         console.log("📤 STDOUT:", stdout || "[none]");
@@ -65,7 +74,34 @@ codeQueue.process(async (job) => {
               status: "time_limit_exceeded",
               executionTime,
               memoryUsed: 0,
-              error: "Time limit exceeded (10 seconds)",
+              error: "Time limit exceeded (30 seconds)",
+              testCasesPassed: 0,
+              totalTestCases: 0
+            };
+          } else if (stderr && stderr.includes('Unable to find image')) {
+            result = {
+              status: "system_error",
+              executionTime,
+              memoryUsed: 0,
+              error: "Docker image not available. Please run 'npm run pull-images' to setup required images.",
+              testCasesPassed: 0,
+              totalTestCases: 0
+            };
+          } else if (stderr && (stderr.includes('javac: not found') || stderr.includes('command not found'))) {
+            result = {
+              status: "system_error",
+              executionTime,
+              memoryUsed: 0,
+              error: "Compiler not found in Docker image. Please ensure correct Docker images are available.",
+              testCasesPassed: 0,
+              totalTestCases: 0
+            };
+          } else if (err.code === 127) {
+            result = {
+              status: "compilation_error",
+              executionTime,
+              memoryUsed: 0,
+              error: "Compilation failed: " + (stderr || "Unknown compilation error"),
               testCasesPassed: 0,
               totalTestCases: 0
             };
@@ -206,11 +242,11 @@ function getFileExtension(language) {
 // Helper function to get execution command based on language
 function getExecutionCommand(language, filename) {
   const commands = {
-    python: `docker run --rm -v ${filename}:/code.py python:3 python /code.py`,
-    javascript: `docker run --rm -v ${filename}:/code.js node:18 node /code.js`,
-    java: `docker run --rm -v ${filename}:/code.java openjdk:11 sh -c "javac /code.java && java -cp / code"`,
-    cpp: `docker run --rm -v ${filename}:/code.cpp gcc:latest sh -c "g++ /code.cpp -o /code && /code"`,
-    c: `docker run --rm -v ${filename}:/code.c gcc:latest sh -c "gcc /code.c -o /code && /code"`
+    python: `docker run --rm -v ${filename}:/code.py python:3.9-slim python /code.py`,
+    javascript: `docker run --rm -v ${filename}:/code.js node:18-slim node /code.js`,
+    java: `docker run --rm -v ${filename}:/code.java openjdk:11 sh -c "cd / && javac code.java && java code"`,
+    cpp: `docker run --rm -v ${filename}:/code.cpp gcc:latest sh -c "cd / && g++ code.cpp -o code && ./code"`,
+    c: `docker run --rm -v ${filename}:/code.c gcc:latest sh -c "cd / && gcc code.c -o code && ./code"`
   };
   return commands[language] || commands.python;
 }
