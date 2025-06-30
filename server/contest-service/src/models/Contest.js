@@ -1,20 +1,12 @@
 const mongoose = require('mongoose');
 
-const submissionSchema = new mongoose.Schema({
-  userId: String,
-  code: String,
-  language: String,
-  submittedAt: Date,
-  result: Object,
-});
-
 const contestSchema = new mongoose.Schema({
   users: [String],
   problemId: String,
   startTime: Date,
   endTime: Date,
   status: String, // pending, running, finished
-  submissions: [submissionSchema],
+  submissions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Submission' }],
   winner: String,
 });
 
