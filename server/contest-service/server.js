@@ -1,6 +1,7 @@
 require('dotenv').config();
 const http = require('http');
 const { Server } = require('socket.io');
+const memoryMonitor = require('./src/utils/memoryMonitor');
 
 // Run startup diagnostics
 console.log('🔍 Running startup diagnostics...');
@@ -61,4 +62,13 @@ io.on('connection', (socket) => {
 server.listen(PORT, () => {
   console.log(`Contest service running on port ${PORT}`);
   console.log(`Socket.IO server initialized`);
+  
+  // Start memory monitoring in production
+  if (process.env.NODE_ENV === 'production' || process.env.ENABLE_MEMORY_MONITOR === 'true') {
+    memoryMonitor.start();
+  }
+  
+  // Log environment info
+  console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
+  console.log('🔧 Worker type:', process.env.USE_LIGHTWEIGHT_WORKER === 'true' ? 'Lightweight (AWS optimized)' : 'Docker-based');
 });

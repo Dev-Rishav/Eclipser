@@ -18,9 +18,14 @@ app.initializeSocket = (io) => {
   socketService.init(io);
   console.log('✅ Socket service initialized');
   
-  // Initialize the worker after socket is available
-  require('./workers/codeWorker');
-  console.log('✅ Code worker initialized');
+  // Initialize the appropriate worker based on environment
+  if (process.env.USE_LIGHTWEIGHT_WORKER === 'true' || process.env.NODE_ENV === 'production') {
+    require('./workers/lightweightCodeWorker');
+    console.log('✅ Lightweight code worker initialized (AWS optimized)');
+  } else {
+    require('./workers/codeWorker');
+    console.log('✅ Docker-based code worker initialized');
+  }
 };
 
 app.use('/api/contest', contestRoutes);
