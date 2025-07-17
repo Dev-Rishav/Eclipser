@@ -175,11 +175,11 @@ export const PostCard = ({ post: initialPost }) => {
 
   return (
     <div
-      className={`p-6 mb-4 rounded-lg border bg-white shadow-sm transition-all hover:shadow-md ${
+      className={`p-6 mb-4 rounded-lg border bg-cyber-dark shadow-cyber-blue-glow transition-all hover:shadow-cyber-purple-glow ${
         post.postType === "query"
-          ? "border-l-4 border-blue-500"
-          : "border-l-4 border-pink-500"
-      }`}
+          ? "border-l-4 border-cyber-blue"
+          : "border-l-4 border-cyber-purple"
+      } border-cyber-dark`}
     >
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4">
@@ -188,13 +188,13 @@ export const PostCard = ({ post: initialPost }) => {
           {visibleTags.map((tag, index) => (
             <span
               key={index}
-              className="px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-700 border border-gray-200"
+              className="px-3 py-1 text-sm font-medium rounded-full bg-cyber-black/50 text-cyber-blue border border-cyber-blue/30 shadow-cyber-blue-glow"
             >
               #{tag}
             </span>
           ))}
           {hiddenTagsCount > 0 && (
-            <span className="px-3 py-1 text-sm text-gray-500">
+            <span className="px-3 py-1 text-sm text-cyber-text/60">
               +{hiddenTagsCount} more
             </span>
           )}
@@ -203,16 +203,16 @@ export const PostCard = ({ post: initialPost }) => {
         {/* Metadata */}
         <div className="flex items-center gap-3">
           <span
-            className={`px-2 py-1 rounded text-xs font-bold ${
+            className={`px-2 py-1 rounded text-xs font-bold font-mono ${
               post.postType === "query"
-                ? "bg-blue-100 text-blue-800"
-                : "bg-pink-100 text-pink-800"
+                ? "bg-cyber-blue/20 text-cyber-blue border border-cyber-blue/30"
+                : "bg-cyber-purple/20 text-cyber-purple border border-cyber-purple/30"
             }`}
           >
             {post.postType.toUpperCase()}
           </span>
           <span
-            className="text-sm text-gray-500"
+            className="text-sm text-cyber-text/60 font-mono"
             title={`Created at ${new Date(post.updatedAt).toLocaleString()}`}
           >
             {timeAgo}
@@ -222,7 +222,7 @@ export const PostCard = ({ post: initialPost }) => {
 
       {/* Author Section */}
       <div
-        className="flex items-center gap-3 mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+        className="flex items-center gap-3 mb-4 cursor-pointer hover:bg-cyber-black/30 p-2 rounded-lg transition-colors border border-cyber-blue/20"
         onClick={() => navigate("/profile", {
           state: { userId: post.author.userId }
         })}
@@ -232,21 +232,21 @@ export const PostCard = ({ post: initialPost }) => {
           <img
             src={post.author.profilePic}
             alt={post.author.username}
-            className="w-10 h-10 rounded-full border-2 border-gray-200 object-cover"
+            className="w-10 h-10 rounded-full border-2 border-cyber-blue/50 object-cover shadow-cyber-blue-glow"
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyber-blue to-cyber-purple flex items-center justify-center shadow-cyber-blue-glow">
             <span className="text-sm font-bold text-white">
               {post.author?.username[0].toUpperCase()}
             </span>
           </div>
         )}
         <div className="flex flex-col">
-          <span className="text-base font-semibold text-gray-900">
+          <span className="text-base font-semibold text-cyber-text">
             {post.author?.username}
           </span>
           {post.author?.role && (
-            <span className="text-xs text-gray-500 font-medium">
+            <span className="text-xs text-cyber-blue font-medium font-mono">
               {post.author.role}
             </span>
           )}
@@ -255,11 +255,11 @@ export const PostCard = ({ post: initialPost }) => {
 
       {/* Content Section */}
       <div className="mb-6 space-y-4">
-        <h3 className="text-xl font-bold text-gray-900 bg-gray-50 p-4 rounded-lg border">
+        <h3 className="text-xl font-bold text-cyber-text bg-cyber-black/50 p-4 rounded-lg border border-cyber-blue/30 shadow-cyber-blue-glow">
           {post.title}
         </h3>
 
-        <div className="space-y-4 text-gray-800 leading-relaxed">
+        <div className="space-y-4 text-cyber-text leading-relaxed">
           {post.content.split("\n```").map((section, index) => {
             if (index % 2 === 1) {
               const [language, ...codeLines] = section.split("\n");
@@ -268,20 +268,20 @@ export const PostCard = ({ post: initialPost }) => {
               return (
                 <div
                   key={index}
-                  className="my-4 rounded-lg overflow-hidden border border-gray-200 bg-gray-50"
+                  className="my-4 rounded-lg overflow-hidden border border-cyber-green/30 bg-cyber-black/50 shadow-cyber-green-glow"
                 >
-                  <div className="flex items-center justify-between px-4 py-2 bg-gray-100 border-b border-gray-200">
-                    <span className="text-xs font-mono text-gray-600">
+                  <div className="flex items-center justify-between px-4 py-2 bg-cyber-dark border-b border-cyber-green/30">
+                    <span className="text-xs font-mono text-cyber-green">
                       {language.trim() || "CODE"}
                     </span>
                     <button
                       onClick={() => navigator.clipboard.writeText(code)}
-                      className="text-gray-500 hover:text-gray-700 transition-colors"
+                      className="text-cyber-green hover:text-cyber-blue transition-colors"
                     >
                       📋
                     </button>
                   </div>
-                  <pre className="p-4 bg-gray-50 overflow-x-auto font-mono text-sm">
+                  <pre className="p-4 bg-cyber-black/70 overflow-x-auto font-mono text-sm text-cyber-text">
                     <CodeHighlighter
                       code={code}
                       language={language.trim().toLowerCase()}
@@ -294,10 +294,10 @@ export const PostCard = ({ post: initialPost }) => {
             return (
               <p
                 key={index}
-                className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                className="p-4 bg-cyber-black/30 rounded-lg border border-cyber-blue/20"
               >
                 {section.split("\n").map((line, lineIndex) => (
-                  <span key={lineIndex} className="block mb-2 last:mb-0">
+                  <span key={lineIndex} className="block mb-2 last:mb-0 text-cyber-text">
                     {line}
                   </span>
                 ))}
@@ -315,7 +315,7 @@ export const PostCard = ({ post: initialPost }) => {
                 href={file.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center text-blue-600 hover:text-blue-800 transition-colors text-sm p-2 rounded border border-gray-200 hover:border-blue-300 bg-blue-50"
+                className="flex items-center text-cyber-blue hover:text-cyber-purple transition-colors text-sm p-2 rounded border border-cyber-blue/30 hover:border-cyber-purple/50 bg-cyber-black/30 shadow-cyber-blue-glow"
               >
                 <FaPaperclip className="mr-2 shrink-0" />
                 <span className="truncate">
@@ -327,31 +327,31 @@ export const PostCard = ({ post: initialPost }) => {
         )}
 
         {/* Footer Metrics */}
-        <div className="pt-4 border-t border-gray-200 flex items-center justify-between">
-          <div className="flex items-center gap-5 text-gray-600">
-            <div className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+        <div className="pt-4 border-t border-cyber-blue/30 flex items-center justify-between">
+          <div className="flex items-center gap-5 text-cyber-text/80">
+            <div className="flex items-center gap-1.5 hover:text-cyber-blue transition-colors">
               <FaEye className="w-4 h-4" />
-              <span className="text-sm">{post.views}</span>
+              <span className="text-sm font-mono">{post.views}</span>
             </div>
 
             <button
               onClick={handleLike}
-              className="flex items-center gap-1.5 hover:text-red-500 transition-colors"
+              className="flex items-center gap-1.5 hover:text-cyber-orange transition-colors"
             >
               {isLiked ? (
-                <FaHeart className="w-4 h-4 text-red-500" />
+                <FaHeart className="w-4 h-4 text-cyber-orange" />
               ) : (
                 <FaRegHeart className="w-4 h-4" />
               )}
-              <span className="text-sm">{likesCount}</span>
+              <span className="text-sm font-mono">{likesCount}</span>
             </button>
 
             <button
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center gap-1.5 hover:text-blue-600 transition-colors"
+              className="flex items-center gap-1.5 hover:text-cyber-green transition-colors"
             >
               <FaCommentDots className="w-4 h-4" />
-              <span className="text-sm">{enrichedComments.length}</span>
+              <span className="text-sm font-mono">{enrichedComments.length}</span>
               {showComments ? (
                 <FaChevronUp className="w-3 h-3 ml-1" />
               ) : (
@@ -361,7 +361,7 @@ export const PostCard = ({ post: initialPost }) => {
           </div>
 
           <button
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm"
+            className="px-4 py-2 bg-cyber-blue hover:bg-cyber-purple text-white rounded-lg font-medium transition-colors text-sm shadow-cyber-blue-glow border border-cyber-blue/50"
             onClick={() => setShowComments(!showComments)}
           >
             {post.postType === "query"
@@ -376,12 +376,12 @@ export const PostCard = ({ post: initialPost }) => {
 
         {/* Comments Section */}
         {showComments && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="mt-4 pt-4 border-t border-cyber-blue/30">
             {isLoading ? (
-              <div className="text-blue-600 text-center">
+              <div className="text-cyber-blue text-center">
                 <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  Loading comments...
+                  <div className="w-4 h-4 border-2 border-cyber-blue border-t-transparent rounded-full animate-spin"></div>
+                  <span className="font-mono">Loading comments...</span>
                 </div>
               </div>
             ) : (
@@ -393,32 +393,32 @@ export const PostCard = ({ post: initialPost }) => {
                     value={newCommentContent}
                     onChange={(e) => setNewCommentContent(e.target.value)}
                     placeholder="Write a comment..."
-                    className="flex-1 px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:outline-none focus:border-blue-500 placeholder-gray-500 transition-colors"
+                    className="flex-1 px-4 py-2 rounded-lg bg-cyber-black/50 border border-cyber-blue/30 text-cyber-text focus:outline-none focus:border-cyber-blue focus:shadow-cyber-blue-glow placeholder-cyber-text/60 transition-colors font-mono"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium text-white transition-colors"
+                    className="px-4 py-2 bg-cyber-green hover:bg-cyber-blue rounded-lg font-medium text-white transition-colors shadow-cyber-green-glow border border-cyber-green/50"
                   >
                     Send
                   </button>
                 </form>
 
                 {/* Comments Container */}
-                <div className="space-y-4 max-h-96 overflow-y-auto">
+                <div className="space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
                   {enrichedComments.map((comment) => (
                     <div
                       key={comment._id}
-                      className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200"
+                      className="flex items-start gap-3 p-3 rounded-lg bg-cyber-black/30 border border-cyber-blue/20"
                     >
                       <div className="shrink-0">
                         {comment.author.profilePic ? (
                           <img
                             src={comment.author.profilePic}
                             alt={comment.author.username}
-                            className="w-8 h-8 rounded-full border border-gray-200 object-cover"
+                            className="w-8 h-8 rounded-full border border-cyber-blue/50 object-cover shadow-cyber-blue-glow"
                           />
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cyber-blue to-cyber-purple flex items-center justify-center shadow-cyber-blue-glow">
                             <span className="text-xs text-white">
                               {comment.author.username[0].toUpperCase()}
                             </span>
@@ -427,10 +427,10 @@ export const PostCard = ({ post: initialPost }) => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium text-gray-900 truncate">
+                          <span className="text-sm font-medium text-cyber-text truncate">
                             {comment.author.username}
                           </span>
-                          <span className="text-xs text-gray-500 shrink-0">
+                          <span className="text-xs text-cyber-text/60 shrink-0 font-mono">
                             {comment.dateTime
                               ? formatDistanceToNow(new Date(comment.dateTime), {
                                   addSuffix: true,
@@ -438,7 +438,7 @@ export const PostCard = ({ post: initialPost }) => {
                               : `Unknown Time`}
                           </span>
                         </div>
-                        <p className="text-gray-700 text-sm break-words">
+                        <p className="text-cyber-text/90 text-sm break-words">
                           {comment.content}
                         </p>
                       </div>
@@ -446,8 +446,8 @@ export const PostCard = ({ post: initialPost }) => {
                   ))}
                   {/* Empty State */}
                   {enrichedComments.length === 0 && (
-                    <div className="text-center py-4 text-gray-500">
-                      No comments yet. Be the first to comment!
+                    <div className="text-center py-4 text-cyber-text/60">
+                      <span className="font-mono">No comments yet. Be the first to comment!</span>
                     </div>
                   )}
                 </div>

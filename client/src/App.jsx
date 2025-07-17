@@ -11,6 +11,7 @@ import Contest from "./pages/Contest";
 import Profile from "./pages/Profile";
 import { useState } from "react";
 import LoadingPage from "./components/LoadingPage";
+import Feed from "./components/newUI/Feed";
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(false); // State to control loading screen
@@ -40,6 +41,7 @@ const App = () => {
               <Route path="/" element={<Home />} />
               <Route path="/contest" element={<Contest />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/feed" element={<Feed />} />
               {/* <Route path="/posts" element={<PostList />} /> */}
               {/* Add other authenticated routes here */}
             </Route>
