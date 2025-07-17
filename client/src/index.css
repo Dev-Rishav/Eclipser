@@ -34,3 +34,77 @@
   border-radius: 3px;
   border: 1px solid #4f46e5;
 }
+
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Code Editor Specific Styles */
+.code-editor-container {
+  font-feature-settings: "liga" 1, "calt" 1;
+  font-variant-ligatures: contextual;
+}
+
+/* Enhanced Scrollbar for all components */
+.enhanced-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.enhanced-scrollbar::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.2);
+  border-radius: 4px;
+}
+
+.enhanced-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.6), rgba(139, 92, 246, 0.6));
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.enhanced-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(139, 92, 246, 0.8));
+}
+
+/* Polished Button Styles */
+.polished-button {
+  @apply transition-all duration-200 transform hover:scale-105 active:scale-95;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.polished-button:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced Card Styles */
+.polished-card {
+  backdrop-filter: blur(12px);
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1), 
+    rgba(255, 255, 255, 0.05)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Syntax Highlighting Themes */
+.syntax-theme-dark {
+  --keyword-color: #c678dd;
+  --string-color: #a8e6cf;
+  --comment-color: #7c7c7c;
+  --number-color: #d19a66;
+  --function-color: #61afef;
+  --variable-color: #e06c75;
+  --operator-color: #56b6c2;
+}
+
+.syntax-theme-light {
+  --keyword-color: #a626a4;
+  --string-color: #0ab869;
+  --comment-color: #a0a1a7;
+  --number-color: #c18401;
+  --function-color: #4078f2;
+  --variable-color: #e45649;
+  --operator-color: #0184bc;
+}
