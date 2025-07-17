@@ -18,6 +18,8 @@ const AuthSection = ({ onLogin }) => {
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Check if user prefers reduced motion for performance
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -28,8 +30,15 @@ const AuthSection = ({ onLogin }) => {
 
   // Handle authentication success
   useEffect(() => {
-    if (isAuthenticated && onLogin) {
-      onLogin(navigate);
+    if (isAuthenticated) {
+      toast.success('Welcome to Eclipser!');
+      
+      if (onLogin) {
+        onLogin(navigate);
+      } else {
+        // If no onLogin prop is provided, navigate to home page directly
+        navigate('/');
+      }
     }
   }, [isAuthenticated, navigate, onLogin]);
 
@@ -40,11 +49,18 @@ const AuthSection = ({ onLogin }) => {
     }
   }, [error]);
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     
     if (!loginEmail || !loginPassword) {
       toast.error('Please fill in all fields');
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(loginEmail)) {
+      toast.error('Please enter a valid email address');
       return;
     }
 
@@ -53,12 +69,16 @@ const AuthSection = ({ onLogin }) => {
         email: loginEmail,
         password: loginPassword
       }));
+      
+      // Success will be handled by the useEffect hook when isAuthenticated changes
+      // No need to manually call toast.success here as it will be handled by Redux
     } catch (error) {
       console.error('Login error:', error);
+      // Error handling is already done in Redux action
     }
   };
 
-  const handleSignup = async (e) => {
+  const handleSignup = (e) => {
     e.preventDefault();
     
     if (!signupName || !signupEmail || !signupPassword || !signupConfirmPassword) {
@@ -76,14 +96,22 @@ const AuthSection = ({ onLogin }) => {
       return;
     }
 
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(signupEmail)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
     try {
-      await dispatch(registerUser({
+      dispatch(registerUser({
         username: signupName,
         email: signupEmail,
         password: signupPassword
       }));
       
       // Switch to login tab after successful registration
+      // The success message is already handled in the Redux action
       setActiveTab('login');
       setLoginEmail(signupEmail); // Pre-fill email for convenience
       
@@ -94,12 +122,28 @@ const AuthSection = ({ onLogin }) => {
       setSignupConfirmPassword('');
     } catch (error) {
       console.error('Signup error:', error);
+      // Error handling is already done in Redux action
     }
   };
 
   const handleGoogleAuth = () => {
+    toast.info('Google OAuth integration coming soon!');
     console.log('Google authentication attempted');
-    // Add Google OAuth logic here
+    // TODO: Implement Google OAuth integration
+    // This would typically involve:
+    // 1. Redirecting to Google OAuth
+    // 2. Handling the callback
+    // 3. Exchanging the code for tokens
+    // 4. Creating/logging in the user
+  };
+
+  // Clear forms when switching tabs
+  const handleTabSwitch = (tab) => {
+    setActiveTab(tab);
+    // Clear any existing error messages
+    if (error) {
+      // Clear error from Redux state if needed
+    }
   };
 
   const containerVariants = {
@@ -264,7 +308,7 @@ const AuthSection = ({ onLogin }) => {
                       ? 'text-stellar-blue border-b-2 border-stellar-blue bg-eclipse-800/20 dark:bg-eclipse-200/20' 
                       : 'text-space-text-muted hover:text-space-text-primary dark:text-space-text-muted-dark dark:hover:text-space-text-primary-dark hover:bg-eclipse-800/10 dark:hover:bg-eclipse-200/10'
                   }`}
-                  onClick={() => setActiveTab('login')}
+                  onClick={() => handleTabSwitch('login')}
                 >
                   Login
                 </button>
@@ -274,7 +318,7 @@ const AuthSection = ({ onLogin }) => {
                       ? 'text-stellar-blue border-b-2 border-stellar-blue bg-eclipse-800/20 dark:bg-eclipse-200/20' 
                       : 'text-space-text-muted hover:text-space-text-primary dark:text-space-text-muted-dark dark:hover:text-space-text-primary-dark hover:bg-eclipse-800/10 dark:hover:bg-eclipse-200/10'
                   }`}
-                  onClick={() => setActiveTab('signup')}
+                  onClick={() => handleTabSwitch('signup')}
                 >
                   Sign Up
                 </button>

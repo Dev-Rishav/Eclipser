@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import  { useState, useEffect, Suspense, lazy } from 'react';
 import Hero from '../components/newUI/Hero';
 import SpaceBackground from '../components/newUI/SpaceBackground';
 import Footer from '../components/Footer';
