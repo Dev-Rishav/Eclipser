@@ -13,18 +13,49 @@ const Testimonials = lazy(() => import('../components/newUI/Testimonials'));
 const AuthSection = lazy(() => import('../components/newUI/AuthSection'));
 
 // Loading component for lazy loaded sections
-const SectionLoader = () => (
-  <div className="flex items-center justify-center py-20">
-    <motion.div
-      className="w-8 h-8 border-2 border-stellar-blue border-t-transparent rounded-full"
-      animate={{ rotate: 360 }}
-      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-    />
-  </div>
-);
+const SectionLoader = () => {
+  // Check current theme for conditional animations
+  const isDarkMode = document.documentElement.classList.contains('dark');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shouldAnimate = isDarkMode && !prefersReducedMotion;
+
+  return (
+    <div className="flex items-center justify-center py-20">
+      <motion.div
+        className="w-8 h-8 border-2 border-stellar-blue border-t-transparent rounded-full"
+        animate={shouldAnimate ? { rotate: 360 } : {}}
+        transition={shouldAnimate ? { duration: 1, repeat: Infinity, ease: "linear" } : {}}
+      />
+    </div>
+  );
+};
 
 function LandingPage() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Check if user prefers reduced motion for performance
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shouldAnimate = isDarkMode && !prefersReducedMotion;
+
+  // Monitor theme changes
+  useEffect(() => {
+    const checkTheme = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+
+    // Initial check
+    checkTheme();
+
+    // Watch for theme changes
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // Handle navbar background on scroll
   useEffect(() => {
@@ -40,18 +71,71 @@ function LandingPage() {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
-  };
-
-  return (
+  };  return (
     <div className="min-h-screen text-eclipse-text-light dark:text-space-text relative">
-      {/* Optimized Space Background */}
-      <SpaceBackground />
+      {/* Conditional Background Rendering */}
+      {isDarkMode ? (
+        // Dark mode: Space background with animations
+        <SpaceBackground />
+      ) : (
+        // Light mode: Clean white background with subtle animations
+        <div className="fixed inset-0 bg-white z-0">
+          {/* Subtle animated background elements for light mode */}
+          <div className="absolute inset-0">
+            {/* Floating geometric shapes */}
+            {shouldAnimate && Array.from({ length: 3 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-stellar-blue/5 to-stellar-purple/5 blur-xl"
+                style={{
+                  left: `${20 + i * 30}%`,
+                  top: `${10 + i * 20}%`,
+                }}
+                animate={{
+                  x: [0, 50, -30, 0],
+                  y: [0, -40, 30, 0],
+                  scale: [1, 1.2, 0.8, 1]
+                }}
+                transition={{
+                  duration: 20 + i * 5,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            ))}
+            
+            {/* Subtle gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-stellar-blue/2 via-transparent to-stellar-purple/2" />
+            
+            {/* Light particles */}
+            {shouldAnimate && Array.from({ length: 8 }).map((_, i) => (
+              <motion.div
+                key={`particle-${i}`}
+                className="absolute w-2 h-2 bg-stellar-blue/20 rounded-full"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                }}
+                animate={{
+                  opacity: [0.2, 0.6, 0.2],
+                  scale: [1, 1.5, 1],
+                }}
+                transition={{
+                  duration: 3 + Math.random() * 2,
+                  repeat: Infinity,
+                  delay: Math.random() * 2,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
       
       {/* Landing Page Navbar */}
       <motion.nav 
-        initial={{ y: -50, opacity: 0 }}
+        initial={shouldAnimate ? { y: -50, opacity: 0 } : { y: 0, opacity: 1 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={shouldAnimate ? { duration: 0.5 } : {}}
         className={`fixed top-0 w-full z-50 flex items-center justify-between p-4 border-b transition-all duration-300 ${
           isScrolled 
             ? 'border-eclipse-border dark:border-space-gray bg-eclipse-surface/98 dark:bg-space-dark/98 backdrop-blur-xl shadow-lg' 
@@ -99,16 +183,16 @@ function LandingPage() {
           
           <div className="flex space-x-3">
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={shouldAnimate ? { scale: 1.05 } : {}}
+              whileTap={shouldAnimate ? { scale: 0.95 } : {}}
               onClick={() => scrollToSection('auth')}
               className="px-4 py-2 text-eclipse-text-light dark:text-space-text border border-eclipse-border dark:border-space-gray rounded-lg hover:border-stellar-blue hover:text-stellar-blue transition-all duration-300"
             >
               Login
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={shouldAnimate ? { scale: 1.05 } : {}}
+              whileTap={shouldAnimate ? { scale: 0.95 } : {}}
               onClick={() => scrollToSection('auth')}
               className="px-4 py-2 bg-stellar-blue text-white rounded-lg hover:bg-stellar-blue/80 shadow-stellar-blue-glow transition-all duration-300"
             >

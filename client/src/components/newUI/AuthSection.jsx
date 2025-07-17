@@ -21,6 +21,10 @@ const AuthSection = ({ onLogin }) => {
 
   // Check if user prefers reduced motion for performance
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  
+  // Check current theme - disable animations in light mode for better performance
+  const isDarkMode = document.documentElement.classList.contains('dark');
+  const shouldAnimate = isDarkMode && !prefersReducedMotion;
 
   // Handle authentication success
   useEffect(() => {
@@ -103,8 +107,8 @@ const AuthSection = ({ onLogin }) => {
     visible: {
       opacity: 1,
       transition: {
-        duration: prefersReducedMotion ? 0.1 : 0.4,
-        staggerChildren: prefersReducedMotion ? 0 : 0.1
+        duration: shouldAnimate ? 0.4 : 0.1,
+        staggerChildren: shouldAnimate ? 0.1 : 0
       }
     }
   };
@@ -113,7 +117,7 @@ const AuthSection = ({ onLogin }) => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: prefersReducedMotion ? 0.1 : 0.3 }
+      transition: { duration: shouldAnimate ? 0.3 : 0.1 }
     }
   };
 
@@ -121,7 +125,7 @@ const AuthSection = ({ onLogin }) => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: prefersReducedMotion ? 0.1 : 0.4 }
+      transition: { duration: shouldAnimate ? 0.4 : 0.1 }
     }
   };
 
@@ -135,17 +139,20 @@ const AuthSection = ({ onLogin }) => {
       
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
+          variants={shouldAnimate ? containerVariants : {}}
+          initial={shouldAnimate ? "hidden" : false}
+          whileInView={shouldAnimate ? "visible" : {}}
+          viewport={shouldAnimate ? { once: true, amount: 0.3 } : {}}
           className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center"
         >
           {/* Left Side - Marketing Content */}
-          <motion.div variants={itemVariants} className="space-y-6 sm:space-y-8 text-center lg:text-left order-2 lg:order-1">
+          <motion.div 
+            variants={shouldAnimate ? itemVariants : {}} 
+            className="space-y-6 sm:space-y-8 text-center lg:text-left order-2 lg:order-1"
+          >
             <div className="space-y-4 sm:space-y-6">
               <motion.h2 
-                variants={itemVariants}
+                variants={shouldAnimate ? itemVariants : {}}
                 className="text-3xl sm:text-4xl lg:text-5xl font-bold"
               >
                 <span className="bg-gradient-to-r from-stellar-blue via-stellar-purple to-stellar-blue bg-clip-text text-transparent">
@@ -158,7 +165,7 @@ const AuthSection = ({ onLogin }) => {
               </motion.h2>
               
               <motion.p 
-                variants={itemVariants}
+                variants={shouldAnimate ? itemVariants : {}}
                 className="text-base sm:text-lg text-space-text-secondary dark:text-space-text-secondary-dark leading-relaxed max-w-xl mx-auto lg:mx-0"
               >
                 Connect with thousands of developers, participate in coding contests, 
@@ -167,9 +174,12 @@ const AuthSection = ({ onLogin }) => {
             </div>
 
             {/* Feature highlights */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+            <motion.div 
+              variants={shouldAnimate ? itemVariants : {}} 
+              className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6"
+            >
               <motion.div 
-                whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -5 }}
+                whileHover={shouldAnimate ? { scale: 1.05, y: -5 } : {}}
                 whileTap={{ scale: 0.98 }}
                 className="text-center p-4 rounded-xl bg-space-card-dark/30 dark:bg-space-card-light/20 backdrop-blur-sm border border-eclipse-600/20 dark:border-eclipse-400/20 cursor-pointer"
               >
@@ -179,7 +189,7 @@ const AuthSection = ({ onLogin }) => {
               </motion.div>
               
               <motion.div 
-                whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -5 }}
+                whileHover={shouldAnimate ? { scale: 1.05, y: -5 } : {}}
                 whileTap={{ scale: 0.98 }}
                 className="text-center p-4 rounded-xl bg-space-card-dark/30 dark:bg-space-card-light/20 backdrop-blur-sm border border-eclipse-600/20 dark:border-eclipse-400/20 cursor-pointer"
               >
@@ -189,7 +199,7 @@ const AuthSection = ({ onLogin }) => {
               </motion.div>
               
               <motion.div 
-                whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -5 }}
+                whileHover={shouldAnimate ? { scale: 1.05, y: -5 } : {}}
                 whileTap={{ scale: 0.98 }}
                 className="text-center p-4 rounded-xl bg-space-card-dark/30 dark:bg-space-card-light/20 backdrop-blur-sm border border-eclipse-600/20 dark:border-eclipse-400/20 cursor-pointer"
               >
@@ -201,14 +211,14 @@ const AuthSection = ({ onLogin }) => {
 
             {/* Stats */}
             <motion.div 
-              variants={itemVariants}
+              variants={shouldAnimate ? itemVariants : {}}
               className="grid grid-cols-3 gap-8 pt-8 border-t border-eclipse-600/30 dark:border-eclipse-400/30"
             >
               <div className="text-center">
                 <motion.div 
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
+                  initial={shouldAnimate ? { scale: 0 } : { scale: 1 }}
+                  whileInView={shouldAnimate ? { scale: 1 } : { scale: 1 }}
+                  transition={shouldAnimate ? { delay: 0.5, duration: 0.8, type: "spring" } : {}}
                   className="text-3xl font-bold text-stellar-blue"
                 >
                   10K+
@@ -217,9 +227,9 @@ const AuthSection = ({ onLogin }) => {
               </div>
               <div className="text-center">
                 <motion.div 
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  transition={{ delay: 0.7, duration: 0.8, type: "spring" }}
+                  initial={shouldAnimate ? { scale: 0 } : { scale: 1 }}
+                  whileInView={shouldAnimate ? { scale: 1 } : { scale: 1 }}
+                  transition={shouldAnimate ? { delay: 0.7, duration: 0.8, type: "spring" } : {}}
                   className="text-3xl font-bold text-stellar-orange"
                 >
                   500+
@@ -228,9 +238,9 @@ const AuthSection = ({ onLogin }) => {
               </div>
               <div className="text-center">
                 <motion.div 
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  transition={{ delay: 0.9, duration: 0.8, type: "spring" }}
+                  initial={shouldAnimate ? { scale: 0 } : { scale: 1 }}
+                  whileInView={shouldAnimate ? { scale: 1 } : { scale: 1 }}
+                  transition={shouldAnimate ? { delay: 0.9, duration: 0.8, type: "spring" } : {}}
                   className="text-3xl font-bold text-stellar-green"
                 >
                   50K+
@@ -241,7 +251,10 @@ const AuthSection = ({ onLogin }) => {
           </motion.div>
 
           {/* Right Side - Auth Form */}
-          <motion.div variants={cardVariants} className="w-full max-w-md mx-auto order-1 lg:order-2">
+          <motion.div 
+            variants={shouldAnimate ? cardVariants : {}} 
+            className="w-full max-w-md mx-auto order-1 lg:order-2"
+          >
             <div className="bg-space-card-dark/80 dark:bg-space-card-light/80 backdrop-blur-md rounded-2xl shadow-2xl border border-eclipse-600/50 dark:border-eclipse-400/50 overflow-hidden">
               {/* Tab Navigation */}
               <div className="flex border-b border-eclipse-600/50 dark:border-eclipse-400/50">
@@ -270,9 +283,9 @@ const AuthSection = ({ onLogin }) => {
               <div className="p-8">
                 <motion.div
                   key={activeTab}
-                  initial={{ opacity: 0 }}
+                  initial={shouldAnimate ? { opacity: 0 } : { opacity: 1 }}
                   animate={{ opacity: 1 }}
-                  transition={{ duration: prefersReducedMotion ? 0.1 : 0.2 }}
+                  transition={{ duration: shouldAnimate ? 0.2 : 0 }}
                 >
                   {activeTab === 'login' && (
                     <div>
@@ -331,7 +344,7 @@ const AuthSection = ({ onLogin }) => {
                             <div className="w-full border-t border-eclipse-600 dark:border-eclipse-400"></div>
                           </div>
                           <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-space-card-dark dark:bg-space-card-light text-space-text-muted dark:text-space-text-muted-dark">
+                            <span className="px-4 bg-white dark:bg-space-darker text-space-text-muted dark:text-space-text-muted-dark">
                               Or continue with
                             </span>
                           </div>
@@ -356,9 +369,9 @@ const AuthSection = ({ onLogin }) => {
                       
                       <form onSubmit={handleSignup} className="space-y-6">
                         <motion.div
-                          initial={{ opacity: 0, y: 20 }}
+                          initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.1 }}
+                          transition={{ delay: shouldAnimate ? 0.1 : 0 }}
                         >
                           <label htmlFor="name" className="block text-sm font-medium text-space-text-secondary dark:text-space-text-secondary-dark mb-2">
                             Full Name
@@ -375,9 +388,9 @@ const AuthSection = ({ onLogin }) => {
                         </motion.div>
                         
                         <motion.div
-                          initial={{ opacity: 0, y: 20 }}
+                          initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 }}
+                          transition={{ delay: shouldAnimate ? 0.2 : 0 }}
                         >
                           <label htmlFor="signup-email" className="block text-sm font-medium text-space-text-secondary dark:text-space-text-secondary-dark mb-2">
                             Email
@@ -394,9 +407,9 @@ const AuthSection = ({ onLogin }) => {
                         </motion.div>
                         
                         <motion.div
-                          initial={{ opacity: 0, y: 20 }}
+                          initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.3 }}
+                          transition={{ delay: shouldAnimate ? 0.3 : 0 }}
                         >
                           <label htmlFor="signup-password" className="block text-sm font-medium text-space-text-secondary dark:text-space-text-secondary-dark mb-2">
                             Password
@@ -413,9 +426,9 @@ const AuthSection = ({ onLogin }) => {
                         </motion.div>
                         
                         <motion.div
-                          initial={{ opacity: 0, y: 20 }}
+                          initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.4 }}
+                          transition={{ delay: shouldAnimate ? 0.4 : 0 }}
                         >
                           <label htmlFor="confirm-password" className="block text-sm font-medium text-space-text-secondary dark:text-space-text-secondary-dark mb-2">
                             Confirm Password
@@ -432,10 +445,10 @@ const AuthSection = ({ onLogin }) => {
                         </motion.div>
 
                         <motion.button
-                          initial={{ opacity: 0, y: 20 }}
+                          initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.5 }}
-                          whileHover={{ scale: 1.02 }}
+                          transition={{ delay: shouldAnimate ? 0.5 : 0 }}
+                          whileHover={shouldAnimate ? { scale: 1.02 } : {}}
                           whileTap={{ scale: 0.98 }}
                           type="submit"
                           disabled={loading}
@@ -446,9 +459,9 @@ const AuthSection = ({ onLogin }) => {
                       </form>
 
                       <motion.div 
-                        initial={{ opacity: 0 }}
+                        initial={shouldAnimate ? { opacity: 0 } : { opacity: 1 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6 }}
+                        transition={{ delay: shouldAnimate ? 0.6 : 0 }}
                         className="mt-6"
                       >
                         <div className="relative">
@@ -456,14 +469,14 @@ const AuthSection = ({ onLogin }) => {
                             <div className="w-full border-t border-eclipse-600 dark:border-eclipse-400"></div>
                           </div>
                           <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-space-card-dark dark:bg-space-card-light text-space-text-muted dark:text-space-text-muted-dark">
+                            <span className="px-4 bg-white dark:bg-space-darker text-space-text-muted dark:text-space-text-muted-dark">
                               Or continue with
                             </span>
                           </div>
                         </div>
 
                         <motion.button
-                          whileHover={{ scale: 1.02 }}
+                          whileHover={shouldAnimate ? { scale: 1.02 } : {}}
                           whileTap={{ scale: 0.98 }}
                           onClick={handleGoogleAuth}
                           className="mt-4 w-full flex items-center justify-center px-4 py-3 border border-eclipse-border dark:border-space-gray rounded-lg text-eclipse-text-dark dark:text-space-text bg-white dark:bg-space-darker hover:bg-eclipse-surface dark:hover:bg-space-dark transition-all duration-300"
