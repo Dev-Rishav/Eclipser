@@ -19,53 +19,55 @@ const SpaceBackground = () => {
 
   // Memoize star positions for performance - reduce count for mobile
   const stars = useMemo(() => {
-    const count = windowSize.width < 768 ? 40 : 80;
+    const count = windowSize.width < 480 ? 20 : windowSize.width < 768 ? 35 : 60;
     return Array.from({ length: count }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 3 + 1.5,
-      opacity: Math.random() * 0.8 + 0.6, // Much more visible
+      size: windowSize.width < 480 ? Math.random() * 2 + 1 : Math.random() * 3 + 1.5,
+      opacity: windowSize.width < 480 ? Math.random() * 0.7 + 0.5 : Math.random() * 0.9 + 0.6,
       duration: Math.random() * 4 + 3
     }));
   }, [windowSize.width]);
 
   // Memoize planet positions for performance
   const planets = useMemo(() => {
-    return Array.from({ length: 3 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 60 + 40,
-      color: ['stellar-blue', 'stellar-orange', 'stellar-green'][i],
-      duration: 15 + i * 5
-    }));
-  }, []);
-
-  // Floating cosmic dust particles
-  const cosmicDust = useMemo(() => {
-    const count = windowSize.width < 768 ? 15 : 30;
+    const count = windowSize.width < 480 ? 2 : 3;
     return Array.from({ length: count }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 2 + 0.5,
-      opacity: Math.random() * 0.4 + 0.1,
+      size: windowSize.width < 480 ? Math.random() * 40 + 25 : Math.random() * 60 + 40,
+      color: ['stellar-blue', 'stellar-orange', 'stellar-green'][i],
+      duration: 15 + i * 5
+    }));
+  }, [windowSize.width]);
+
+  // Floating cosmic dust particles
+  const cosmicDust = useMemo(() => {
+    const count = windowSize.width < 480 ? 8 : windowSize.width < 768 ? 15 : 25;
+    return Array.from({ length: count }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: windowSize.width < 480 ? Math.random() * 1.5 + 0.5 : Math.random() * 2 + 0.5,
+      opacity: Math.random() * 0.5 + 0.2,
       duration: Math.random() * 8 + 10
     }));
   }, [windowSize.width]);
 
   // Pulsing energy orbs
   const energyOrbs = useMemo(() => {
-    return Array.from({ length: 4 }, (_, i) => ({
+    const count = windowSize.width < 480 ? 2 : windowSize.width < 768 ? 3 : 4;
+    return Array.from({ length: count }, (_, i) => ({
       id: i,
       x: Math.random() * 90 + 5,
       y: Math.random() * 90 + 5,
-      size: Math.random() * 40 + 20,
+      size: windowSize.width < 480 ? Math.random() * 30 + 15 : Math.random() * 40 + 20,
       color: ['blue', 'purple', 'orange', 'green'][i],
       duration: Math.random() * 6 + 8
     }));
-  }, []);
+  }, [windowSize.width]);
 
   // Reduce motion for low-end devices
   const prefersReducedMotion = useCallback(() => {
@@ -254,14 +256,15 @@ const SpaceBackground = () => {
   ));
   AuroraWaves.displayName = 'AuroraWaves';
 
-  // Floating geometric shapes
+  // Floating geometric shapes - simplified for mobile
   const FloatingGeometry = React.memo(() => {
     const shapes = useMemo(() => {
-      return Array.from({ length: 6 }, (_, i) => ({
+      const count = windowSize.width < 480 ? 3 : windowSize.width < 768 ? 4 : 6;
+      return Array.from({ length: count }, (_, i) => ({
         id: i,
         x: Math.random() * 90 + 5,
         y: Math.random() * 90 + 5,
-        size: Math.random() * 20 + 10,
+        size: windowSize.width < 480 ? Math.random() * 15 + 8 : Math.random() * 20 + 10,
         shape: ['triangle', 'square', 'diamond'][i % 3],
         duration: Math.random() * 8 + 12
       }));
@@ -274,7 +277,7 @@ const SpaceBackground = () => {
         {shapes.map((shape) => (
           <motion.div
             key={shape.id}
-            className={`absolute border border-white/20 ${
+            className={`absolute border border-stellar-blue/30 ${
               shape.shape === 'square' ? 'rounded-none' :
               shape.shape === 'diamond' ? 'rotate-45 rounded-none' :
               'rounded-none'
@@ -285,16 +288,17 @@ const SpaceBackground = () => {
               width: `${shape.size}px`,
               height: `${shape.size}px`,
               background: shape.shape === 'triangle' ? 
-                'linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.1) 50%)' :
-                'rgba(255,255,255,0.05)',
+                'linear-gradient(45deg, transparent 50%, rgba(59,130,246,0.1) 50%)' :
+                'rgba(59,130,246,0.05)',
               clipPath: shape.shape === 'triangle' ? 
-                'polygon(50% 0%, 0% 100%, 100% 100%)' : 'none'
+                'polygon(50% 0%, 0% 100%, 100% 100%)' : 'none',
+              boxShadow: '0 0 10px rgba(59,130,246,0.3)'
             }}
             animate={{
               rotate: prefersReducedMotion() ? 0 : [0, 360],
-              scale: prefersReducedMotion() ? 1 : [1, 1.2, 1],
-              opacity: prefersReducedMotion() ? 0.3 : [0.1, 0.4, 0.1],
-              y: prefersReducedMotion() ? 0 : [0, -30, 0]
+              scale: prefersReducedMotion() ? 1 : [1, 1.1, 1],
+              opacity: prefersReducedMotion() ? 0.4 : [0.2, 0.5, 0.2],
+              y: prefersReducedMotion() ? 0 : [0, -20, 0]
             }}
             transition={{
               duration: shape.duration,
@@ -309,33 +313,39 @@ const SpaceBackground = () => {
   });
   FloatingGeometry.displayName = 'FloatingGeometry';
 
-  // Optimized star field
+  // Optimized star field with accent colors
   const StarField = React.memo(() => (
     <div className="absolute inset-0 overflow-hidden">
-      {stars.map((star) => (
-        <motion.div
-          key={star.id}
-          className="absolute bg-white rounded-full shadow-lg shadow-white/50"
-          style={{
-            left: `${star.x}%`,
-            top: `${star.y}%`,
-            width: `${star.size}px`,
-            height: `${star.size}px`,
-            boxShadow: `0 0 ${star.size * 2}px rgba(255,255,255,0.8)`,
-          }}
-          initial={{ opacity: star.opacity }}
-          animate={{ 
-            opacity: prefersReducedMotion() ? star.opacity : [star.opacity * 0.5, star.opacity, star.opacity * 0.5],
-            scale: prefersReducedMotion() ? 1 : [1, 1.3, 1]
-          }}
-          transition={{
-            duration: star.duration,
-            repeat: prefersReducedMotion() ? 0 : Infinity,
-            delay: Math.random() * 2,
-            ease: "easeInOut"
-          }}
-        />
-      ))}
+      {stars.map((star, index) => {
+        const colors = ['rgb(255,255,255)', 'rgb(59,130,246)', 'rgb(251,146,60)', 'rgb(34,197,94)', 'rgb(168,85,247)'];
+        const color = colors[index % colors.length];
+        
+        return (
+          <motion.div
+            key={star.id}
+            className="absolute rounded-full"
+            style={{
+              left: `${star.x}%`,
+              top: `${star.y}%`,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              background: color,
+              boxShadow: `0 0 ${star.size * 3}px ${color}80, 0 0 ${star.size * 6}px ${color}40`,
+              opacity: star.opacity,
+            }}
+            animate={{ 
+              opacity: prefersReducedMotion() ? star.opacity : [star.opacity * 0.4, star.opacity, star.opacity * 0.4],
+              scale: prefersReducedMotion() ? 1 : [1, 1.4, 1]
+            }}
+            transition={{
+              duration: star.duration,
+              repeat: prefersReducedMotion() ? 0 : Infinity,
+              delay: Math.random() * 2,
+              ease: "easeInOut"
+            }}
+          />
+        );
+      })}
     </div>
   ));
   StarField.displayName = 'StarField';

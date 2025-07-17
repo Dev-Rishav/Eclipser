@@ -99,32 +99,29 @@ const AuthSection = ({ onLogin }) => {
   };
 
   const containerVariants = {
-    hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 50 },
+    hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      y: 0,
       transition: {
-        duration: prefersReducedMotion ? 0.2 : 0.8,
-        staggerChildren: prefersReducedMotion ? 0 : 0.2
+        duration: prefersReducedMotion ? 0.1 : 0.4,
+        staggerChildren: prefersReducedMotion ? 0 : 0.1
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 30 },
+    hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      y: 0,
-      transition: { duration: prefersReducedMotion ? 0.2 : 0.6 }
+      transition: { duration: prefersReducedMotion ? 0.1 : 0.3 }
     }
   };
 
   const cardVariants = {
-    hidden: { opacity: 0, scale: prefersReducedMotion ? 1 : 0.9 },
+    hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      scale: 1,
-      transition: { duration: prefersReducedMotion ? 0.2 : 0.8, ease: "easeOut" }
+      transition: { duration: prefersReducedMotion ? 0.1 : 0.4 }
     }
   };
 
@@ -273,9 +270,9 @@ const AuthSection = ({ onLogin }) => {
               <div className="p-8">
                 <motion.div
                   key={activeTab}
-                  initial={{ opacity: 0, x: activeTab === 'login' ? -20 : 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: prefersReducedMotion ? 0.1 : 0.2 }}
                 >
                   {activeTab === 'login' && (
                     <div>
@@ -284,11 +281,7 @@ const AuthSection = ({ onLogin }) => {
                       </h2>
                       
                       <form onSubmit={handleLogin} className="space-y-6">
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.1 }}
-                        >
+                        <div>
                           <label htmlFor="email" className="block text-sm font-medium text-space-text-secondary dark:text-space-text-secondary-dark mb-2">
                             Email
                           </label>
@@ -298,16 +291,12 @@ const AuthSection = ({ onLogin }) => {
                             value={loginEmail}
                             onChange={(e) => setLoginEmail(e.target.value)}
                             required
-                            className="w-full px-4 py-3 bg-eclipse-800 dark:bg-eclipse-200 border border-eclipse-600 dark:border-eclipse-400 rounded-lg text-space-text-primary dark:text-space-text-primary-dark focus:ring-2 focus:ring-stellar-blue focus:border-transparent transition-all duration-300"
+                            className="w-full px-4 py-3 bg-white dark:bg-space-darker border border-eclipse-border dark:border-space-gray rounded-lg text-eclipse-text-dark dark:text-space-text focus:ring-2 focus:ring-stellar-blue focus:border-stellar-blue transition-all duration-300 placeholder:text-eclipse-muted dark:placeholder:text-space-muted"
                             placeholder="Enter your email"
                           />
-                        </motion.div>
+                        </div>
                         
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 }}
-                        >
+                        <div>
                           <div className="flex justify-between items-center mb-2">
                             <label htmlFor="password" className="block text-sm font-medium text-space-text-secondary dark:text-space-text-secondary-dark">
                               Password
@@ -322,31 +311,21 @@ const AuthSection = ({ onLogin }) => {
                             value={loginPassword}
                             onChange={(e) => setLoginPassword(e.target.value)}
                             required
-                            className="w-full px-4 py-3 bg-eclipse-800 dark:bg-eclipse-200 border border-eclipse-600 dark:border-eclipse-400 rounded-lg text-space-text-primary dark:text-space-text-primary-dark focus:ring-2 focus:ring-stellar-blue focus:border-transparent transition-all duration-300"
+                            className="w-full px-4 py-3 bg-white dark:bg-space-darker border border-eclipse-border dark:border-space-gray rounded-lg text-eclipse-text-dark dark:text-space-text focus:ring-2 focus:ring-stellar-blue focus:border-stellar-blue transition-all duration-300 placeholder:text-eclipse-muted dark:placeholder:text-space-muted"
                             placeholder="Enter your password"
                           />
-                        </motion.div>
+                        </div>
 
-                        <motion.button
-                          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: prefersReducedMotion ? 0 : 0.3 }}
-                          whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
+                        <button
                           type="submit"
                           disabled={loading}
-                          className="w-full py-3 bg-gradient-to-r from-stellar-blue to-stellar-purple text-white rounded-lg font-medium hover:from-stellar-purple hover:to-stellar-blue transition-all duration-300 shadow-lg hover:shadow-stellar-blue/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full py-3 bg-gradient-to-r from-stellar-blue to-stellar-purple text-white rounded-lg font-medium hover:from-stellar-purple hover:to-stellar-blue transition-all duration-300 shadow-lg hover:shadow-stellar-blue/30 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
                         >
                           {loading ? 'Signing In...' : 'Sign In'}
-                        </motion.button>
+                        </button>
                       </form>
 
-                      <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                        className="mt-6"
-                      >
+                      <div className="mt-6">
                         <div className="relative">
                           <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-eclipse-600 dark:border-eclipse-400"></div>
@@ -358,16 +337,14 @@ const AuthSection = ({ onLogin }) => {
                           </div>
                         </div>
 
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
+                        <button
                           onClick={handleGoogleAuth}
-                          className="mt-4 w-full flex items-center justify-center px-4 py-3 border border-eclipse-600 dark:border-eclipse-400 rounded-lg text-space-text-secondary dark:text-space-text-secondary-dark bg-space-card-dark dark:bg-space-card-light hover:bg-eclipse-800 dark:hover:bg-eclipse-200 transition-all duration-300"
+                          className="mt-4 w-full flex items-center justify-center px-4 py-3 border border-eclipse-border dark:border-space-gray rounded-lg text-eclipse-text-dark dark:text-space-text bg-white dark:bg-space-darker hover:bg-eclipse-surface dark:hover:bg-space-dark transition-all duration-300 hover:scale-105"
                         >
                           <FaGoogle className="w-5 h-5 text-stellar-orange mr-2" />
                           Continue with Google
-                        </motion.button>
-                      </motion.div>
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -392,7 +369,7 @@ const AuthSection = ({ onLogin }) => {
                             value={signupName}
                             onChange={(e) => setSignupName(e.target.value)}
                             required
-                            className="w-full px-4 py-3 bg-eclipse-800 dark:bg-eclipse-200 border border-eclipse-600 dark:border-eclipse-400 rounded-lg text-space-text-primary dark:text-space-text-primary-dark focus:ring-2 focus:ring-stellar-blue focus:border-transparent transition-all duration-300"
+                            className="w-full px-4 py-3 bg-white dark:bg-space-darker border border-eclipse-border dark:border-space-gray rounded-lg text-eclipse-text-dark dark:text-space-text focus:ring-2 focus:ring-stellar-blue focus:border-stellar-blue transition-all duration-300 placeholder:text-eclipse-muted dark:placeholder:text-space-muted"
                             placeholder="Enter your full name"
                           />
                         </motion.div>
@@ -411,7 +388,7 @@ const AuthSection = ({ onLogin }) => {
                             value={signupEmail}
                             onChange={(e) => setSignupEmail(e.target.value)}
                             required
-                            className="w-full px-4 py-3 bg-eclipse-800 dark:bg-eclipse-200 border border-eclipse-600 dark:border-eclipse-400 rounded-lg text-space-text-primary dark:text-space-text-primary-dark focus:ring-2 focus:ring-stellar-blue focus:border-transparent transition-all duration-300"
+                            className="w-full px-4 py-3 bg-white dark:bg-space-darker border border-eclipse-border dark:border-space-gray rounded-lg text-eclipse-text-dark dark:text-space-text focus:ring-2 focus:ring-stellar-blue focus:border-stellar-blue transition-all duration-300 placeholder:text-eclipse-muted dark:placeholder:text-space-muted"
                             placeholder="Enter your email"
                           />
                         </motion.div>
@@ -430,7 +407,7 @@ const AuthSection = ({ onLogin }) => {
                             value={signupPassword}
                             onChange={(e) => setSignupPassword(e.target.value)}
                             required
-                            className="w-full px-4 py-3 bg-eclipse-800 dark:bg-eclipse-200 border border-eclipse-600 dark:border-eclipse-400 rounded-lg text-space-text-primary dark:text-space-text-primary-dark focus:ring-2 focus:ring-stellar-blue focus:border-transparent transition-all duration-300"
+                            className="w-full px-4 py-3 bg-white dark:bg-space-darker border border-eclipse-border dark:border-space-gray rounded-lg text-eclipse-text-dark dark:text-space-text focus:ring-2 focus:ring-stellar-blue focus:border-stellar-blue transition-all duration-300 placeholder:text-eclipse-muted dark:placeholder:text-space-muted"
                             placeholder="Create a password"
                           />
                         </motion.div>
@@ -449,7 +426,7 @@ const AuthSection = ({ onLogin }) => {
                             value={signupConfirmPassword}
                             onChange={(e) => setSignupConfirmPassword(e.target.value)}
                             required
-                            className="w-full px-4 py-3 bg-eclipse-800 dark:bg-eclipse-200 border border-eclipse-600 dark:border-eclipse-400 rounded-lg text-space-text-primary dark:text-space-text-primary-dark focus:ring-2 focus:ring-stellar-blue focus:border-transparent transition-all duration-300"
+                            className="w-full px-4 py-3 bg-white dark:bg-space-darker border border-eclipse-border dark:border-space-gray rounded-lg text-eclipse-text-dark dark:text-space-text focus:ring-2 focus:ring-stellar-blue focus:border-stellar-blue transition-all duration-300 placeholder:text-eclipse-muted dark:placeholder:text-space-muted"
                             placeholder="Confirm your password"
                           />
                         </motion.div>
@@ -489,7 +466,7 @@ const AuthSection = ({ onLogin }) => {
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={handleGoogleAuth}
-                          className="mt-4 w-full flex items-center justify-center px-4 py-3 border border-eclipse-600 dark:border-eclipse-400 rounded-lg text-space-text-secondary dark:text-space-text-secondary-dark bg-space-card-dark dark:bg-space-card-light hover:bg-eclipse-800 dark:hover:bg-eclipse-200 transition-all duration-300"
+                          className="mt-4 w-full flex items-center justify-center px-4 py-3 border border-eclipse-border dark:border-space-gray rounded-lg text-eclipse-text-dark dark:text-space-text bg-white dark:bg-space-darker hover:bg-eclipse-surface dark:hover:bg-space-dark transition-all duration-300"
                         >
                           <FaGoogle className="w-5 h-5 text-stellar-orange mr-2" />
                           Continue with Google
