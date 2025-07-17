@@ -23,11 +23,12 @@ export const SubscribedTopicsList = () => {
       try {
         setLoading(true);
         const response = await fetchTagsList();
-        const tagsArray = Object.keys(response);
+        const tagsArray=Object.keys(response);  //convert object keys to array
+        // console.log("Fetched tags:", tagsArray);
         setAllTags(tagsArray);
       } catch (error) {
         console.error("Error fetching tags:", error);
-        setAllTags([]);
+        setAllTags([]); // Ensure we fall back to empty array
       } finally {
         setLoading(false);
       }
@@ -41,21 +42,17 @@ export const SubscribedTopicsList = () => {
 
   if (loading) {
     return (
-      <div className="p-4">
-        <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+      <div className="p-4 bg-gradient-to-br from-cosmic-primary/90 to-stellar-secondary/90 rounded-lg border border-nebula/30 backdrop-blur-lg">
+        <h3 className="text-corona font-bold mb-4 pb-2 border-b border-nebula/30">
           Your Topics
         </h3>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-600 text-sm">Loading topics...</p>
-        </div>
+        <p className="text-stardust text-sm italic">Loading...</p>
       </div>
     );
   }
-
   return (
-    <div className="p-4">
-      <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+    <div className="p-4 bg-gradient-to-br from-cosmic-primary/90 to-stellar-secondary/90 rounded-lg border border-nebula/30 backdrop-blur-lg">
+      <h3 className="text-corona font-bold mb-4 pb-2 border-b border-nebula/30">
         Your Topics
       </h3>
 
@@ -64,27 +61,27 @@ export const SubscribedTopicsList = () => {
           user.subscribedTopics.map((topic, index) => (
             <li
               key={index}
-              className="flex justify-between items-center px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group border border-transparent hover:border-gray-200"
+              className="flex justify-between items-center px-3 py-2 rounded-md hover:bg-nebula/10 transition-all cursor-pointer group"
             >
-              <span className="text-gray-700 text-sm">#{topic}</span>
+              <span className="text-stardust text-sm">#{topic}</span>
               <button
                 onClick={() => handleRemoveTopic(topic)}
-                className="bg-red-100 hover:bg-red-200 text-red-800 text-xs font-medium px-2 py-1 rounded-full transition-colors"
+                className="bg-supernova text-cosmic text-xs font-bold px-2 py-1 rounded-full hover:brightness-110"
               >
                 Remove
               </button>
             </li>
           ))
         ) : (
-          <li className="text-gray-500 text-sm italic">
+          <li className="text-stardust text-sm italic">
             No subscribed topics yet.
           </li>
         )}
       </ul>
 
       {isExpanded && (
-        <div className="mt-4 border-t border-gray-200 pt-4">
-          <h4 className="text-gray-700 text-sm font-semibold mb-2">
+        <div className="mt-4 border-t border-nebula/30 pt-4">
+          <h4 className="text-stardust text-sm font-semibold mb-2">
             Available Topics
           </h4>
           <ul className="space-y-2">
@@ -92,20 +89,20 @@ export const SubscribedTopicsList = () => {
               availableTags.map((tag, index) => (
                 <li
                   key={index}
-                  className="flex justify-between items-center px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group border border-transparent hover:border-gray-200"
+                  className="flex justify-between items-center px-3 py-2 rounded-md hover:bg-nebula/10 transition-all cursor-pointer group"
                 >
-                  <span className="text-gray-700 text-sm">#{tag}</span>
+                  <span className="text-stardust text-sm">#{tag}</span>
                   <button
                     onClick={() => handleJoinTopic(tag)}
-                    className="bg-blue-100 hover:bg-blue-200 text-blue-800 text-xs font-medium px-2 py-1 rounded-full transition-colors"
+                    className="bg-nebula text-cosmic text-xs font-bold px-2 py-1 rounded-full hover:brightness-110"
                   >
                     Add
                   </button>
                 </li>
               ))
             ) : (
-              <li className="text-gray-500 text-sm italic">
-                No additional topics available
+              <li className="text-stardust text-sm italic">
+                No more topics available
               </li>
             )}
           </ul>
@@ -114,10 +111,10 @@ export const SubscribedTopicsList = () => {
 
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg 
-          font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mt-4"
+        className="w-full py-2 px-4 bg-gradient-to-r from-nebula to-supernova text-cosmic rounded-md 
+          font-semibold text-sm hover:brightness-110 transition-all focus:outline-none focus:ring-2 focus:ring-corona mt-4"
       >
-        {isExpanded ? "Collapse Topics" : "Browse Topics"}
+        {isExpanded ? "Collapse Topics" : "+ Join New Topic"}
       </button>
     </div>
   );
