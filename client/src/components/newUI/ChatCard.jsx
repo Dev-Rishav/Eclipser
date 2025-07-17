@@ -55,14 +55,14 @@ const ChatCard = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="bg-cyber-dark rounded-lg p-5 border border-cyber-blue shadow-cyber-blue-glow w-full max-w-xs"
+        className="bg-eclipse-surface dark:bg-space-darker rounded-lg p-5 border border-stellar-blue/50 shadow-stellar-blue-glow w-full max-w-xs animate-edge-glow"
       >
         <div className="mb-4">
-          <h2 className="text-xl font-semibold text-cyber-text flex items-center gap-2">
-            <div className="w-2 h-2 bg-cyber-blue rounded-full animate-cyber-pulse"></div>
+          <h2 className="text-xl font-semibold text-eclipse-text-light dark:text-space-text flex items-center gap-2">
+            <div className="w-2 h-2 bg-stellar-blue rounded-full animate-stellar-pulse"></div>
             Stellar Communications
           </h2>
-          <div className="text-xs text-cyber-blue font-mono">#00F0FF</div>
+          <div className="text-xs text-stellar-blue font-mono">#7B68EE</div>
         </div>
         
         <div className="space-y-3">
@@ -71,39 +71,39 @@ const ChatCard = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleStartNewChat}
-            className="w-full p-3 rounded-lg border border-cyber-blue/50 bg-cyber-black/50 hover:bg-cyber-blue/10 text-cyber-blue text-sm font-medium transition-all duration-300 hover:shadow-cyber-blue-glow"
+            className="w-full p-3 rounded-lg border border-stellar-blue/50 bg-eclipse-border/30 dark:bg-space-void/50 hover:bg-stellar-blue/10 text-stellar-blue text-sm font-medium transition-all duration-300 hover:shadow-stellar-blue-glow"
           >
             + Start New Conversation
           </motion.button>
 
           {/* Recent Chats */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-cyber-text/80">Recent Chats</h3>
+            <h3 className="text-sm font-medium text-eclipse-muted-light dark:text-space-text/80">Recent Chats</h3>
             {chats.length > 0 ? (
               <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
                 {chats.slice(0, 5).map((chat, index) => (
                   <motion.div
                     key={chat.id || index}
                     whileHover={{ scale: 1.02 }}
-                    className="p-2 rounded-lg border border-cyber-blue/20 bg-cyber-black/30 hover:bg-cyber-blue/5 cursor-pointer transition-all duration-300"
+                    className="p-2 rounded-lg border border-stellar-blue/20 bg-eclipse-border/20 dark:bg-space-void/30 hover:bg-stellar-blue/5 cursor-pointer transition-all duration-300"
                     onClick={() => handleChatSelect(chat)}
                   >
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cyber-blue to-cyber-purple flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-stellar-blue to-stellar-orange flex items-center justify-center">
                         <span className="text-xs font-bold text-white">
                           {chat.username?.charAt(0).toUpperCase() || 'U'}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-cyber-text truncate">
+                        <p className="text-sm font-medium text-eclipse-text-light dark:text-space-text truncate">
                           {chat.username || 'Unknown User'}
                         </p>
-                        <p className="text-xs text-cyber-text/60 truncate">
+                        <p className="text-xs text-eclipse-muted-light dark:text-space-text/60 truncate">
                           {chat.lastMessage || 'No messages yet'}
                         </p>
                       </div>
                       {chat.unreadCount > 0 && (
-                        <div className="w-5 h-5 rounded-full bg-cyber-orange flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full bg-stellar-orange flex items-center justify-center">
                           <span className="text-xs font-bold text-white">
                             {chat.unreadCount}
                           </span>
@@ -117,15 +117,15 @@ const ChatCard = () => {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     onClick={loadMoreChats}
-                    className="w-full p-2 text-xs text-cyber-blue hover:text-cyber-purple transition-colors"
+                    className="w-full p-2 text-xs text-stellar-blue hover:text-stellar-orange transition-colors"
                   >
                     Load More Chats...
                   </motion.button>
                 )}
               </div>
             ) : (
-              <div className="p-3 rounded-lg border border-cyber-blue/20 bg-cyber-black/30">
-                <p className="text-xs text-cyber-text/60 text-center">
+              <div className="p-3 rounded-lg border border-stellar-blue/20 bg-eclipse-border/20 dark:bg-space-void/30">
+                <p className="text-xs text-eclipse-muted-light dark:text-space-text/60 text-center">
                   No recent conversations
                 </p>
               </div>
@@ -133,10 +133,10 @@ const ChatCard = () => {
           </div>
 
           {/* Chat Status */}
-          <div className="p-2 rounded-lg border border-cyber-green/30 bg-cyber-black/30">
+          <div className="p-2 rounded-lg border border-stellar-green/30 bg-eclipse-border/20 dark:bg-space-void/30">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-cyber-green rounded-full animate-cyber-pulse"></div>
-              <span className="text-xs text-cyber-green">Online & Ready</span>
+              <div className="w-2 h-2 bg-stellar-green rounded-full animate-stellar-pulse"></div>
+              <span className="text-xs text-stellar-green">Online & Ready</span>
             </div>
           </div>
         </div>

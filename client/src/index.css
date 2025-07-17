@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 body {
   background-color: #000000;
   color: #ffffff;
@@ -20,4 +18,175 @@ body {
 
 .shadow-glow-green {
   box-shadow: 0 0 10px 2px rgba(34, 197, 94, 0.5);
+}
+
+/* Space-themed background animations */
+.stars {
+  background: 
+    radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
+  background-repeat: repeat;
+  background-size: 200px 100px;
+  animation: stars-move 20s linear infinite;
+}
+
+.twinkling {
+  background: 
+    radial-gradient(1px 1px at 10px 10px, rgba(123, 104, 238, 0.8), transparent),
+    radial-gradient(1px 1px at 50px 50px, rgba(255, 69, 0, 0.6), transparent),
+    radial-gradient(1px 1px at 100px 100px, rgba(22, 163, 74, 0.7), transparent),
+    radial-gradient(1px 1px at 150px 150px, rgba(123, 104, 238, 0.5), transparent);
+  background-repeat: repeat;
+  background-size: 300px 300px;
+  animation: twinkling 10s ease-in-out infinite alternate;
+}
+
+@keyframes stars-move {
+  from { transform: translateY(0px); }
+  to { transform: translateY(-100px); }
+}
+
+@keyframes twinkling {
+  from { opacity: 0.3; }
+  to { opacity: 0.8; }
+}
+
+/* Floating animation for decorative elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+/* Pulse glow effect */
+@keyframes pulseGlow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(123, 104, 238, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(123, 104, 238, 0.6);
+  }
+}
+
+.shadow-stellar-blue-glow {
+  box-shadow: 0 0 20px rgba(123, 104, 238, 0.4);
+}
+
+.hover-glow:hover {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Sliding reveal animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.8s ease-out forwards;
+}
+
+/* Gradient text shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.gradient-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(123, 104, 238, 0.4),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Rotating border effect */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.rotating-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    #7B68EE,
+    #FF4500,
+    #16A34A,
+    transparent
+  );
+  border-radius: inherit;
+  animation: rotate 6s linear infinite;
+  z-index: -1;
+}
+
+/* Particle effect background */
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  animation: particle-float 15s linear infinite;
+}
+
+@keyframes particle-float {
+  0% {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(100px);
+    opacity: 0;
+  }
 }

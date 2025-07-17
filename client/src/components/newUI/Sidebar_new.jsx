@@ -27,7 +27,7 @@ const Sidebar = () => {
       transition={{ duration: 0.5 }}
       className="w-64 bg-eclipse-surface dark:bg-space-dark border-r border-eclipse-border dark:border-space-gray h-screen sticky top-0"
     >
-      <div className="p-4 h-full flex flex-col">
+      <div className="p-4">
         {/* User Profile */}
         <div className="mb-6 bg-eclipse-surface dark:bg-space-darker rounded-lg overflow-hidden border border-stellar-blue/30">
           <div className="p-0">
@@ -77,7 +77,7 @@ const Sidebar = () => {
         </nav>
         
         {/* Footer Menu */}
-        <div className="mt-auto pt-6">
+        <div className="absolute bottom-4 left-4 right-4">
           <div className="border-t border-eclipse-border dark:border-space-gray pt-4">
             <ul className="space-y-2">
               {footerItems.map((item, index) => (

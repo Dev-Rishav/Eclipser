@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useSelector } from "react-redux";
 import { usePostLoader } from "../../hooks/usePostLoader";
@@ -9,10 +9,8 @@ import { toast } from "react-hot-toast";
 import { HighlightSyntax } from "../HighlightSyntax";
 import { AnimatedModal } from "../AnimateModal";
 
-const PostCards = () => {
+const PostCards = ({ sortBy = 'newest', filterBy = 'all' }) => {
   const user = useSelector((state) => state.auth.user);
-  const [selectedFilter, setSelectedFilter] = useState("all");
-  const [selectedSort, setSelectedSort] = useState("newest");
   const [isCreatingPost, setIsCreatingPost] = useState(false);
   const [newPost, setNewPost] = useState({
     title: "",
@@ -32,6 +30,52 @@ const PostCards = () => {
     livePosts,
     setLivePosts,
   } = usePostLoader(user);
+
+  // Filter and sort posts based on props
+  const filteredAndSortedPosts = useMemo(() => {
+    let filtered = [...posts];
+
+    // Apply filtering
+    if (filterBy !== 'all') {
+      filtered = filtered.filter(post => {
+        switch (filterBy) {
+          case 'questions':
+            return post.postType === 'query' || post.postType === 'question';
+          case 'solutions':
+            return post.postType === 'solution' || post.postType === 'answer';
+          case 'snippets':
+            return post.postType === 'snippet' || post.codeSnippet;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'oldest':
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        case 'popular': {
+          const aLikes = (a.likes?.length || 0) + (a.comments?.length || 0);
+          const bLikes = (b.likes?.length || 0) + (b.comments?.length || 0);
+          return bLikes - aLikes;
+        }
+        case 'trending': {
+          const aScore = (a.likes?.length || 0) * 2 + (a.comments?.length || 0);
+          const bScore = (b.likes?.length || 0) * 2 + (b.comments?.length || 0);
+          const aRecency = (Date.now() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60 * 24);
+          const bRecency = (Date.now() - new Date(b.createdAt).getTime()) / (1000 * 60 * 60 * 24);
+          return (bScore / (bRecency + 1)) - (aScore / (aRecency + 1));
+        }
+        case 'newest':
+        default:
+          return new Date(b.createdAt) - new Date(a.createdAt);
+      }
+    });
+
+    return filtered;
+  }, [posts, sortBy, filterBy]);
 
   const handleCreatePost = async () => {
     try {
@@ -64,7 +108,7 @@ const PostCards = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="sticky top-0 z-10 bg-cyber-black/90 backdrop-blur-lg pb-2"
+        className="sticky top-0 z-10 bg-space-dark/90 backdrop-blur-lg pb-2"
       >
         {/* <FeedControlBar
           selectedFilter={selectedFilter}
@@ -92,7 +136,7 @@ const PostCards = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center bg-cyber-orange/20 border border-cyber-orange text-cyber-orange p-3 rounded-lg cursor-pointer hover:bg-cyber-orange/30 transition-all"
+          className="text-center bg-stellar-orange/20 border border-stellar-orange text-stellar-orange p-3 rounded-lg cursor-pointer hover:bg-stellar-orange/30 transition-all"
           onClick={() => {
             setPosts((prev) => [...livePosts, ...prev]);
             localStorage.setItem(
@@ -108,8 +152,8 @@ const PostCards = () => {
 
       {/* Loading State */}
       {isLoading ? (
-        <div className="text-center text-cyber-blue mt-4 text-lg font-mono">
-          <div className="animate-cyber-pulse">Summoning cosmic feed...</div>
+        <div className="text-center text-stellar-blue mt-4 text-lg font-mono">
+          <div className="animate-stellar-pulse">Summoning cosmic feed...</div>
         </div>
       ) : (
         <>
@@ -132,8 +176,8 @@ const PostCards = () => {
 
           {/* Posts */}
           <div className="space-y-4">
-            {posts.map((post, index) => {
-              const isLast = index === posts.length - 1;
+            {filteredAndSortedPosts.map((post, index) => {
+              const isLast = index === filteredAndSortedPosts.length - 1;
               return (
                 <motion.div 
                   key={post._id} 
@@ -153,7 +197,7 @@ const PostCards = () => {
             <motion.p 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center text-cyber-blue font-bold mt-4"
+              className="text-center text-stellar-blue font-bold mt-4"
             >
               All transmissions eclipsed. Await the next cosmic alignment!
             </motion.p>
@@ -166,8 +210,8 @@ const PostCards = () => {
         isOpen={isCreatingPost}
         onClose={() => setIsCreatingPost(false)}
       >
-        <div className="bg-cyber-dark rounded-lg p-6 max-w-2xl mx-4 border border-cyber-blue shadow-cyber-blue-glow">
-          <h2 className="text-xl font-bold text-cyber-text mb-4">New Transmission</h2>
+        <div className="bg-space-dark rounded-lg p-6 max-w-2xl mx-4 border border-stellar-blue shadow-stellar-blue-glow">
+          <h2 className="text-xl font-bold text-space-text mb-4">New Transmission</h2>
           
           <div className="space-y-4">
             <input
@@ -175,21 +219,21 @@ const PostCards = () => {
               placeholder="Transmission Title"
               value={newPost.title}
               onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-              className="w-full p-3 bg-cyber-black border border-cyber-blue/30 rounded-lg text-cyber-text placeholder-cyber-text/60 focus:outline-none focus:border-cyber-blue focus:shadow-cyber-blue-glow"
+              className="w-full p-3 bg-space-void border border-stellar-blue/30 rounded-lg text-space-text placeholder-space-muted focus:outline-none focus:border-stellar-blue focus:shadow-stellar-blue-glow"
             />
 
             <textarea
               placeholder="Your cosmic message..."
               value={newPost.content}
               onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-              className="w-full p-3 bg-cyber-black border border-cyber-blue/30 rounded-lg text-cyber-text placeholder-cyber-text/60 focus:outline-none focus:border-cyber-blue focus:shadow-cyber-blue-glow h-32 resize-none"
+              className="w-full p-3 bg-space-void border border-stellar-blue/30 rounded-lg text-space-text placeholder-space-muted focus:outline-none focus:border-stellar-blue focus:shadow-stellar-blue-glow h-32 resize-none"
             />
 
             <div className="flex space-x-4">
               <select
                 value={newPost.postType}
                 onChange={(e) => setNewPost({ ...newPost, postType: e.target.value })}
-                className="p-3 bg-cyber-black border border-cyber-blue/30 rounded-lg text-cyber-text focus:outline-none focus:border-cyber-blue"
+                className="p-3 bg-space-void border border-stellar-blue/30 rounded-lg text-space-text focus:outline-none focus:border-stellar-blue"
               >
                 <option value="query">Query</option>
                 <option value="discussion">Discussion</option>
@@ -203,7 +247,7 @@ const PostCards = () => {
                   ...newPost, 
                   tags: e.target.value.split(",").map(tag => tag.trim()).filter(tag => tag) 
                 })}
-                className="flex-1 p-3 bg-cyber-black border border-cyber-blue/30 rounded-lg text-cyber-text placeholder-cyber-text/60 focus:outline-none focus:border-cyber-blue"
+                className="flex-1 p-3 bg-space-void border border-stellar-blue/30 rounded-lg text-space-text placeholder-space-muted focus:outline-none focus:border-stellar-blue"
               />
             </div>
 
@@ -212,7 +256,7 @@ const PostCards = () => {
                 <select
                   value={newPost.language}
                   onChange={(e) => setNewPost({ ...newPost, language: e.target.value })}
-                  className="p-3 bg-cyber-black border border-cyber-blue/30 rounded-lg text-cyber-text focus:outline-none focus:border-cyber-blue"
+                  className="p-3 bg-space-void border border-stellar-blue/30 rounded-lg text-space-text focus:outline-none focus:border-stellar-blue"
                 >
                   <option value="javascript">JavaScript</option>
                   <option value="python">Python</option>
@@ -224,7 +268,7 @@ const PostCards = () => {
                   language={newPost.language}
                   value={newPost.codeSnippet}
                   onChange={(value) => setNewPost({ ...newPost, codeSnippet: value })}
-                  className="rounded-lg border border-cyber-blue/30"
+                  className="rounded-lg border border-stellar-blue/30"
                 />
               </div>
             )}
@@ -236,7 +280,7 @@ const PostCards = () => {
                   ...newPost, 
                   codeSnippet: newPost.codeSnippet ? "" : "// Add your code here" 
                 })}
-                className="px-4 py-2 bg-cyber-purple/20 border border-cyber-purple/30 rounded-lg text-cyber-purple hover:bg-cyber-purple/30 transition-colors"
+                className="px-4 py-2 bg-stellar-orange/20 border border-stellar-orange/30 rounded-lg text-stellar-orange hover:bg-stellar-orange/30 transition-colors"
               >
                 {newPost.codeSnippet ? "Remove Code" : "Add Code Snippet"}
               </button>
@@ -244,13 +288,13 @@ const PostCards = () => {
               <div className="flex space-x-3">
                 <button
                   onClick={() => setIsCreatingPost(false)}
-                  className="px-6 py-2 bg-cyber-dark border border-cyber-orange/30 text-cyber-orange rounded-lg hover:border-cyber-orange transition-colors"
+                  className="px-6 py-2 bg-space-dark border border-stellar-orange/30 text-stellar-orange rounded-lg hover:border-stellar-orange transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreatePost}
-                  className="px-6 py-2 bg-cyber-blue hover:bg-cyber-blue/80 text-white rounded-lg shadow-cyber-blue-glow transition-colors"
+                  className="px-6 py-2 bg-stellar-blue hover:bg-stellar-blue/80 text-white rounded-lg shadow-stellar-blue-glow transition-colors"
                 >
                   Transmit to Cosmos
                 </button>

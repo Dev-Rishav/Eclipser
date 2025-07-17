@@ -175,11 +175,11 @@ export const PostCard = ({ post: initialPost }) => {
 
   return (
     <div
-      className={`p-6 mb-4 rounded-lg border bg-cyber-dark shadow-cyber-blue-glow transition-all hover:shadow-cyber-purple-glow ${
+      className={`p-6 mb-4 rounded-lg border bg-eclipse-surface dark:bg-space-dark shadow-space-card transition-all hover:shadow-space-elevated ${
         post.postType === "query"
-          ? "border-l-4 border-cyber-blue"
-          : "border-l-4 border-cyber-purple"
-      } border-cyber-dark`}
+          ? "border-l-4 border-stellar-blue"
+          : "border-l-4 border-stellar-orange"
+      } border-eclipse-border dark:border-space-gray`}
     >
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4">
@@ -188,13 +188,13 @@ export const PostCard = ({ post: initialPost }) => {
           {visibleTags.map((tag, index) => (
             <span
               key={index}
-              className="px-3 py-1 text-sm font-medium rounded-full bg-cyber-black/50 text-cyber-blue border border-cyber-blue/30 shadow-cyber-blue-glow"
+              className="px-3 py-1 text-sm font-medium rounded-full bg-eclipse-border/50 dark:bg-space-darker text-stellar-blue border border-stellar-blue/50 shadow-stellar-blue-glow animate-edge-glow"
             >
               #{tag}
             </span>
           ))}
           {hiddenTagsCount > 0 && (
-            <span className="px-3 py-1 text-sm text-cyber-text/60">
+            <span className="px-3 py-1 text-sm text-eclipse-muted-light dark:text-space-muted">
               +{hiddenTagsCount} more
             </span>
           )}
@@ -203,16 +203,16 @@ export const PostCard = ({ post: initialPost }) => {
         {/* Metadata */}
         <div className="flex items-center gap-3">
           <span
-            className={`px-2 py-1 rounded text-xs font-bold font-mono ${
+            className={`px-2 py-1 rounded text-xs font-bold font-mono animate-edge-glow ${
               post.postType === "query"
-                ? "bg-cyber-blue/20 text-cyber-blue border border-cyber-blue/30"
-                : "bg-cyber-purple/20 text-cyber-purple border border-cyber-purple/30"
+                ? "bg-eclipse-border/50 dark:bg-space-darker text-stellar-blue border border-stellar-blue/50 shadow-stellar-blue-glow"
+                : "bg-eclipse-border/50 dark:bg-space-darker text-stellar-orange border border-stellar-orange/50 shadow-stellar-orange-glow"
             }`}
           >
             {post.postType.toUpperCase()}
           </span>
           <span
-            className="text-sm text-cyber-text/60 font-mono"
+            className="text-sm text-eclipse-muted-light dark:text-space-muted font-mono"
             title={`Created at ${new Date(post.updatedAt).toLocaleString()}`}
           >
             {timeAgo}
@@ -222,7 +222,7 @@ export const PostCard = ({ post: initialPost }) => {
 
       {/* Author Section */}
       <div
-        className="flex items-center gap-3 mb-4 cursor-pointer hover:bg-cyber-black/30 p-2 rounded-lg transition-colors border border-cyber-blue/20"
+        className="flex items-center gap-3 mb-4 cursor-pointer hover:bg-eclipse-border/20 dark:hover:bg-space-light/20 p-2 rounded-lg transition-colors"
         onClick={() => navigate("/profile", {
           state: { userId: post.author.userId }
         })}
@@ -232,21 +232,21 @@ export const PostCard = ({ post: initialPost }) => {
           <img
             src={post.author.profilePic}
             alt={post.author.username}
-            className="w-10 h-10 rounded-full border-2 border-cyber-blue/50 object-cover shadow-cyber-blue-glow"
+            className="w-10 h-10 rounded-full border-2 border-stellar-blue/50 object-cover shadow-stellar-blue-glow"
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyber-blue to-cyber-purple flex items-center justify-center shadow-cyber-blue-glow">
+          <div className="w-10 h-10 rounded-full bg-stellar-blue flex items-center justify-center shadow-stellar-blue-glow">
             <span className="text-sm font-bold text-white">
               {post.author?.username[0].toUpperCase()}
             </span>
           </div>
         )}
         <div className="flex flex-col">
-          <span className="text-base font-semibold text-cyber-text">
+          <span className="text-base font-semibold text-eclipse-text-light dark:text-space-text">
             {post.author?.username}
           </span>
           {post.author?.role && (
-            <span className="text-xs text-cyber-blue font-medium font-mono">
+            <span className="text-xs text-stellar-blue font-medium font-mono">
               {post.author.role}
             </span>
           )}
@@ -255,11 +255,11 @@ export const PostCard = ({ post: initialPost }) => {
 
       {/* Content Section */}
       <div className="mb-6 space-y-4">
-        <h3 className="text-xl font-bold text-cyber-text bg-cyber-black/50 p-4 rounded-lg border border-cyber-blue/30 shadow-cyber-blue-glow">
+        <h3 className="text-xl font-bold text-eclipse-text-light dark:text-space-text">
           {post.title}
         </h3>
 
-        <div className="space-y-4 text-cyber-text leading-relaxed">
+        <div className="space-y-4 text-eclipse-text-light dark:text-space-text leading-relaxed">
           {post.content.split("\n```").map((section, index) => {
             if (index % 2 === 1) {
               const [language, ...codeLines] = section.split("\n");
@@ -268,20 +268,20 @@ export const PostCard = ({ post: initialPost }) => {
               return (
                 <div
                   key={index}
-                  className="my-4 rounded-lg overflow-hidden border border-cyber-green/30 bg-cyber-black/50 shadow-cyber-green-glow"
+                  className="my-4 rounded-lg overflow-hidden border border-stellar-green/30 bg-eclipse-border/30 dark:bg-space-void shadow-stellar-green-glow"
                 >
-                  <div className="flex items-center justify-between px-4 py-2 bg-cyber-dark border-b border-cyber-green/30">
-                    <span className="text-xs font-mono text-cyber-green">
+                  <div className="flex items-center justify-between px-4 py-2 bg-eclipse-border/50 dark:bg-space-darker border-b border-stellar-green/30">
+                    <span className="text-xs font-mono text-stellar-green">
                       {language.trim() || "CODE"}
                     </span>
                     <button
                       onClick={() => navigator.clipboard.writeText(code)}
-                      className="text-cyber-green hover:text-cyber-blue transition-colors"
+                      className="text-stellar-green hover:text-stellar-blue transition-colors"
                     >
                       📋
                     </button>
                   </div>
-                  <pre className="p-4 bg-cyber-black/70 overflow-x-auto font-mono text-sm text-cyber-text">
+                  <pre className="p-4 bg-eclipse-border/30 dark:bg-space-void overflow-x-auto font-mono text-sm text-eclipse-text-light dark:text-space-text">
                     <CodeHighlighter
                       code={code}
                       language={language.trim().toLowerCase()}
@@ -294,10 +294,10 @@ export const PostCard = ({ post: initialPost }) => {
             return (
               <p
                 key={index}
-                className="p-4 bg-cyber-black/30 rounded-lg border border-cyber-blue/20"
+                className="text-eclipse-text-light dark:text-space-text"
               >
                 {section.split("\n").map((line, lineIndex) => (
-                  <span key={lineIndex} className="block mb-2 last:mb-0 text-cyber-text">
+                  <span key={lineIndex} className="block mb-2 last:mb-0">
                     {line}
                   </span>
                 ))}
@@ -305,6 +305,9 @@ export const PostCard = ({ post: initialPost }) => {
             );
           })}
         </div>
+
+        {/* Divider after post description */}
+        <div className="border-t border-eclipse-border/50 dark:border-space-gray/50 my-4"></div>
 
         {/* Attachments */}
         {post.attachments?.length > 0 && (
@@ -315,7 +318,7 @@ export const PostCard = ({ post: initialPost }) => {
                 href={file.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center text-cyber-blue hover:text-cyber-purple transition-colors text-sm p-2 rounded border border-cyber-blue/30 hover:border-cyber-purple/50 bg-cyber-black/30 shadow-cyber-blue-glow"
+                className="flex items-center text-stellar-blue hover:text-stellar-orange transition-colors text-sm p-2 rounded border border-stellar-blue/30 hover:border-stellar-orange/50 bg-eclipse-border/50 dark:bg-space-darker shadow-stellar-blue-glow"
               >
                 <FaPaperclip className="mr-2 shrink-0" />
                 <span className="truncate">
@@ -327,19 +330,19 @@ export const PostCard = ({ post: initialPost }) => {
         )}
 
         {/* Footer Metrics */}
-        <div className="pt-4 border-t border-cyber-blue/30 flex items-center justify-between">
-          <div className="flex items-center gap-5 text-cyber-text/80">
-            <div className="flex items-center gap-1.5 hover:text-cyber-blue transition-colors">
+        <div className="pt-4 border-t border-eclipse-border/30 dark:border-space-gray/30 flex items-center justify-between">
+          <div className="flex items-center gap-5 text-eclipse-muted-light dark:text-space-muted">
+            <div className="flex items-center gap-1.5 hover:text-stellar-blue transition-colors">
               <FaEye className="w-4 h-4" />
               <span className="text-sm font-mono">{post.views}</span>
             </div>
 
             <button
               onClick={handleLike}
-              className="flex items-center gap-1.5 hover:text-cyber-orange transition-colors"
+              className="flex items-center gap-1.5 hover:text-stellar-orange transition-colors"
             >
               {isLiked ? (
-                <FaHeart className="w-4 h-4 text-cyber-orange" />
+                <FaHeart className="w-4 h-4 text-stellar-orange" />
               ) : (
                 <FaRegHeart className="w-4 h-4" />
               )}
@@ -348,7 +351,7 @@ export const PostCard = ({ post: initialPost }) => {
 
             <button
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center gap-1.5 hover:text-cyber-green transition-colors"
+              className="flex items-center gap-1.5 hover:text-stellar-green transition-colors"
             >
               <FaCommentDots className="w-4 h-4" />
               <span className="text-sm font-mono">{enrichedComments.length}</span>
@@ -361,7 +364,7 @@ export const PostCard = ({ post: initialPost }) => {
           </div>
 
           <button
-            className="px-4 py-2 bg-cyber-blue hover:bg-cyber-purple text-white rounded-lg font-medium transition-colors text-sm shadow-cyber-blue-glow border border-cyber-blue/50"
+            className="px-4 py-2 bg-stellar-blue hover:bg-stellar-orange text-white rounded-lg font-medium transition-colors text-sm shadow-stellar-blue-glow border border-stellar-blue/50"
             onClick={() => setShowComments(!showComments)}
           >
             {post.postType === "query"
@@ -374,13 +377,16 @@ export const PostCard = ({ post: initialPost }) => {
           </button>
         </div>
 
+        {/* Divider before comments section */}
+        <div className="border-t border-eclipse-border/50 dark:border-space-gray/50 mt-4"></div>
+
         {/* Comments Section */}
         {showComments && (
-          <div className="mt-4 pt-4 border-t border-cyber-blue/30">
+          <div className="mt-4 pt-4 border-t border-eclipse-border/30 dark:border-space-gray/30">
             {isLoading ? (
-              <div className="text-cyber-blue text-center">
+              <div className="text-stellar-blue text-center">
                 <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-cyber-blue border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-stellar-blue border-t-transparent rounded-full animate-spin"></div>
                   <span className="font-mono">Loading comments...</span>
                 </div>
               </div>
@@ -393,11 +399,11 @@ export const PostCard = ({ post: initialPost }) => {
                     value={newCommentContent}
                     onChange={(e) => setNewCommentContent(e.target.value)}
                     placeholder="Write a comment..."
-                    className="flex-1 px-4 py-2 rounded-lg bg-cyber-black/50 border border-cyber-blue/30 text-cyber-text focus:outline-none focus:border-cyber-blue focus:shadow-cyber-blue-glow placeholder-cyber-text/60 transition-colors font-mono"
+                    className="flex-1 px-4 py-2 rounded-lg bg-eclipse-surface dark:bg-space-darker border border-stellar-blue/30 text-eclipse-text-light dark:text-space-text focus:outline-none focus:border-stellar-blue focus:shadow-stellar-blue-glow placeholder-eclipse-muted-light dark:placeholder-space-muted transition-colors font-mono"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-cyber-green hover:bg-cyber-blue rounded-lg font-medium text-white transition-colors shadow-cyber-green-glow border border-cyber-green/50"
+                    className="px-4 py-2 bg-stellar-green hover:bg-stellar-blue rounded-lg font-medium text-white transition-colors shadow-stellar-green-glow border border-stellar-green/50"
                   >
                     Send
                   </button>
@@ -408,17 +414,17 @@ export const PostCard = ({ post: initialPost }) => {
                   {enrichedComments.map((comment) => (
                     <div
                       key={comment._id}
-                      className="flex items-start gap-3 p-3 rounded-lg bg-cyber-black/30 border border-cyber-blue/20"
+                      className="flex items-start gap-3 p-3 rounded-lg hover:bg-eclipse-border/10 dark:hover:bg-space-light/10 transition-colors"
                     >
                       <div className="shrink-0">
                         {comment.author.profilePic ? (
                           <img
                             src={comment.author.profilePic}
                             alt={comment.author.username}
-                            className="w-8 h-8 rounded-full border border-cyber-blue/50 object-cover shadow-cyber-blue-glow"
+                            className="w-8 h-8 rounded-full border border-stellar-blue/50 object-cover shadow-stellar-blue-glow"
                           />
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cyber-blue to-cyber-purple flex items-center justify-center shadow-cyber-blue-glow">
+                          <div className="w-8 h-8 rounded-full bg-stellar-blue flex items-center justify-center shadow-stellar-blue-glow">
                             <span className="text-xs text-white">
                               {comment.author.username[0].toUpperCase()}
                             </span>
@@ -427,10 +433,10 @@ export const PostCard = ({ post: initialPost }) => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium text-cyber-text truncate">
+                          <span className="text-sm font-medium text-eclipse-text-light dark:text-space-text truncate">
                             {comment.author.username}
                           </span>
-                          <span className="text-xs text-cyber-text/60 shrink-0 font-mono">
+                          <span className="text-xs text-eclipse-muted-light dark:text-space-muted shrink-0 font-mono">
                             {comment.dateTime
                               ? formatDistanceToNow(new Date(comment.dateTime), {
                                   addSuffix: true,
@@ -438,7 +444,7 @@ export const PostCard = ({ post: initialPost }) => {
                               : `Unknown Time`}
                           </span>
                         </div>
-                        <p className="text-cyber-text/90 text-sm break-words">
+                        <p className="text-eclipse-text-light dark:text-space-text text-sm break-words">
                           {comment.content}
                         </p>
                       </div>
@@ -446,7 +452,7 @@ export const PostCard = ({ post: initialPost }) => {
                   ))}
                   {/* Empty State */}
                   {enrichedComments.length === 0 && (
-                    <div className="text-center py-4 text-cyber-text/60">
+                    <div className="text-center py-4 text-eclipse-muted-light dark:text-space-muted">
                       <span className="font-mono">No comments yet. Be the first to comment!</span>
                     </div>
                   )}

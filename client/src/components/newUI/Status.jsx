@@ -14,13 +14,13 @@ const Status = () => {
       className="relative max-w-xs w-full"
     >
       {/* Glowing border effect */}
-      <div className="absolute inset-0 rounded-lg bg-cyber-green opacity-20 blur-sm"></div>
+      <div className="absolute inset-0 rounded-lg bg-stellar-green opacity-20 blur-sm"></div>
       
-      <div className="relative bg-cyber-dark rounded-lg p-3 border border-cyber-green shadow-cyber-green-glow">
+      <div className="relative bg-eclipse-surface dark:bg-space-darker rounded-lg p-3 border border-stellar-green/50 shadow-stellar-green-glow animate-edge-glow">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-cyber-text">User Profile</h2>
-            <div className="mt-1 text-cyber-green text-sm font-mono">
+            <h2 className="text-lg font-semibold text-eclipse-text-light dark:text-space-text">User Profile</h2>
+            <div className="mt-1 text-stellar-green text-sm font-mono">
               <div>{'#' + (user?.id || user?._id || 'N/A').toString().slice(-5)}</div>
             </div>
           </div>
@@ -28,7 +28,7 @@ const Status = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-cyber-green hover:text-cyber-blue transition-colors"
+            className="text-stellar-green hover:text-stellar-blue transition-colors"
           >
             <svg 
               className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
@@ -41,30 +41,30 @@ const Status = () => {
         </div>
         
         {/* User Information */}
-        <div className="mb-3 p-2 rounded-lg border border-cyber-green/30 bg-cyber-black/50">
-          <h3 className="text-xs font-semibold text-cyber-green mb-2 flex items-center">
-            <div className="w-1.5 h-1.5 bg-cyber-green rounded-full mr-2 animate-cyber-pulse"></div>
+        <div className="mb-3 p-2 rounded-lg border border-stellar-green/30 bg-eclipse-border/50 dark:bg-space-void">
+          <h3 className="text-xs font-semibold text-stellar-green mb-2 flex items-center">
+            <div className="w-1.5 h-1.5 bg-stellar-green rounded-full mr-2 animate-stellar-pulse"></div>
             Profile Object
           </h3>
-          <div className="text-xs font-mono text-cyber-text">
-            <div className="text-cyber-blue">{'{'}</div>
+          <div className="text-xs font-mono text-eclipse-text-light dark:text-space-text">
+            <div className="text-stellar-blue">{'{'}</div>
             <div className="ml-2">
-              <span className="text-cyber-orange">&quot;username&quot;</span>
-              <span className="text-cyber-text">: </span>
-              <span className="text-cyber-green">&quot;{user?.username || 'Guest'}&quot;</span>
-              <span className="text-cyber-text">,</span>
+              <span className="text-stellar-orange">&quot;username&quot;</span>
+              <span className="text-eclipse-text-light dark:text-space-text">: </span>
+              <span className="text-stellar-green">&quot;{user?.username || 'Guest'}&quot;</span>
+              <span className="text-eclipse-text-light dark:text-space-text">,</span>
             </div>
             <div className="ml-2">
-              <span className="text-cyber-orange">&quot;email&quot;</span>
-              <span className="text-cyber-text">: </span>
-              <span className="text-cyber-green">&quot;{user?.email || 'Not logged in'}&quot;</span>
+              <span className="text-stellar-orange">&quot;email&quot;</span>
+              <span className="text-eclipse-text-light dark:text-space-text">: </span>
+              <span className="text-stellar-green">&quot;{user?.email || 'Not logged in'}&quot;</span>
             </div>
             <div className="ml-2">
-              <span className="text-cyber-orange">&quot;achievements&quot;</span>
-              <span className="text-cyber-text">: </span>
-              <span className="text-cyber-green">&quot;{user?.achievementTitle || 'Not logged in'}&quot;</span>
+              <span className="text-stellar-orange">&quot;achievements&quot;</span>
+              <span className="text-eclipse-text-light dark:text-space-text">: </span>
+              <span className="text-stellar-green">&quot;{user?.achievementTitle || 'Not logged in'}&quot;</span>
             </div>
-            <div className="text-cyber-blue">{'}'}</div>
+            <div className="text-stellar-blue">{'}'}</div>
           </div>
         </div>
 
@@ -73,11 +73,11 @@ const Status = () => {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="p-2 rounded-lg border border-cyber-green/30 bg-cyber-green/10"
+            className="p-2 rounded-lg border border-stellar-green/30 bg-stellar-green/10"
           >
             <div className="flex items-center justify-center text-xs">
-              <div className="w-1.5 h-1.5 bg-cyber-green rounded-full mr-2 animate-cyber-pulse"></div>
-              <span className="font-mono font-semibold text-cyber-green">
+              <div className="w-1.5 h-1.5 bg-stellar-green rounded-full mr-2 animate-stellar-pulse"></div>
+              <span className="font-mono font-semibold text-stellar-green">
                 ALL SYSTEMS OPERATIONAL
               </span>
             </div>
@@ -95,31 +95,31 @@ const Status = () => {
           >
             {/* Achievement Section */}
             <div>
-              <h3 className="text-xs font-semibold text-cyber-green mb-2 flex items-center">
-                <div className="w-1.5 h-1.5 bg-cyber-green rounded-full mr-2 animate-cyber-pulse"></div>
+              <h3 className="text-xs font-semibold text-stellar-green mb-2 flex items-center">
+                <div className="w-1.5 h-1.5 bg-stellar-green rounded-full mr-2 animate-stellar-pulse"></div>
                 Achievements
               </h3>
               <div className="space-y-1">
-                <div className="p-2 rounded-lg border border-cyber-green/20 bg-cyber-black/30">
+                <div className="p-2 rounded-lg border border-stellar-green/20 bg-space-void">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-cyber-text">Current Title:</span>
-                    <span className="text-xs font-mono text-cyber-green">
+                    <span className="text-xs text-space-text">Current Title:</span>
+                    <span className="text-xs font-mono text-stellar-green">
                       {user?.achievementTitle || 'New Explorer'}
                     </span>
                   </div>
                 </div>
-                <div className="p-2 rounded-lg border border-cyber-blue/20 bg-cyber-black/30">
+                <div className="p-2 rounded-lg border border-stellar-blue/20 bg-space-void">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-cyber-text">Rank Level:</span>
-                    <span className="text-xs font-mono text-cyber-blue">
+                    <span className="text-xs text-space-text">Rank Level:</span>
+                    <span className="text-xs font-mono text-stellar-blue">
                       {user?.level || '1'}
                     </span>
                   </div>
                 </div>
-                <div className="p-2 rounded-lg border border-cyber-purple/20 bg-cyber-black/30">
+                <div className="p-2 rounded-lg border border-stellar-orange/20 bg-space-void">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-cyber-text">Total Points:</span>
-                    <span className="text-xs font-mono text-cyber-purple">
+                    <span className="text-xs text-space-text">Total Points:</span>
+                    <span className="text-xs font-mono text-stellar-orange">
                       {user?.totalPoints || '0'}
                     </span>
                   </div>
@@ -129,33 +129,33 @@ const Status = () => {
 
             {/* System Status in Expanded View */}
             <div>
-              <h3 className="text-xs font-semibold text-cyber-green mb-2 flex items-center">
-                <div className="w-1.5 h-1.5 bg-cyber-green rounded-full mr-2 animate-cyber-pulse"></div>
+              <h3 className="text-xs font-semibold text-stellar-green mb-2 flex items-center">
+                <div className="w-1.5 h-1.5 bg-stellar-green rounded-full mr-2 animate-stellar-pulse"></div>
                 System Health
               </h3>
               <div className="space-y-1">
-                <div className="p-2 rounded-lg border border-cyber-green/20 bg-cyber-black/30">
+                <div className="p-2 rounded-lg border border-stellar-green/20 bg-space-void">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-cyber-text/60">Main Service:</span>
-                    <span className="font-mono text-cyber-green">UP</span>
+                    <span className="text-space-muted">Main Service:</span>
+                    <span className="font-mono text-stellar-green">UP</span>
                   </div>
                 </div>
-                <div className="p-2 rounded-lg border border-cyber-blue/20 bg-cyber-black/30">
+                <div className="p-2 rounded-lg border border-stellar-blue/20 bg-space-void">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-cyber-text/60">Contest Service:</span>
-                    <span className="font-mono text-cyber-green">UP</span>
+                    <span className="text-space-muted">Contest Service:</span>
+                    <span className="font-mono text-stellar-green">UP</span>
                   </div>
                 </div>
-                <div className="p-2 rounded-lg border border-cyber-purple/20 bg-cyber-black/30">
+                <div className="p-2 rounded-lg border border-stellar-orange/20 bg-space-void">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-cyber-text/60">Chat Service:</span>
-                    <span className="font-mono text-cyber-green">UP</span>
+                    <span className="text-space-muted">Chat Service:</span>
+                    <span className="font-mono text-stellar-green">UP</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-3 font-mono text-sm text-cyber-green shadow-cyber-green-glow text-center">
+            <div className="mt-3 font-mono text-sm text-stellar-green shadow-stellar-green-glow text-center">
               #22FF22
             </div>
           </motion.div>
