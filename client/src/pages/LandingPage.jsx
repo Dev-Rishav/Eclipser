@@ -1,13 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Hero from '../components/newUI/Hero';
-import Features from '../components/newUI/Features';
-import HowItWorks from '../components/newUI/HowItWorks';
-import Contests from '../components/newUI/Contests';
-import Testimonials from '../components/newUI/Testimonials';
-import AuthSection from '../components/newUI/AuthSection';
+import SpaceBackground from '../components/newUI/SpaceBackground';
 import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
 import ThemeSwitcher from '../components/ThemeSwitcher';
+
+// Lazy load heavier components
+const Features = lazy(() => import('../components/newUI/Features'));
+const HowItWorks = lazy(() => import('../components/newUI/HowItWorks'));
+const Contests = lazy(() => import('../components/newUI/Contests'));
+const Testimonials = lazy(() => import('../components/newUI/Testimonials'));
+const AuthSection = lazy(() => import('../components/newUI/AuthSection'));
+
+// Loading component for lazy loaded sections
+const SectionLoader = () => (
+  <div className="flex items-center justify-center py-20">
+    <motion.div
+      className="w-8 h-8 border-2 border-stellar-blue border-t-transparent rounded-full"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+    />
+  </div>
+);
 
 function LandingPage() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,7 +43,10 @@ function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-eclipse-light dark:bg-space-void text-eclipse-text-light dark:text-space-text">
+    <div className="min-h-screen text-eclipse-text-light dark:text-space-text relative">
+      {/* Optimized Space Background */}
+      <SpaceBackground />
+      
       {/* Landing Page Navbar */}
       <motion.nav 
         initial={{ y: -50, opacity: 0 }}
@@ -101,101 +118,36 @@ function LandingPage() {
         </div>
       </motion.nav>
 
-      {/* Enhanced background animation with space theme */}
-      <div className="fixed top-0 left-0 w-full h-full z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-eclipse-light via-eclipse-surface to-eclipse-border dark:from-space-void dark:via-space-dark dark:to-space-darker"></div>
-        <div className="stars absolute top-0 left-0 w-full h-full opacity-30"></div>
-        <div className="twinkling absolute top-0 left-0 w-full h-full opacity-20"></div>
-        
-        {/* Floating particles */}
-        <div className="particles">
-          {[...Array(50)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="particle"
-              initial={{ 
-                x: Math.random() * window.innerWidth,
-                y: window.innerHeight + 20,
-                opacity: 0 
-              }}
-              animate={{ 
-                y: -20,
-                opacity: [0, 1, 1, 0],
-                x: Math.random() * window.innerWidth + (Math.random() - 0.5) * 200
-              }}
-              transition={{
-                duration: Math.random() * 10 + 10,
-                repeat: Infinity,
-                delay: Math.random() * 5,
-                ease: "linear"
-              }}
-              style={{
-                left: Math.random() * 100 + '%',
-                animationDelay: Math.random() * 10 + 's'
-              }}
-            />
-          ))}
-        </div>
-        
-        {/* Gradient orbs */}
-        <motion.div
-          className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-stellar-blue/20 to-transparent rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            x: [0, 50, 0],
-            y: [0, -30, 0]
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div
-          className="absolute top-2/3 right-1/3 w-48 h-48 bg-gradient-to-br from-stellar-orange/20 to-transparent rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.3, 1],
-            x: [0, -30, 0],
-            y: [0, 40, 0]
-          }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
-          }}
-        />
-        <motion.div
-          className="absolute bottom-1/4 left-1/2 w-56 h-56 bg-gradient-to-br from-stellar-green/20 to-transparent rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.1, 1],
-            x: [0, 40, 0],
-            y: [0, -20, 0]
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 4
-          }}
-        />
-      </div>
-      
+      {/* Main content container with proper z-indexing */}
       <div className="relative z-10 pt-20">
         <Hero />
-        <div id="features">
-          <Features />
-        </div>
-        <div id="how-it-works">
-          <HowItWorks />
-        </div>
-        <div id="contests">
-          <Contests />
-        </div>
-        <Testimonials />
+        
+        <Suspense fallback={<SectionLoader />}>
+          <div id="features">
+            <Features />
+          </div>
+        </Suspense>
+        
+        <Suspense fallback={<SectionLoader />}>
+          <div id="how-it-works">
+            <HowItWorks />
+          </div>
+        </Suspense>
+        
+        <Suspense fallback={<SectionLoader />}>
+          <div id="contests">
+            <Contests />
+          </div>
+        </Suspense>
+        
+        <Suspense fallback={<SectionLoader />}>
+          <Testimonials />
+        </Suspense>
         
         {/* Integrated Auth Section */}
-        <AuthSection />
+        <Suspense fallback={<SectionLoader />}>
+          <AuthSection />
+        </Suspense>
         
         <Footer />
       </div>

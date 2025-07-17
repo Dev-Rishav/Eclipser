@@ -35,13 +35,13 @@ const App = () => {
           {isLoading && <LoadingPage />}
           <Routes>
             {/* Public routes without layout */}
-            <Route path="/login" element={<Login onLogin={(navigate)=> handleLoginToHome(navigate)} />} />
-            <Route path="/signup" element={<LandingPage />} />
+            <Route path="/login" element={<LandingPage onLogin={(navigate)=> handleLoginToHome(navigate)} />} />
+            {/* <Route path="/signup" element={<LandingPage />} /> */}
             
             {/* Private routes with persistent layout */}
             <Route element={<PrivateRoute />}>
             <Route element={<PersistentLayout />}>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Feed />} />
               <Route path="/contest" element={<Contest />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/feed" element={<Feed />} />

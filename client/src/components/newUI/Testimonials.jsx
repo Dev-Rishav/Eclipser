@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 const Testimonials = () => {
   const testimonials = [
@@ -17,7 +17,7 @@ const Testimonials = () => {
   ];
 
   return (
-    <section id="testimonials" className="py-20 bg-eclipse-light/30 dark:bg-space-void/30">
+    <section id="testimonials" className="py-20 relative">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-eclipse-text-light dark:text-space-text">Developers Love Eclipser</h2>

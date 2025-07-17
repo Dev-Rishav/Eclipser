@@ -62,7 +62,7 @@ const AuthModal = ({ isOpen, onClose, activeTab, setActiveTab }) => {
         
         <div className="flex border-b border-eclipse-600 dark:border-eclipse-400">
           <button 
-            className={`flex-1 py-4 font-medium transition \${
+            className={`flex-1 py-4 font-medium transition ${
               activeTab === 'login' 
                 ? 'text-stellar-blue border-b-2 border-stellar-blue' 
                 : 'text-space-text-muted hover:text-space-text-primary dark:text-space-text-muted-dark dark:hover:text-space-text-primary-dark'
@@ -72,7 +72,7 @@ const AuthModal = ({ isOpen, onClose, activeTab, setActiveTab }) => {
             Login
           </button>
           <button 
-            className={`flex-1 py-4 font-medium transition \${
+            className={`flex-1 py-4 font-medium transition ${
               activeTab === 'signup' 
                 ? 'text-stellar-blue border-b-2 border-stellar-blue' 
                 : 'text-space-text-muted hover:text-space-text-primary dark:text-space-text-muted-dark dark:hover:text-space-text-primary-dark'

@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaMeteor, FaClock, FaTrophy, FaUsers } from 'react-icons/fa';
-import contestImage from '../../assets/base.png';
+import { baseOriginal, baseWebp1024, baseWebp512 } from '../../assets/images.js';
+import OptimizedImage from '../OptimizedImage.jsx';
 
 const Contests = () => {
   return (
@@ -15,9 +16,11 @@ const Contests = () => {
           <div className="lg:w-1/2">
             <div className="relative">
               <div className="absolute -top-4 -left-4 right-4 bottom-4 bg-gradient-to-r from-stellar-blue/20 via-stellar-orange/20 to-stellar-green/20 rounded-xl blur-xl"></div>
-              <img 
-                src={contestImage || 'https://via.placeholder.com/600x400?text=Coding+Contest'} 
-                alt="Coding Contest" 
+              <OptimizedImage
+                src={baseOriginal}
+                webpSrc512={baseWebp512}
+                webpSrc1024={baseWebp1024}
+                alt="Coding Contest in space environment"
                 className="relative rounded-xl shadow-space-card border border-eclipse-border dark:border-space-gray w-full"
               />
             </div>

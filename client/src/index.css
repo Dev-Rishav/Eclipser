@@ -190,3 +190,90 @@ body {
     opacity: 0;
   }
 }
+
+/* CSS-only space background for ultra-low-end devices */
+.simple-space-bg {
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(123, 104, 238, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 69, 0, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 50% 100%, rgba(22, 163, 74, 0.06) 0%, transparent 50%),
+    linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  background-size: 100% 100%, 80% 80%, 120% 120%, 100% 100%;
+  background-position: 0% 0%, 100% 100%, 50% 0%, 0% 0%;
+}
+
+/* Ultra-simple stars for CSS-only mode */
+.css-stars {
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 90% 40%, white, transparent),
+    radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,0.6), transparent);
+  background-size: 300px 300px, 200px 200px, 400px 400px, 250px 250px;
+  background-position: 0 0, 50px 60px, 130px 270px, 70px 100px;
+}
+@media (max-width: 768px) {
+  .stars {
+    animation-duration: 30s; /* Slower animation on mobile */
+  }
+  
+  .twinkling {
+    animation-duration: 15s;
+  }
+  
+  /* Reduce blur effects on mobile for better performance */
+  .blur-3xl {
+    backdrop-filter: blur(8px);
+  }
+  
+  .blur-xl {
+    backdrop-filter: blur(4px);
+  }
+  
+  /* Simplify gradients on mobile */
+  .bg-gradient-to-br {
+    background: linear-gradient(135deg, var(--tw-gradient-stops));
+  }
+}
+
+/* Reduce motion for devices that prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .stars,
+  .twinkling,
+  .float-animation,
+  .animate-fadeIn,
+  .animate-slideUp,
+  .gradient-shimmer,
+  .rotating-border::before,
+  .particle {
+    animation: none;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Performance optimizations for low-end devices */
+@media (max-width: 480px) {
+  /* Reduce number of animated elements */
+  .particle:nth-child(n+11) {
+    display: none;
+  }
+  
+  /* Simpler shadows on very small screens */
+  .shadow-stellar-blue-glow {
+    box-shadow: 0 0 10px rgba(123, 104, 238, 0.2);
+  }
+  
+  /* Reduce backdrop blur */
+  .backdrop-blur-lg {
+    backdrop-filter: blur(4px);
+  }
+  
+  .backdrop-blur-xl {
+    backdrop-filter: blur(6px);
+  }
+}
