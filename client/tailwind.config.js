@@ -4,52 +4,56 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  important: true,
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        cosmic: '#0B0D17',
-        stellar: '#1A1C2E',
-        nebula: '#4F46E5',
-        supernova: '#FF6B35',
-        corona: '#FFD700',
-        stardust: 'rgba(255,255,255,0.8)',
-        'galaxy-purple': '#1a1a4a'
-      },
-      fontFamily: {
-        orbitron: ['Orbitron', 'sans-serif']
-      },
-      backdropBlur: {
-        lg: '16px'
-      },
-      animation: {
-        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        float: 'float 6s ease-in-out infinite',
-        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'glow-input': 'glow 3s ease-in-out infinite'
-      },
-      keyframes: {
-        pulse: {
-          '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.5' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' }
-        },
-        glow: {
-          '0%, 100%': { boxShadow: '0 0 10px rgba(79, 70, 229, 0.1)' },
-          '50%': { boxShadow: '0 0 15px rgba(79, 70, 229, 0.3)' }
-        }
+        // Space Black Variations (like reference image)
+        'space-void': '#0A0B0E',          // Deepest background
+        'space-dark': '#151921',          // Card backgrounds
+        'space-darker': '#1A1F2B',        // Elevated cards
+        'space-gray': '#252B3A',          // Borders/dividers
+        'space-light': '#353C4F',         // Hover states
+        
+        // Text Colors
+        'space-text': '#E4E6EA',          // Primary text
+        'space-muted': '#9CA3AF',         // Secondary text
+        'space-dim': '#6B7280',           // Disabled text
+        
+        // Accent Colors (from reference)
+        'stellar-blue': '#7B68EE',        // Primary blue accent
+        'stellar-orange': '#FF4500',      // Orange accent
+        'stellar-green': '#16A34A',       // Success/optional green (darker for light mode visibility)
+        
+        // Light Mode (minimal changes)
+        'eclipse-light': '#FAFAFA',
+        'eclipse-surface': '#FFFFFF',
+        'eclipse-border': '#E5E5E5',
+        'eclipse-text-light': '#1F2937',
+        'eclipse-muted-light': '#6B7280',
       },
       boxShadow: {
-        glow: '0 0 10px rgba(79, 70, 229, 0.1)',
-        'glow-intense': '0 0 20px rgba(79, 70, 229, 0.4)',
-        galaxy: '0 0 30px rgba(79, 70, 229, 0.1)'
+        'stellar-blue-glow': '0 0 20px rgba(123, 104, 238, 0.5), 0 0 40px rgba(123, 104, 238, 0.2)',
+        'stellar-orange-glow': '0 0 20px rgba(255, 69, 0, 0.5), 0 0 40px rgba(255, 69, 0, 0.2)',
+        'stellar-green-glow': '0 0 20px rgba(34, 255, 34, 0.5), 0 0 40px rgba(34, 255, 34, 0.2)',
+        'space-card': '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',
+        'space-elevated': '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3)',
       },
-      maxWidth: {
-        '2xl': '42rem'
+      animation: {
+        'stellar-pulse': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'edge-glow': 'edgeGlow 2s ease-in-out infinite alternate',
+      },
+      keyframes: {
+        edgeGlow: {
+          '0%': { 
+            borderColor: 'rgba(123, 104, 238, 0.5)',
+            boxShadow: '0 0 20px rgba(123, 104, 238, 0.3)'
+          },
+          '100%': { 
+            borderColor: 'rgba(123, 104, 238, 0.8)',
+            boxShadow: '0 0 30px rgba(123, 104, 238, 0.5)'
+          }
+        }
       }
     },
   },

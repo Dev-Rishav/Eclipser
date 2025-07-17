@@ -11,6 +11,9 @@ import Contest from "./pages/Contest";
 import Profile from "./pages/Profile";
 import { useState } from "react";
 import LoadingPage from "./components/LoadingPage";
+import Feed from "./components/newUI/Feed";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import LandingPage from "./pages/LandingPage.jsx";
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(false); // State to control loading screen
@@ -25,21 +28,23 @@ const App = () => {
 
 
   return (
-    <Provider store={store}>
-      <Router>
-        <Toaster position="top-right" />
-        {isLoading && <LoadingPage />}
-        <Routes>
-          {/* Public routes without layout */}
-          <Route path="/login" element={<Login onLogin={(navigate)=> handleLoginToHome(navigate)} />} />
-          <Route path="/signup" element={<Signup />} />
-          
-          {/* Private routes with persistent layout */}
-          <Route element={<PrivateRoute />}>
+    <ThemeProvider>
+      <Provider store={store}>
+        <Router>
+          <Toaster position="top-right" />
+          {isLoading && <LoadingPage />}
+          <Routes>
+            {/* Public routes without layout */}
+            <Route path="/login" element={<LandingPage onLogin={(navigate)=> handleLoginToHome(navigate)} />} />
+            {/* <Route path="/signup" element={<LandingPage />} /> */}
+            
+            {/* Private routes with persistent layout */}
+            <Route element={<PrivateRoute />}>
             <Route element={<PersistentLayout />}>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Feed />} />
               <Route path="/contest" element={<Contest />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/feed" element={<Feed />} />
               {/* <Route path="/posts" element={<PostList />} /> */}
               {/* Add other authenticated routes here */}
             </Route>
@@ -47,6 +52,7 @@ const App = () => {
         </Routes>
       </Router>
     </Provider>
+    </ThemeProvider>
   );
 };
 

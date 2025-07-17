@@ -211,33 +211,33 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cosmic to-stellar">
-        <p className="text-stardust/60 text-lg">Loading profile...</p>
+      <div className="min-h-screen flex items-center justify-center bg-eclipse-light dark:bg-space-void">
+        <p className="text-eclipse-muted-light dark:text-space-muted text-lg">Loading profile...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cosmic to-stellar p-6">
+    <div className="min-h-screen bg-eclipse-light dark:bg-space-void text-eclipse-text-light dark:text-space-text p-6">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Profile Header */}
-        <div className="bg-gradient-to-br from-stellar to-cosmic rounded-2xl p-8 border border-nebula/30 backdrop-blur-lg relative">
+        <div className="bg-eclipse-surface dark:bg-space-dark rounded-2xl p-8 border border-eclipse-border dark:border-space-gray backdrop-blur-lg relative shadow-space-card">
         {/* Edit/Follower Section */}
   <div className="absolute top-4 right-4 flex gap-3">
     {isAuthor ? (
       <button
         onClick={() => setIsEditing(!isEditing)}
-        className="text-stardust hover:text-supernova transition-colors"
+        className="text-eclipse-text-light dark:text-space-text hover:text-stellar-blue transition-colors"
       >
         <FaEdit className="w-6 h-6" />
       </button>
     ) : (
       <button
         onClick={()=>handleFollow()}
-        className={`px-4 py-2 rounded-lg font-orbitron transition-all ${
+        className={`px-4 py-2 rounded-lg transition-all ${
           isFollowing 
-            ? 'border border-nebula/50 text-stardust hover:border-supernova/50 '
-            : 'bg-gradient-to-r from-corona to-supernova text-black hover:brightness-110 '
+            ? 'border border-eclipse-border dark:border-space-gray text-eclipse-text-light dark:text-space-text hover:border-stellar-orange hover:text-stellar-orange' 
+            : 'bg-stellar-blue hover:bg-stellar-blue/80 text-white shadow-stellar-blue-glow'
         }`}
       >
         {isFollowing ? 'Following ' : 'Follow '}
@@ -253,10 +253,10 @@ const Profile = () => {
                 <img
                   src={user.profilePic}
                   alt="Profile"
-                  className="w-24 h-24 rounded-full object-cover border-2 border-nebula/50"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-stellar-blue/50 shadow-stellar-blue-glow"
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-gradient-to-r from-nebula to-supernova flex items-center justify-center text-3xl font-bold text-cosmic">
+                <div className="w-24 h-24 rounded-full bg-stellar-blue flex items-center justify-center text-3xl font-bold text-white shadow-stellar-blue-glow">
                   {user.username[0].toUpperCase()}
                 </div>
               )}
@@ -272,7 +272,7 @@ const Profile = () => {
                   />
                   <label
                     htmlFor="profilePicInput"
-                    className="bg-supernova text-cosmic px-3 py-1 rounded-full text-sm cursor-pointer hover:brightness-110"
+                    className="bg-stellar-orange text-white px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-stellar-orange/80 transition-colors"
                   >
                     {selectedFile ? selectedFile.name : "Change"}
                   </label>
@@ -286,22 +286,22 @@ const Profile = () => {
                   type="text"
                   value={newUsername}
                   onChange={(e) => setNewUsername(e.target.value)}
-                  className="text-3xl bg-stellar border-b border-nebula/50 text-corona font-orbitron"
+                  className="text-3xl bg-eclipse-border/30 dark:bg-space-darker border-b border-eclipse-border dark:border-space-gray text-eclipse-text-light dark:text-space-text px-2 py-1 outline-none focus:border-stellar-blue"
                 />
               ) : (
-                <h1 className="text-3xl text-corona font-orbitron">
+                <h1 className="text-3xl text-eclipse-text-light dark:text-space-text font-bold">
                   {user.username}
                 </h1>
               )}
 
-              <div className="flex items-center gap-4 text-stardust/80">
+              <div className="flex items-center gap-4 text-eclipse-muted-light dark:text-space-muted">
                 <span>{user.email}</span>
-                <span className="text-sm bg-nebula/20 px-3 py-1 rounded-full">
+                <span className="text-sm bg-eclipse-border/30 dark:bg-space-darker px-3 py-1 rounded-full border border-eclipse-border/50 dark:border-space-gray/50">
                   {user.achievements == null ? 0 : user.achievements}{" "}
                   Achievements
                 </span>
               </div>
-              <p className="text-stardust/60 text-sm">
+              <p className="text-eclipse-muted-light dark:text-space-muted text-sm">
                 Joined the cosmos on{" "}
                 {new Date(user.createdAt).toLocaleDateString()}
               </p>
@@ -309,15 +309,15 @@ const Profile = () => {
           </div>
           {/* New social stats section */}
       <div className="flex items-center gap-4 mb-3 mt-5">
-        <div className="flex items-center gap-1 text-stardust/80 hover:text-supernova transition-colors cursor-pointer">
+        <div className="flex items-center gap-1 text-eclipse-muted-light dark:text-space-muted hover:text-stellar-blue transition-colors cursor-pointer">
           <img className="w-9 h-9 " alt="Followers" src={Followers}/>
-          <span className="font-orbitron">{user.followerCount? user.followerCount : 0}</span>
+          <span className="font-bold">{user.followerCount? user.followerCount : 0}</span>
           <span>Followers</span>
         </div>
         
-        <div className="flex items-center gap-1 text-stardust/80 hover:text-nebula transition-colors cursor-pointer">
+        <div className="flex items-center gap-1 text-eclipse-muted-light dark:text-space-muted hover:text-stellar-orange transition-colors cursor-pointer">
           <img className="w-8 h-8" src={Follwing} alt="Following"/>
-          <span className="font-orbitron">{user.followingCount || 0}</span>
+          <span className="font-bold">{user.followingCount || 0}</span>
           <span>Following</span>
         </div>
       </div>
@@ -326,7 +326,7 @@ const Profile = () => {
             <div className="mt-4 flex gap-4">
               <button
                 onClick={handleUpdateProfile}
-                className="px-4 py-2 bg-gradient-to-r from-nebula to-supernova text-cosmic rounded-lg hover:brightness-110"
+                className="px-4 py-2 bg-stellar-blue hover:bg-stellar-blue/80 text-white rounded-lg shadow-stellar-blue-glow transition-colors"
                 disabled={loading}
               >
                 {loading ? "Saving..." : "Save Changes"}
@@ -337,7 +337,7 @@ const Profile = () => {
                   setSelectedFile(null);
                   setNewUsername(user.username);
                 }}
-                className="px-4 py-2 bg-stellar border border-nebula/30 text-stardust rounded-lg hover:border-nebula/50"
+                className="px-4 py-2 bg-eclipse-border/30 dark:bg-space-darker border border-eclipse-border dark:border-space-gray text-eclipse-text-light dark:text-space-text rounded-lg hover:border-stellar-orange hover:text-stellar-orange transition-colors"
               >
                 Cancel
               </button>
@@ -347,12 +347,12 @@ const Profile = () => {
 
         {/* Activity Stats */}
         <div className="grid md:grid-cols-3 gap-4">
-          <div className="p-6 bg-stellar rounded-xl border border-nebula/30 hover:border-nebula/50 transition-colors">
+          <div className="p-6 bg-eclipse-surface dark:bg-space-dark rounded-xl border border-eclipse-border dark:border-space-gray hover:border-stellar-blue/50 transition-colors shadow-space-card">
             <div className="flex items-center gap-4">
-              <QuestionMarkCircleIcon className="w-8 h-8 text-supernova" />
+              <QuestionMarkCircleIcon className="w-8 h-8 text-stellar-orange" />
               <div>
-                <p className="text-stardust/60 text-sm">Queries Posted</p>
-                <p className="text-2xl text-corona">
+                <p className="text-eclipse-muted-light dark:text-space-muted text-sm">Queries Posted</p>
+                <p className="text-2xl text-eclipse-text-light dark:text-space-text font-bold">
                   {/*userPost?.length ||  0*/}
                   {userPost
                     ? userPost.filter((post) => post.postType === "query")
@@ -363,12 +363,12 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="p-6 bg-stellar rounded-xl border border-nebula/30 hover:border-nebula/50 transition-colors">
+          <div className="p-6 bg-eclipse-surface dark:bg-space-dark rounded-xl border border-eclipse-border dark:border-space-gray hover:border-stellar-orange/50 transition-colors shadow-space-card">
             <div className="flex items-center gap-4">
-              <ChatBubbleLeftIcon className="w-8 h-8 text-supernova" />
+              <ChatBubbleLeftIcon className="w-8 h-8 text-stellar-blue" />
               <div>
-                <p className="text-stardust/60 text-sm">Discussions</p>
-                <p className="text-2xl text-corona">
+                <p className="text-eclipse-muted-light dark:text-space-muted text-sm">Discussions</p>
+                <p className="text-2xl text-eclipse-text-light dark:text-space-text font-bold">
                   {userPost
                     ? userPost.filter((post) => post.postType === "discussion")
                         .length
@@ -378,12 +378,12 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="p-6 bg-stellar rounded-xl border border-nebula/30 hover:border-nebula/50 transition-colors">
+          <div className="p-6 bg-eclipse-surface dark:bg-space-dark rounded-xl border border-eclipse-border dark:border-space-gray hover:border-stellar-green/50 transition-colors shadow-space-card">
             <div className="flex items-center gap-4">
-              <TrophyIcon className="w-8 h-8 text-supernova" />
+              <TrophyIcon className="w-8 h-8 text-stellar-green" />
               <div>
-                <p className="text-stardust/60 text-sm">Achievements</p>
-                <p className="text-2xl text-corona">
+                <p className="text-eclipse-muted-light dark:text-space-muted text-sm">Achievements</p>
+                <p className="text-2xl text-eclipse-text-light dark:text-space-text font-bold">
                   {userPost
                     ? userPost.filter(
                         (post) => post.postType === "achievements"
@@ -396,12 +396,12 @@ const Profile = () => {
         </div>
 
         {/* all posts Section */}
-        <div className="bg-gradient-to-br from-stellar/90 to-cosmic/90 rounded-2xl p-8 border-2 border-nebula/30 backdrop-blur-xl shadow-galaxy">
-          <h2 className="text-3xl font-orbitron text-corona mb-8 flex items-center gap-3">
-            <span className=" bg-supernova text-gray-800 px-4 py-2 rounded-lg text-lg font-bold">
+        <div className="bg-eclipse-surface dark:bg-space-dark rounded-2xl p-8 border border-eclipse-border dark:border-space-gray backdrop-blur-xl shadow-space-card">
+          <h2 className="text-3xl font-bold text-eclipse-text-light dark:text-space-text mb-8 flex items-center gap-3">
+            <span className="bg-stellar-blue text-white px-4 py-2 rounded-lg text-lg font-bold shadow-stellar-blue-glow">
               {userPost?.length || 0}
             </span>
-            Cosmic Interactions
+            Posts & Activities
           </h2>
 
           <div className="grid gap-6">
@@ -411,13 +411,13 @@ const Profile = () => {
 
             {(userPost == null || userPost?.length === 0) && (
               <div className="flex flex-col items-center py-12 text-center">
-                <div className="mb-4 text-6xl text-nebula/50">🌠</div>
-                <p className="text-xl font-orbitron text-stardust/60 mb-2">
-                  Silent Cosmos
+                <div className="mb-4 text-6xl text-eclipse-muted-light dark:text-space-muted">�</div>
+                <p className="text-xl font-bold text-eclipse-text-light dark:text-space-text mb-2">
+                  Empty Space
                 </p>
-                <p className="text-stardust/40 max-w-md">
-                  Your cosmic journey begins here - create your first post to
-                  ignite interstellar discussions!
+                <p className="text-eclipse-muted-light dark:text-space-muted max-w-md">
+                  Your journey begins here - create your first post to
+                  start engaging with the community!
                 </p>
               </div>
             )}

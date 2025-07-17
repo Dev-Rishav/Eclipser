@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
 import {
   FaEye,
@@ -19,52 +19,41 @@ import { useNavigate } from "react-router-dom";
 export const PostCard = ({ post: initialPost }) => {
   const [post, setPost] = useState(initialPost);
   const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(post.likes.length || 0); //state to hold likes count
-  const [newCommentContent, setNewCommentContent] = useState(""); //state to hold new comment content
-  const [showComments, setShowComments] = useState(false); //state to toggle comments
-  const [enrichedComments, setEnrichedComments] = useState([]); //state to hold comments with user details
+  const [likesCount, setLikesCount] = useState(post.likes.length || 0);
+  const [newCommentContent, setNewCommentContent] = useState("");
+  const [showComments, setShowComments] = useState(false);
+  const [enrichedComments, setEnrichedComments] = useState([]);
   const timeAgo = formatDistanceToNow(new Date(post.createdAt), {
     addSuffix: true,
   });
-  const [user, setUser] = useState(
+  const [user] = useState(
     localStorage.getItem("user")
       ? JSON.parse(localStorage.getItem("user"))
       : null
   );
   const navigate = useNavigate();
-  const [isLoading,setIsLoading]=useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
-  //? post can be fetched from localstorage,no need to pass it as prop.
-  //* This component is rendered on  multiple pages, so we can not use the same post object
-
-  // Preserved metadata section
   const MAX_VISIBLE_TAGS = 2;
   const visibleTags = post.tags.slice(0, MAX_VISIBLE_TAGS);
   const hiddenTagsCount = post.tags.length - MAX_VISIBLE_TAGS;
 
+  useEffect(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+  }, [setIsLoading, showComments]);
 
-//set loader
-useEffect(()=>{
-  setIsLoading(true);
-  setTimeout(()=>{
-    setIsLoading(false);
-  },500)
-},[setIsLoading,showComments])
-
-
-  //fetch usersIds with their comments
   useEffect(() => {
     const fetchCommentsWithUsers = async () => {
       try {
-        // Extract unique userIds from comments
         const userIds = [
           ...new Set(post.comments.map((comment) => comment.userId)),
         ];
 
-        // Fetch user details for these userIds
         const users = await fetchUsersByIds(userIds);
 
-        // Map user details back to comments
         const commentsWithUsers = post.comments.map((comment) => {
           const user = users.find((u) => u._id === comment.userId);
           return {
@@ -91,7 +80,6 @@ useEffect(()=>{
     fetchCommentsWithUsers();
   }, [post]);
 
-  // Check if the post is liked by the user
   useEffect(() => {
     const checkLikeStatus = () => {
       if (post.likes?.length > 0) {
@@ -102,53 +90,42 @@ useEffect(()=>{
     checkLikeStatus();
   }, [post.likes, user]);
 
-  // Handle like button click
   const handleLike = () => {
     if (isLiked) {
-      toast.error("You've already launched this post!");
+      toast.error("You've already liked this post!");
       return;
     }
     likePost(post);
     setIsLiked(!isLiked);
   };
 
-  // Handle new comment submission
   const handleNewCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newCommentContent.trim()) {
-      toast.error("Signal cannot be empty!");
+      toast.error("Comment cannot be empty!");
       return;
     }
 
     try {
       const newComment = await createComment(post._id, newCommentContent);
-      // console.log("New comment created from backend:", newComment);
-
       setEnrichedComments([...enrichedComments, newComment]);
       setNewCommentContent("");
-      toast.success("Signal transmitted successfully!");
+      toast.success("Comment added successfully!");
     } catch (error) {
-      toast.error("Failed to send signal");
+      toast.error("Failed to add comment");
       console.error("Comment error:", error);
     }
   };
 
-  //using SSE to dynamically update comments and likes
   useEffect(() => {
-    // console.log("Initializing EventSource for post:");
-
     const eventSource = new EventSource("http://localhost:3000/stream", {
       withCredentials: true,
     });
-    // console.log("EventSource initialized for post:", post._id);
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      // console.log("Received SSE data:", data);
 
-      //handle like manupulation
       if (data.type === "like" && data.postId === post._id) {
-        // Check if the userId already exists in the likes array
         const alreadyLiked = post.likes.some(
           (like) => like.userId === data.userId
         );
@@ -159,45 +136,24 @@ useEffect(()=>{
             profilePic: data.profilePic,
             dateTime: data.dateTime,
           };
-          // Update the likes array immutably
           post.likes.push(userPayload);
           const updatedLikes = [...post.likes];
 
           setPost((prevPost) => ({ ...prevPost, likes: updatedLikes }));
           setLikesCount(updatedLikes.length);
 
-          // Update the isLiked state if the current user liked the post
           if (data.userId === user._id) {
             setIsLiked(true);
             toast.success("Post liked successfully!");
           }
-          // console.log("AFter like post", post.likes);
-
-          // Update the likes count
-
-          //! No need to update the likes count here, as it's already being handled by the state update above
-          // Update local storage with the entire cached posts array
-          // const cachedPosts = JSON.parse(localStorage.getItem("cachedPosts")) || [];
-          // console.log("cachedPost._id === post._id ",cachedPosts.map((cachedPost)=> cachedPost._id === post._id));
-
-          // const updatedPosts = cachedPosts.map((cachedPost) =>
-          //   cachedPost._id === post._id ? { ...cachedPost, likes: updatedLikes } : cachedPost
-          // );
-
-          // console.log("Updated posts in local storage:", updatedPosts);
-
-          // localStorage.setItem("cachedPosts", JSON.stringify(updatedPosts));
-          // setLikesCount(updatedLikes.length);
         }
-      }
-      //handle comment manipulation
-      else if (data.type === "comment" && data.postId === post._id) {
+      } else if (data.type === "comment" && data.postId === post._id) {
         setEnrichedComments((prev) => [
           ...prev,
           {
             author: {
               userId: data.author.userId,
-              username: data.author.username, // Update with proper user info
+              username: data.author.username,
               profilePic: data.author.profilePic,
             },
             postId: data.postId,
@@ -205,12 +161,10 @@ useEffect(()=>{
             dateTime: data.dateTime,
           },
         ]);
-        // console.log("New comment received:", data);
       }
     };
 
     eventSource.onerror = () => {
-      // console.log("EventSource failed. Closing connection.");
       eventSource.close();
     };
 
@@ -219,63 +173,57 @@ useEffect(()=>{
     };
   }, [post._id, user._id, post.likes, post.comments]);
 
-  //? debugging purposes
-  // useEffect(() => {
-  //   console.log("Enriched comments:", enrichedComments);
-  // }
-  // , [enrichedComments]);
-
   return (
     <div
-      className={`p-4 mb-4 rounded-xl border ${
+      className={`p-6 mb-4 rounded-lg border bg-eclipse-surface dark:bg-space-dark shadow-space-card transition-all hover:shadow-space-elevated ${
         post.postType === "query"
-          ? "border-l-4 border-nebula"
-          : "border-l-4 border-supernova"
-      } bg-gradient-to-br from-stellar/80 to-cosmic/90 backdrop-blur-lg transition-all hover:-translate-y-1`}
+          ? "border-l-4 border-stellar-blue"
+          : "border-l-4 border-stellar-orange"
+      } border-eclipse-border dark:border-space-gray`}
     >
-      {/* Preserved Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4">
         {/* Tags */}
         <div className="flex flex-wrap gap-2">
           {visibleTags.map((tag, index) => (
             <span
               key={index}
-              className="px-3 py-1 text-sm font-medium rounded-full bg-nebula/10 text-stardust border border-nebula/20"
+              className="px-3 py-1 text-sm font-medium rounded-full bg-eclipse-border/50 dark:bg-space-darker text-stellar-blue border border-stellar-blue/50 shadow-stellar-blue-glow animate-edge-glow"
             >
               #{tag}
             </span>
           ))}
           {hiddenTagsCount > 0 && (
-            <span className="px-3 py-1 text-sm text-stardust/60">
+            <span className="px-3 py-1 text-sm text-eclipse-muted-light dark:text-space-muted">
               +{hiddenTagsCount} more
             </span>
           )}
         </div>
 
-        {/* Preserved Metadata */}
+        {/* Metadata */}
         <div className="flex items-center gap-3">
           <span
-            className={`px-2 py-1 rounded-lg text-xs font-bold ${
+            className={`px-2 py-1 rounded text-xs font-bold font-mono animate-edge-glow ${
               post.postType === "query"
-                ? "bg-nebula/20 text-nebula"
-                : "bg-supernova/20 text-supernova"
+                ? "bg-eclipse-border/50 dark:bg-space-darker text-stellar-blue border border-stellar-blue/50 shadow-stellar-blue-glow"
+                : "bg-eclipse-border/50 dark:bg-space-darker text-stellar-orange border border-stellar-orange/50 shadow-stellar-orange-glow"
             }`}
           >
             {post.postType.toUpperCase()}
           </span>
           <span
-            className="text-sm text-stardust/60"
-            title={`"Created"} at ${new Date(post.updatedAt).toLocaleString()}`}
+            className="text-sm text-eclipse-muted-light dark:text-space-muted font-mono"
+            title={`Created at ${new Date(post.updatedAt).toLocaleString()}`}
           >
-            {"⏳"} {timeAgo}
+            {timeAgo}
           </span>
         </div>
       </div>
 
-      {/* Preserved Author Section */}
+      {/* Author Section */}
       <div
-        className="flex items-center gap-3 mb-4 cursor-pointer"
-        onClick={() => navigate("/profile",{
+        className="flex items-center gap-3 mb-4 cursor-pointer hover:bg-eclipse-border/20 dark:hover:bg-space-light/20 p-2 rounded-lg transition-colors"
+        onClick={() => navigate("/profile", {
           state: { userId: post.author.userId }
         })}
         title={`View ${post.author?.username || "Unknown User"}'s profile`}
@@ -284,240 +232,236 @@ useEffect(()=>{
           <img
             src={post.author.profilePic}
             alt={post.author.username}
-            className="w-9 h-9 rounded-full border-2 border-nebula/50 object-cover"
+            className="w-10 h-10 rounded-full border-2 border-stellar-blue/50 object-cover shadow-stellar-blue-glow"
           />
         ) : (
-          <div className="w-9 h-9 rounded-full bg-gradient-to-r from-nebula to-supernova flex items-center justify-center">
-            <span className="text-sm font-bold text-cosmic">
+          <div className="w-10 h-10 rounded-full bg-stellar-blue flex items-center justify-center shadow-stellar-blue-glow">
+            <span className="text-sm font-bold text-white">
               {post.author?.username[0].toUpperCase()}
             </span>
           </div>
         )}
         <div className="flex flex-col">
-          <span className="text-base font-orbitron text-stardust">
+          <span className="text-base font-semibold text-eclipse-text-light dark:text-space-text">
             {post.author?.username}
           </span>
           {post.author?.role && (
-            <span className="text-xs text-nebula/70 font-medium">
+            <span className="text-xs text-stellar-blue font-medium font-mono">
               {post.author.role}
             </span>
           )}
         </div>
       </div>
 
-      {/* Enhanced Content Section */}
+      {/* Content Section */}
       <div className="mb-6 space-y-4">
-        <h3 className="text-2xl font-orbitron text-corona bg-gradient-to-r from-nebula/20 to-transparent p-4 rounded-lg border border-nebula/30">
+        <h3 className="text-xl font-bold text-eclipse-text-light dark:text-space-text">
           {post.title}
         </h3>
 
-        <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-nebula/10 to-supernova/5 rounded-xl transition-opacity opacity-0 group-hover:opacity-100" />
+        <div className="space-y-4 text-eclipse-text-light dark:text-space-text leading-relaxed">
+          {post.content.split("\n```").map((section, index) => {
+            if (index % 2 === 1) {
+              const [language, ...codeLines] = section.split("\n");
+              const code = codeLines.join("\n");
 
-          <div className="relative space-y-4 text-stardust/90 leading-relaxed">
-            {post.content.split("\n```").map((section, index) => {
-              if (index % 2 === 1) {
-                const [language, ...codeLines] = section.split("\n");
-                const code = codeLines.join("\n");
-
-                return (
-                  <div
-                    key={index}
-                    className="my-4 rounded-xl overflow-hidden border border-nebula/30"
-                  >
-                    <div className="flex items-center justify-between px-4 py-2 bg-cosmic/80 border-b border-nebula/30">
-                      <span className="text-xs font-mono text-supernova">
-                        {language.trim() || "CODE"}
-                      </span>
-                      <button
-                        onClick={() => navigator.clipboard.writeText(code)}
-                        className="text-nebula hover:text-supernova transition-colors"
-                      >
-                        📋
-                      </button>
-                    </div>
-                    <pre className="p-4 bg-cosmic/50 overflow-x-auto font-mono text-sm">
-                      {/* This is where CodeHighlighter gets rendered */}
-                      <CodeHighlighter
-                        code={code}
-                        language={language.trim().toLowerCase()}
-                      />
-                    </pre>
-                  </div>
-                );
-              }
-
-              // Regular text content
               return (
-                <p
+                <div
                   key={index}
-                  className="p-4 bg-cosmic/30 rounded-xl border border-nebula/20 hover:border-nebula/40 transition-colors"
+                  className="my-4 rounded-lg overflow-hidden border border-stellar-green/30 bg-eclipse-border/30 dark:bg-space-void shadow-stellar-green-glow"
                 >
-                  {section.split("\n").map((line, lineIndex) => (
-                    <span key={lineIndex} className="block mb-3 last:mb-0">
-                      {line}
+                  <div className="flex items-center justify-between px-4 py-2 bg-eclipse-border/50 dark:bg-space-darker border-b border-stellar-green/30">
+                    <span className="text-xs font-mono text-stellar-green">
+                      {language.trim() || "CODE"}
                     </span>
-                  ))}
-                </p>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Preserved Attachments */}
-      {post.attachments?.length > 0 && (
-        <div className="mb-4 flex flex-col gap-2">
-          {post.attachments.map((file, index) => (
-            <a
-              key={index}
-              href={file.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center text-nebula hover:text-supernova transition-colors text-sm"
-            >
-              <FaPaperclip className="mr-2 shrink-0" />
-              <span className="truncate">
-                {file.fileType.toUpperCase()} Attachment
-              </span>
-            </a>
-          ))}
-        </div>
-      )}
-
-      {/* Preserved Footer Metrics */}
-      <div className="pt-4 border-t border-nebula/20 flex items-center justify-between">
-        <div className="flex items-center gap-5 text-stardust/80">
-          <div className="flex items-center gap-1.5">
-            <FaEye className="w-4 h-4 text-nebula/80" />
-            <span className="text-sm">{post.views}</span>
-          </div>
-
-          <button
-            onClick={handleLike}
-            className="flex items-center gap-1.5 hover:text-supernova transition-colors"
-          >
-            {isLiked ? (
-              <FaHeart className="w-4 h-4 text-supernova" />
-            ) : (
-              <FaRegHeart className="w-4 h-4" />
-            )}
-            <span className="text-sm">
-              {/* {post.likes.length + (isLiked ? 1 : 0)}
-               */}
-              {likesCount}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setShowComments(!showComments)}
-            className="flex items-center gap-1.5 hover:text-corona transition-colors"
-          >
-            <FaCommentDots className="w-4 h-4 text-corona/80" />
-            <span className="text-sm">{enrichedComments.length}</span>
-            {showComments ? (
-              <FaChevronUp className="w-3 h-3 ml-1" />
-            ) : (
-              <FaChevronDown className="w-3 h-3 ml-1" />
-            )}
-          </button>
-        </div>
-
-        <button
-          className="px-4 py-2 bg-gradient-to-r from-nebula to-supernova rounded-lg font-medium text-cosmic hover:brightness-110 transition-all text-sm"
-          onClick={() => setShowComments(!showComments)}
-        >
-          {post.postType === "query"
-            ? showComments
-              ? "Close Comments"
-              : "Transmit Answer"
-            : showComments
-            ? "Close Discussion"
-            : "Engage Discussion"}
-        </button>
-      </div>
-
-      {/* Added Comment Section */}
-      {showComments && (
-        isLoading ? 
-        (<div className="text-corona text-center">
-          Loading...
-          </div>)
-        :
-        <div className="mt-4 pt-4 border-t border-nebula/20">
-          {/* Comment Input */}
-          <form onSubmit={handleNewCommentSubmit} className="mb-4 flex gap-2">
-            <input
-              type="text"
-              value={newCommentContent}
-              onChange={(e) => setNewCommentContent(e.target.value)}
-              placeholder="Transmit your signal..."
-              className="flex-1 px-4 py-2 rounded-lg bg-cosmic/50 border border-nebula/30 text-stardust focus:outline-none focus:border-supernova/50 placeholder-stardust/40"
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-gradient-to-r from-nebula/80 to-supernova/80 rounded-lg font-medium text-cosmic hover:brightness-110 transition-all"
-            >
-              Send
-            </button>
-          </form>
-
-          {/* Scrollable Comments Container */}
-          <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-            {" "}
-            {/* Added max height and scroll */}
-            {enrichedComments.map((comment) => (
-              <div
-                key={comment._id}
-                className="flex items-start gap-3 p-3 rounded-lg bg-cosmic/30 hover:bg-cosmic/40 transition-colors"
-              >
-                <div className="shrink-0">
-                  {comment.author.profilePic ? (
-                    <img
-                      src={comment.author.profilePic}
-                      alt={comment.author.username}
-                      className="w-7 h-7 rounded-full border border-nebula/50 object-cover"
+                    <button
+                      onClick={() => navigator.clipboard.writeText(code)}
+                      className="text-stellar-green hover:text-stellar-blue transition-colors"
+                    >
+                      📋
+                    </button>
+                  </div>
+                  <pre className="p-4 bg-eclipse-border/30 dark:bg-space-void overflow-x-auto font-mono text-sm text-eclipse-text-light dark:text-space-text">
+                    <CodeHighlighter
+                      code={code}
+                      language={language.trim().toLowerCase()}
                     />
-                  ) : (
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-r from-nebula to-supernova flex items-center justify-center">
-                      <span className="text-xs text-cosmic">
-                        {comment.author.username[0].toUpperCase()}
-                      </span>
+                  </pre>
+                </div>
+              );
+            }
+
+            return (
+              <p
+                key={index}
+                className="text-eclipse-text-light dark:text-space-text"
+              >
+                {section.split("\n").map((line, lineIndex) => (
+                  <span key={lineIndex} className="block mb-2 last:mb-0">
+                    {line}
+                  </span>
+                ))}
+              </p>
+            );
+          })}
+        </div>
+
+        {/* Divider after post description */}
+        <div className="border-t border-eclipse-border/50 dark:border-space-gray/50 my-4"></div>
+
+        {/* Attachments */}
+        {post.attachments?.length > 0 && (
+          <div className="mb-4 flex flex-col gap-2">
+            {post.attachments.map((file, index) => (
+              <a
+                key={index}
+                href={file.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-stellar-blue hover:text-stellar-orange transition-colors text-sm p-2 rounded border border-stellar-blue/30 hover:border-stellar-orange/50 bg-eclipse-border/50 dark:bg-space-darker shadow-stellar-blue-glow"
+              >
+                <FaPaperclip className="mr-2 shrink-0" />
+                <span className="truncate">
+                  {file.fileType.toUpperCase()} Attachment
+                </span>
+              </a>
+            ))}
+          </div>
+        )}
+
+        {/* Footer Metrics */}
+        <div className="pt-4 border-t border-eclipse-border/30 dark:border-space-gray/30 flex items-center justify-between">
+          <div className="flex items-center gap-5 text-eclipse-muted-light dark:text-space-muted">
+            <div className="flex items-center gap-1.5 hover:text-stellar-blue transition-colors">
+              <FaEye className="w-4 h-4" />
+              <span className="text-sm font-mono">{post.views}</span>
+            </div>
+
+            <button
+              onClick={handleLike}
+              className="flex items-center gap-1.5 hover:text-stellar-orange transition-colors"
+            >
+              {isLiked ? (
+                <FaHeart className="w-4 h-4 text-stellar-orange" />
+              ) : (
+                <FaRegHeart className="w-4 h-4" />
+              )}
+              <span className="text-sm font-mono">{likesCount}</span>
+            </button>
+
+            <button
+              onClick={() => setShowComments(!showComments)}
+              className="flex items-center gap-1.5 hover:text-stellar-green transition-colors"
+            >
+              <FaCommentDots className="w-4 h-4" />
+              <span className="text-sm font-mono">{enrichedComments.length}</span>
+              {showComments ? (
+                <FaChevronUp className="w-3 h-3 ml-1" />
+              ) : (
+                <FaChevronDown className="w-3 h-3 ml-1" />
+              )}
+            </button>
+          </div>
+
+          <button
+            className="px-4 py-2 bg-stellar-blue hover:bg-stellar-orange text-white rounded-lg font-medium transition-colors text-sm shadow-stellar-blue-glow border border-stellar-blue/50"
+            onClick={() => setShowComments(!showComments)}
+          >
+            {post.postType === "query"
+              ? showComments
+                ? "Close Comments"
+                : "Answer"
+              : showComments
+              ? "Close Discussion"
+              : "Discuss"}
+          </button>
+        </div>
+
+        {/* Divider before comments section */}
+        <div className="border-t border-eclipse-border/50 dark:border-space-gray/50 mt-4"></div>
+
+        {/* Comments Section */}
+        {showComments && (
+          <div className="mt-4 pt-4 border-t border-eclipse-border/30 dark:border-space-gray/30">
+            {isLoading ? (
+              <div className="text-stellar-blue text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-stellar-blue border-t-transparent rounded-full animate-spin"></div>
+                  <span className="font-mono">Loading comments...</span>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Comment Input */}
+                <form onSubmit={handleNewCommentSubmit} className="mb-4 flex gap-2">
+                  <input
+                    type="text"
+                    value={newCommentContent}
+                    onChange={(e) => setNewCommentContent(e.target.value)}
+                    placeholder="Write a comment..."
+                    className="flex-1 px-4 py-2 rounded-lg bg-eclipse-surface dark:bg-space-darker border border-stellar-blue/30 text-eclipse-text-light dark:text-space-text focus:outline-none focus:border-stellar-blue focus:shadow-stellar-blue-glow placeholder-eclipse-muted-light dark:placeholder-space-muted transition-colors font-mono"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-stellar-green hover:bg-stellar-blue rounded-lg font-medium text-white transition-colors shadow-stellar-green-glow border border-stellar-green/50"
+                  >
+                    Send
+                  </button>
+                </form>
+
+                {/* Comments Container */}
+                <div className="space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
+                  {enrichedComments.map((comment) => (
+                    <div
+                      key={comment._id}
+                      className="flex items-start gap-3 p-3 rounded-lg hover:bg-eclipse-border/10 dark:hover:bg-space-light/10 transition-colors"
+                    >
+                      <div className="shrink-0">
+                        {comment.author.profilePic ? (
+                          <img
+                            src={comment.author.profilePic}
+                            alt={comment.author.username}
+                            className="w-8 h-8 rounded-full border border-stellar-blue/50 object-cover shadow-stellar-blue-glow"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-stellar-blue flex items-center justify-center shadow-stellar-blue-glow">
+                            <span className="text-xs text-white">
+                              {comment.author.username[0].toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-medium text-eclipse-text-light dark:text-space-text truncate">
+                            {comment.author.username}
+                          </span>
+                          <span className="text-xs text-eclipse-muted-light dark:text-space-muted shrink-0 font-mono">
+                            {comment.dateTime
+                              ? formatDistanceToNow(new Date(comment.dateTime), {
+                                  addSuffix: true,
+                                })
+                              : `Unknown Time`}
+                          </span>
+                        </div>
+                        <p className="text-eclipse-text-light dark:text-space-text text-sm break-words">
+                          {comment.content}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {/* Empty State */}
+                  {enrichedComments.length === 0 && (
+                    <div className="text-center py-4 text-eclipse-muted-light dark:text-space-muted">
+                      <span className="font-mono">No comments yet. Be the first to comment!</span>
                     </div>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  {" "}
-                  {/* Added min-width to prevent overflow */}
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium text-stardust truncate">
-                      {comment.author.username}
-                    </span>
-                    <span className="text-xs text-nebula/60 shrink-0">
-                      {comment.dateTime
-                        ? formatDistanceToNow(new Date(comment.dateTime), {
-                            addSuffix: true,
-                          })
-                        : `Unknown Time`}
-                    </span>
-                  </div>
-                  <p className="text-stardust/80 text-sm break-words">
-                    {comment.content}
-                  </p>
-                </div>
-              </div>
-            ))}
-            {/* Empty State */}
-            {enrichedComments.length === 0 && (
-              <div className="text-center py-4 text-stardust/50">
-                No signals received yet. Be the first to respond!
-              </div>
+              </>
             )}
           </div>
-        </div>
-        
-        
-      )}
+        )}
+      </div>
     </div>
   );
 };

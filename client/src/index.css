@@ -2,35 +2,278 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  background-color: #000000;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
 
+.shadow-glow-blue {
+  box-shadow: 0 0 10px 2px rgba(59, 130, 246, 0.5);
+}
 
+.shadow-glow-red {
+  box-shadow: 0 0 10px 2px rgba(239, 68, 68, 0.5);
+}
 
-@layer utilities {
-  .backdrop-filter {
-    backdrop-filter: blur(16px);
+.shadow-glow-green {
+  box-shadow: 0 0 10px 2px rgba(34, 197, 94, 0.5);
+}
+
+/* Space-themed background animations */
+.stars {
+  background: 
+    radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
+  background-repeat: repeat;
+  background-size: 200px 100px;
+  animation: stars-move 20s linear infinite;
+}
+
+.twinkling {
+  background: 
+    radial-gradient(1px 1px at 10px 10px, rgba(123, 104, 238, 0.8), transparent),
+    radial-gradient(1px 1px at 50px 50px, rgba(255, 69, 0, 0.6), transparent),
+    radial-gradient(1px 1px at 100px 100px, rgba(22, 163, 74, 0.7), transparent),
+    radial-gradient(1px 1px at 150px 150px, rgba(123, 104, 238, 0.5), transparent);
+  background-repeat: repeat;
+  background-size: 300px 300px;
+  animation: twinkling 10s ease-in-out infinite alternate;
+}
+
+@keyframes stars-move {
+  from { transform: translateY(0px); }
+  to { transform: translateY(-100px); }
+}
+
+@keyframes twinkling {
+  from { opacity: 0.3; }
+  to { opacity: 0.8; }
+}
+
+/* Floating animation for decorative elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+/* Pulse glow effect */
+@keyframes pulseGlow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(123, 104, 238, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(123, 104, 238, 0.6);
+  }
+}
+
+.shadow-stellar-blue-glow {
+  box-shadow: 0 0 20px rgba(123, 104, 238, 0.4);
+}
+
+.hover-glow:hover {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Sliding reveal animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.8s ease-out forwards;
+}
+
+/* Gradient text shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.gradient-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(123, 104, 238, 0.4),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Rotating border effect */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.rotating-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    #7B68EE,
+    #FF4500,
+    #16A34A,
+    transparent
+  );
+  border-radius: inherit;
+  animation: rotate 6s linear infinite;
+  z-index: -1;
+}
+
+/* Particle effect background */
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  animation: particle-float 15s linear infinite;
+}
+
+@keyframes particle-float {
+  0% {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(100px);
+    opacity: 0;
+  }
+}
+
+/* CSS-only space background for ultra-low-end devices */
+.simple-space-bg {
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(123, 104, 238, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 69, 0, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 50% 100%, rgba(22, 163, 74, 0.06) 0%, transparent 50%),
+    linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  background-size: 100% 100%, 80% 80%, 120% 120%, 100% 100%;
+  background-position: 0% 0%, 100% 100%, 50% 0%, 0% 0%;
+}
+
+/* Ultra-simple stars for CSS-only mode */
+.css-stars {
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 90% 40%, white, transparent),
+    radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,0.6), transparent);
+  background-size: 300px 300px, 200px 200px, 400px 400px, 250px 250px;
+  background-position: 0 0, 50px 60px, 130px 270px, 70px 100px;
+}
+@media (max-width: 768px) {
+  .stars {
+    animation-duration: 30s; /* Slower animation on mobile */
   }
   
-  .bg-gradient-radial {
-    background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+  .twinkling {
+    animation-duration: 15s;
+  }
+  
+  /* Reduce blur effects on mobile for better performance */
+  .blur-3xl {
+    backdrop-filter: blur(8px);
+  }
+  
+  .blur-xl {
+    backdrop-filter: blur(4px);
+  }
+  
+  /* Simplify gradients on mobile */
+  .bg-gradient-to-br {
+    background: linear-gradient(135deg, var(--tw-gradient-stops));
   }
 }
 
-/* Custom cosmic scrollbar */
-.cosmic-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: #6366f1 transparent;
+/* Reduce motion for devices that prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .stars,
+  .twinkling,
+  .float-animation,
+  .animate-fadeIn,
+  .animate-slideUp,
+  .gradient-shimmer,
+  .rotating-border::before,
+  .particle {
+    animation: none;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-.cosmic-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.cosmic-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.cosmic-scroll::-webkit-scrollbar-thumb {
-  background-color: #6366f1; /* Nebula color */
-  border-radius: 3px;
-  border: 1px solid #4f46e5;
+/* Performance optimizations for low-end devices */
+@media (max-width: 480px) {
+  /* Reduce number of animated elements */
+  .particle:nth-child(n+11) {
+    display: none;
+  }
+  
+  /* Simpler shadows on very small screens */
+  .shadow-stellar-blue-glow {
+    box-shadow: 0 0 10px rgba(123, 104, 238, 0.2);
+  }
+  
+  /* Reduce backdrop blur */
+  .backdrop-blur-lg {
+    backdrop-filter: blur(4px);
+  }
+  
+  .backdrop-blur-xl {
+    backdrop-filter: blur(6px);
+  }
 }

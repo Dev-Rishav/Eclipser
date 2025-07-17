@@ -1,13 +1,13 @@
 // src/components/Layout.jsx
 import { memo } from 'react';
-import Navbar from './Navbar';
+import Navbar from './newUI/Navbar';
 import Footer from './Footer';
 
 const Layout = ({ children }) => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-eclipse-light dark:bg-space-void text-eclipse-text-light dark:text-space-text">
       <PersistentNavbar />
-      <main className="flex-grow mt-16"> {/* Adjust mt based on navbar height */}
+      <main className="flex-grow bg-eclipse-light dark:bg-space-void">
         {children}
       </main>
       <PersistentFooter />

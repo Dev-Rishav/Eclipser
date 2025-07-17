@@ -15,8 +15,6 @@ import {
 export const loginUser = (credentials) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
   try {
-    // console.log(credentials);
-    
     const response = await axios.post('http://localhost:3000/api/auth/login', credentials);
 
     const {token} = response.data;
@@ -25,12 +23,12 @@ export const loginUser = (credentials) => async (dispatch) => {
     localStorage.setItem('authToken', token);
     localStorage.setItem('user',JSON.stringify(user));
     
-    
     dispatch({
       type: LOGIN_SUCCESS,
       payload: { user, token }
     });
   } catch (error) {
+    console.error('Login API error:', error.response?.data || error.message);
     dispatch({
       type: LOGIN_FAILURE,
       payload: error.response?.data?.message || 'Login failed'

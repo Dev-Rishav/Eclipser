@@ -82,6 +82,17 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+setInterval(() => {
+    const memoryUsage = process.memoryUsage();
+    console.log({
+        rss: `${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB`,
+        heapTotal: `${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
+        heapUsed: `${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
+        external: `${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB`
+    });
+}, 5000); // Every 5s
+
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

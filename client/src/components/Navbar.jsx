@@ -1,14 +1,14 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../Redux/actions/authActions";
 import { useNavigate, NavLink } from "react-router-dom";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 const Navbar = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const [showLogoutModal, setShowLogoutModal] = useState(false); // State to control the modal visibility
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = useCallback(() => {
     dispatch(logoutUser());
@@ -17,19 +17,19 @@ const Navbar = () => {
   }, [dispatch, navigate]);
 
   const confirmLogout = () => {
-    setShowLogoutModal(false); // Close the modal
-    handleLogout(); // Perform logout
+    setShowLogoutModal(false);
+    handleLogout();
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-gradient-to-r from-cosmic to-stellar border-b border-nebula border-opacity-30 backdrop-filter backdrop-blur-lg">
-      <div className="w-7xl mx-auto px-4 py-3">
+    <nav className="fixed top-0 w-full z-50 bg-eclipse-surface dark:bg-space-dark border-b border-eclipse-border dark:border-space-gray backdrop-blur-lg bg-eclipse-surface/90 dark:bg-space-dark/90">
+      <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Left Section */}
           <div className="flex items-center space-x-8">
             <NavLink
               to="/"
-              className="text-2xl font-orbitron text-corona font-bold"
+              className="text-2xl font-bold text-eclipse-text-light dark:text-space-text"
             >
               ECLIPSER
             </NavLink>
@@ -39,22 +39,22 @@ const Navbar = () => {
                 to="/topics"
                 className={({ isActive }) =>
                   `flex items-center ${
-                    isActive ? "text-corona" : "text-stardust"
-                  } hover:text-corona`
+                    isActive ? "text-stellar-blue" : "text-eclipse-muted-light dark:text-space-muted"
+                  } hover:text-stellar-blue transition-colors`
                 }
               >
-                <span className="w-2 h-2 rounded-full bg-nebula bg-opacity-70 mr-2"></span>
+                <span className="w-2 h-2 rounded-full bg-stellar-blue mr-2"></span>
                 Topics
               </NavLink>
               <NavLink
                 to="/contest"
                 className={({ isActive }) =>
                   `flex items-center ${
-                    isActive ? "text-corona" : "text-stardust"
-                  } hover:text-corona`
+                    isActive ? "text-stellar-orange" : "text-eclipse-muted-light dark:text-space-muted"
+                  } hover:text-stellar-orange transition-colors`
                 }
               >
-                <span className="w-2 h-2 rounded-full bg-nebula bg-opacity-70 mr-2"></span>
+                <span className="w-2 h-2 rounded-full bg-stellar-orange mr-2"></span>
                 Contests
               </NavLink>
             </div>
@@ -66,16 +66,18 @@ const Navbar = () => {
               <input
                 type="text"
                 placeholder="Search..."
-                className="w-48 pl-8 pr-4 py-2 bg-white bg-opacity-10 border border-nebula border-opacity-30 rounded-full text-stardust placeholder-stardust placeholder-opacity-50 focus:w-64 transition-all"
+                className="w-48 pl-8 pr-4 py-2 bg-eclipse-surface dark:bg-space-darker border border-eclipse-border dark:border-space-gray rounded-full text-eclipse-text-light dark:text-space-text placeholder-eclipse-muted-light dark:placeholder-space-muted focus:w-64 focus:outline-none focus:ring-2 focus:ring-stellar-blue focus:border-stellar-blue transition-all"
               />
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-3 h-3 rounded-full bg-nebula bg-opacity-70"></div>
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-3 h-3 rounded-full bg-eclipse-muted-light dark:bg-space-muted"></div>
             </div>
+
+            <ThemeSwitcher />
 
             {isAuthenticated ? (
               <>
-                <button className="relative text-stardust hover:text-corona">
+                <button className="relative text-eclipse-muted-light dark:text-space-muted hover:text-stellar-blue transition-colors">
                   <span className="text-xl">🔔</span>
-                  <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs bg-supernova text-cosmic rounded-full">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs bg-stellar-orange text-white rounded-full">
                     3
                   </span>
                 </button>
@@ -83,42 +85,54 @@ const Navbar = () => {
                 <div className="flex items-center space-x-3">
                   <div className="relative">
                     <div
-                      className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-nebula to-supernova font-bold text-cosmic cursor-pointer"
-                      onClick={() => navigate("/profile",{
+                      className="w-10 h-10 flex items-center justify-center rounded-full bg-stellar-blue font-bold text-white cursor-pointer shadow-stellar-blue-glow"
+                      onClick={() => navigate("/profile", {
                         state: { userId: user._id }
                       })}
                       alt="Profile"
                     >
                       {user?.username[0].toUpperCase()}
                     </div>
-                    <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-400"></div>
+                    <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-stellar-green border-2 border-eclipse-surface dark:border-space-dark"></div>
                   </div>
 
                   <div className="flex flex-col cursor-pointer">
                     <span
-                      className="text-sm text-stardust"
-                      onClick={() => navigate("/profile",{
+                      className="text-sm text-eclipse-text-light dark:text-space-text font-medium"
+                      onClick={() => navigate("/profile", {
                         state: { userId: user._id }
                       })}
                     >
                       {user?.username}
                     </span>
-                    <button
-                      onClick={() => setShowLogoutModal(true)} // Open the modal
-                      className="text-xs text-supernova hover:underline"
-                    >
-                      Exit Airlock
-                    </button>
+                    <span className="text-xs text-eclipse-muted-light dark:text-space-muted">
+                      {user?.role || "Member"}
+                    </span>
                   </div>
+
+                  <button
+                    onClick={() => setShowLogoutModal(true)}
+                    className="px-3 py-1 text-sm bg-eclipse-border dark:bg-space-gray hover:bg-eclipse-muted-light dark:hover:bg-space-light text-eclipse-text-light dark:text-space-text rounded-lg transition-colors"
+                  >
+                    Logout
+                  </button>
                 </div>
               </>
             ) : (
-              <button
-                onClick={() => navigate("/login")}
-                className="px-6 py-2 bg-gradient-to-br from-nebula to-supernova text-cosmic rounded-full hover:transform hover:-translate-y-px"
-              >
-                Board Station
-              </button>
+              <div className="flex items-center space-x-3">
+                <NavLink
+                  to="/login"
+                  className="px-4 py-2 text-sm text-eclipse-muted-light dark:text-space-muted hover:text-eclipse-text-light dark:hover:text-space-text transition-colors"
+                >
+                  Login
+                </NavLink>
+                <NavLink
+                  to="/signup"
+                  className="px-4 py-2 text-sm bg-stellar-blue hover:bg-stellar-blue/80 text-white rounded-lg transition-colors shadow-stellar-blue-glow"
+                >
+                  Sign Up
+                </NavLink>
+              </div>
             )}
           </div>
         </div>
@@ -127,25 +141,25 @@ const Navbar = () => {
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gradient-to-br from-stellar to-cosmic p-6 rounded-lg shadow-lg text-center">
-            <h2 className="text-xl text-corona font-bold mb-4">
+          <div className="bg-eclipse-surface dark:bg-space-darker rounded-lg p-6 max-w-sm mx-4 border border-eclipse-border dark:border-space-gray shadow-space-elevated">
+            <h3 className="text-lg font-semibold text-eclipse-text-light dark:text-space-text mb-4">
               Confirm Logout
-            </h2>
-            <p className="text-stardust mb-6">
-              Are you sure you want to exit the airlock?
+            </h3>
+            <p className="text-eclipse-muted-light dark:text-space-muted mb-6">
+              Are you sure you want to logout?
             </p>
-            <div className="flex justify-center space-x-4">
+            <div className="flex justify-end space-x-3">
               <button
-                onClick={confirmLogout}
-                className="px-4 py-2 bg-supernova text-cosmic rounded-lg hover:brightness-110"
-              >
-                Yes, Logout
-              </button>
-              <button
-                onClick={() => setShowLogoutModal(false)} // Close the modal
-                className="px-4 py-2 bg-nebula text-cosmic rounded-lg hover:brightness-110"
+                onClick={() => setShowLogoutModal(false)}
+                className="px-4 py-2 text-sm text-eclipse-muted-light dark:text-space-muted hover:text-eclipse-text-light dark:hover:text-space-text transition-colors"
               >
                 Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="px-4 py-2 text-sm bg-stellar-orange hover:bg-stellar-orange/80 text-white rounded-lg transition-colors shadow-stellar-orange-glow"
+              >
+                Logout
               </button>
             </div>
           </div>
