@@ -6,10 +6,6 @@ export default defineConfig({
   plugins: [react()],
   build: {
     rollupOptions: {
-      external: [
-        'highlight.js/lib/languages/dockerfile',
-        'refractor/lang/docker.js'
-      ],
       output: {
         manualChunks: (id) => {
           // React core - keep small for critical path
