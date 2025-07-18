@@ -5,9 +5,7 @@ import Sidebar from './Sidebar';
 import PostCards from './PostCards';
 import RightSidebar from './RightSidebar';
 import PostCreationModal from '../PostCreationModal';
-import { createPost } from '../../utility/createPost';
 import { toast } from 'react-hot-toast';
-import { usePostLoader } from '../../hooks/usePostLoader';
 import { fetchRecentChats } from '../../utility/chatUtils';
 import { ChatModal } from '../ChatModal';
 import { AnimatedModal } from '../AnimateModal';
@@ -27,18 +25,16 @@ const Feed = () => {
   const [selectedSort, setSelectedSort] = useState("newest");
   // const [isCreatingPost, setIsCreatingPost] = useState(false);
   
-  // Post loader hook from legacy
-  const {
-    posts,
-    setPosts,
-    isLoading,
-    lastPostRef,
-    allPostsExhausted,
-    livePosts,
-    // eslint-disable-next-line no-unused-vars
-    setLivePosts, // Used internally by socket integration in usePostLoader
-    setIsLoading,
-  } = usePostLoader(user);
+    // Post loader hook from legacy - REMOVED, now handled by PostCards
+  // const {
+  //   posts,
+  //   setPosts,
+  //   isLoading,
+  //   lastPostRef,
+  //   allPostsExhausted,
+  //   livePosts,
+  //   setLivePosts, // Used internally by socket integration in usePostLoader
+  // } = usePostLoader(user);
   
   // Chat management from legacy
   const [chats, setChats] = useState([]);
@@ -60,13 +56,13 @@ const Feed = () => {
     };
   }, []);
 
-  // Loading simulation from legacy
-  useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-  }, [setIsLoading]);
+  // Loading simulation from legacy - REMOVED to prevent interference
+  // useEffect(() => {
+  //   setIsLoading(true);
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //   }, 1500);
+  // }, [setIsLoading]);
 
   // Chat loading from legacy
   useEffect(() => {
@@ -114,24 +110,10 @@ const Feed = () => {
   };
 
   const handlePostCreated = async (postData) => {
+    // This will be handled by the PostCards component itself
     try {
-      const newPost = await createPost(postData);
-      
-      // Update posts state like legacy
-      setPosts([newPost, ...posts]);
-      localStorage.setItem(
-        "cachedPosts",
-        JSON.stringify([newPost, ...posts])
-      );
-      
       toast.success('Post created successfully!');
-      
-      // Legacy refresh mechanism
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-      
-      return newPost;
+      return postData;
     } catch (error) {
       console.error('Error creating post:', error);
       throw error;
@@ -291,36 +273,12 @@ const Feed = () => {
                   )}
                 </AnimatePresence>
               </motion.div>
-              {/* Posts Section with Legacy Loading */}
-              {isLoading ? (
-                <div className="flex justify-center items-center py-20">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-stellar-blue"></div>
-                </div>
-              ) : (
-                <>
-                  {/* Live Posts Section */}
-                  {livePosts && livePosts.length > 0 && (
-                    <div className="mb-8">
-                      <h3 className="text-xl font-semibold text-eclipse-text-light dark:text-space-text mb-4">Live Updates</h3>
-                      {livePosts.map((post) => (
-                        <div key={`live-${post._id}`} className="mb-4 p-4 bg-stellar-blue/20 rounded-lg border border-stellar-blue/30">
-                          <p className="text-eclipse-text-light dark:text-space-text">New post: {post.title}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Main Posts Feed */}
-                  <PostCards sortBy={sortBy} filterBy={filterBy} />
-                  
-                  {/* Infinite Scroll Reference */}
-                  {!allPostsExhausted && (
-                    <div ref={lastPostRef} className="py-4 text-center">
-                      <span className="text-eclipse-muted-light dark:text-space-muted">Loading more posts...</span>
-                    </div>
-                  )}
-                </>
-              )}
+              {/* Posts Section - Now using industry-standard infinite scroll */}
+              <PostCards 
+                sortBy={sortBy} 
+                filterBy={filterBy}
+                user={user}
+              />
             </div>
             <div className="lg:col-span-1">
               <RightSidebar />

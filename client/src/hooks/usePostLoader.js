@@ -7,6 +7,7 @@ const TAG_PAGE_KEY = "cached_page_tags";
 const REMAINING_PAGE_KEY = "cached_page_remaining";
 const EXHAUST_TAG_KEY = "tag_posts_exhausted";
 const EXHAUST_ALL_KEY = "all_posts_exhausted";
+const SCROLL_POSITION_KEY = "feed_scroll_position";
 
 const socket = io('http://localhost:3000/');
 
@@ -15,6 +16,9 @@ export const usePostLoader = (user) => {
     const cached = localStorage.getItem(CACHE_KEY);
     return cached ? JSON.parse(cached) : [];
   });
+
+  // Track if this is initial load
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const [pageTags, setPageTags] = useState(
     () => parseInt(localStorage.getItem(TAG_PAGE_KEY)) || 1
@@ -33,6 +37,43 @@ export const usePostLoader = (user) => {
 
   const observer = useRef();
   const fetchLock = useRef(false); // Prevent multiple fetches at once
+
+  // Restore scroll position on initial load
+  useEffect(() => {
+    if (isInitialLoad && posts.length > 0) {
+      // Clear any saved scroll position to always start at top
+      localStorage.removeItem(SCROLL_POSITION_KEY);
+      
+      // Ensure page starts at top
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        console.log('📍 Reset scroll position to top for fresh session');
+      }, 100);
+      
+      setIsInitialLoad(false);
+    }
+  }, [isInitialLoad, posts.length]);
+
+  // Save scroll position when page unloads
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.setItem(SCROLL_POSITION_KEY, window.scrollY.toString());
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    // Also save scroll position periodically
+    const saveScrollInterval = setInterval(() => {
+      if (!isInitialLoad) {
+        localStorage.setItem(SCROLL_POSITION_KEY, window.scrollY.toString());
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      clearInterval(saveScrollInterval);
+    };
+  }, [isInitialLoad]);
 
   const persistToStorage = (
     newPosts,
@@ -59,9 +100,14 @@ export const usePostLoader = (user) => {
       if (observer.current) observer.current.disconnect();
 
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !isLoading) {
+        if (entries[0].isIntersecting && !isLoading && !fetchLock.current) {
+          console.log('🎯 Intersection detected, loading more posts...');
           loadMorePosts();
         }
+      }, {
+        // Add some margin to trigger loading before reaching the exact bottom
+        rootMargin: '100px',
+        threshold: 0.1
       });
 
       if (node) observer.current.observe(node);
@@ -142,6 +188,8 @@ export const usePostLoader = (user) => {
       }
 
       if (newPosts.length > 0) {
+        console.log('🔄 Loading new posts:', newPosts.length);
+        
         setPosts((prev) => {
           const combined = [...prev, ...newPosts];
           persistToStorage(

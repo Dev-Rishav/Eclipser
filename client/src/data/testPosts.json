@@ -1,0 +1,314 @@
+[
+  {
+    "author": {
+      "userId": "60f7b3b3b3b3b3b3b3b3b3b1",
+      "username": "CodeMaster123",
+      "profilePic": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400"
+    },
+    "postType": "query",
+    "title": "How to optimize this recursive algorithm?",
+    "content": "I'm trying to solve a dynamic programming problem but my recursive solution is too slow. Can someone help me optimize it? I've tried memoization but still getting TLE on larger inputs.",
+    "codeSnippet": {
+      "language": "python",
+      "code": "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\n# This is too slow for large n\nprint(fibonacci(40))"
+    },
+    "tags": ["algorithms", "dynamic-programming", "python", "optimization"],
+    "likes": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b2",
+        "username": "AlgoPro",
+        "profilePic": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
+        "dateTime": "2025-07-18T10:30:00Z"
+      },
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b3",
+        "username": "DevGuru",
+        "profilePic": "https://images.unsplash.com/photo-1494790108755-2616b332c785?w=400",
+        "dateTime": "2025-07-18T11:15:00Z"
+      }
+    ],
+    "comments": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b2",
+        "content": "You should use bottom-up DP instead! Create an array to store previous results.",
+        "timestamp": "2025-07-18T10:45:00Z"
+      },
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b4",
+        "content": "Here's a simple iterative solution that runs in O(n) time and O(1) space.",
+        "timestamp": "2025-07-18T11:20:00Z"
+      }
+    ],
+    "views": 156,
+    "createdAt": "2025-07-18T09:30:00Z",
+    "updatedAt": "2025-07-18T11:20:00Z"
+  },
+  {
+    "author": {
+      "userId": "60f7b3b3b3b3b3b3b3b3b3b2",
+      "username": "AlgoPro",
+      "profilePic": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400"
+    },
+    "postType": "discussion",
+    "title": "Best practices for handling async operations in React",
+    "content": "I've been working with React for a while, but I'm still confused about the best way to handle async operations. Should I use useEffect with async functions, custom hooks, or libraries like React Query? What are your thoughts and experiences?",
+    "codeSnippet": {
+      "language": "javascript",
+      "code": "// Is this the right way?\nuseEffect(() => {\n  const fetchData = async () => {\n    try {\n      const response = await fetch('/api/data');\n      const data = await response.json();\n      setData(data);\n    } catch (error) {\n      setError(error.message);\n    }\n  };\n  \n  fetchData();\n}, []);"
+    },
+    "tags": ["react", "javascript", "async", "hooks", "best-practices"],
+    "likes": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b1",
+        "username": "CodeMaster123",
+        "profilePic": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400",
+        "dateTime": "2025-07-18T14:20:00Z"
+      },
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b5",
+        "username": "ReactNinja",
+        "profilePic": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400",
+        "dateTime": "2025-07-18T15:10:00Z"
+      },
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b6",
+        "username": "FullStackDev",
+        "profilePic": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400",
+        "dateTime": "2025-07-18T16:05:00Z"
+      }
+    ],
+    "comments": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b5",
+        "content": "I recommend using React Query or SWR for data fetching. They handle caching, background updates, and error states automatically.",
+        "timestamp": "2025-07-18T14:30:00Z"
+      },
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b6",
+        "content": "Custom hooks are great for reusability! Create a useApi hook that encapsulates your fetch logic.",
+        "timestamp": "2025-07-18T15:45:00Z"
+      }
+    ],
+    "views": 234,
+    "createdAt": "2025-07-18T13:15:00Z",
+    "updatedAt": "2025-07-18T16:05:00Z"
+  },
+  {
+    "author": {
+      "userId": "60f7b3b3b3b3b3b3b3b3b3b3",
+      "username": "DevGuru",
+      "profilePic": "https://images.unsplash.com/photo-1494790108755-2616b332c785?w=400"
+    },
+    "postType": "achievement",
+    "title": "🎉 Just solved my first 2000-rated problem on Codeforces!",
+    "content": "After months of grinding and practicing, I finally managed to solve a 2000-rated problem during today's contest! The key was recognizing it as a graph theory problem and using DFS with memoization. Feeling so proud right now! 💪",
+    "codeSnippet": {
+      "language": "cpp",
+      "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nvector<vector<int>> adj;\nvector<bool> visited;\nvector<int> dp;\n\nint dfs(int node) {\n    if (visited[node]) return dp[node];\n    visited[node] = true;\n    \n    int maxPath = 1;\n    for (int neighbor : adj[node]) {\n        maxPath = max(maxPath, 1 + dfs(neighbor));\n    }\n    \n    return dp[node] = maxPath;\n}\n\nint main() {\n    // Solution implementation\n    return 0;\n}"
+    },
+    "tags": ["achievement", "codeforces", "competitive-programming", "graph-theory", "cpp"],
+    "likes": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b1",
+        "username": "CodeMaster123",
+        "profilePic": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400",
+        "dateTime": "2025-07-18T18:30:00Z"
+      },
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b2",
+        "username": "AlgoPro",
+        "profilePic": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
+        "dateTime": "2025-07-18T18:45:00Z"
+      },
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b7",
+        "username": "CompetitiveCoder",
+        "profilePic": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400",
+        "dateTime": "2025-07-18T19:20:00Z"
+      },
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b8",
+        "username": "AlgorithmExplorer",
+        "profilePic": "https://images.unsplash.com/photo-1463453091185-61582044d556?w=400",
+        "dateTime": "2025-07-18T20:10:00Z"
+      }
+    ],
+    "comments": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b7",
+        "content": "Congratulations! 🎉 That's a huge milestone. What's your next goal?",
+        "timestamp": "2025-07-18T18:50:00Z"
+      },
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b8",
+        "content": "Amazing work! DFS with memoization is such a powerful technique. Keep it up!",
+        "timestamp": "2025-07-18T19:30:00Z"
+      }
+    ],
+    "views": 189,
+    "createdAt": "2025-07-18T18:00:00Z",
+    "updatedAt": "2025-07-18T20:10:00Z"
+  },
+  {
+    "author": {
+      "userId": "60f7b3b3b3b3b3b3b3b3b3b4",
+      "username": "WebDevWizard",
+      "profilePic": "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400"
+    },
+    "postType": "query",
+    "title": "Database design for a social media app",
+    "content": "I'm building a social media app and struggling with the database design. How should I structure the posts, comments, likes, and user relationships? Should I use SQL or NoSQL? Any recommendations for handling scalability?",
+    "codeSnippet": {
+      "language": "sql",
+      "code": "-- Current schema idea\nCREATE TABLE users (\n    id SERIAL PRIMARY KEY,\n    username VARCHAR(50) UNIQUE,\n    email VARCHAR(100) UNIQUE,\n    created_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE posts (\n    id SERIAL PRIMARY KEY,\n    user_id INT REFERENCES users(id),\n    content TEXT,\n    created_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE likes (\n    user_id INT REFERENCES users(id),\n    post_id INT REFERENCES posts(id),\n    PRIMARY KEY (user_id, post_id)\n);"
+    },
+    "tags": ["database", "sql", "nosql", "architecture", "scalability"],
+    "likes": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b6",
+        "username": "FullStackDev",
+        "profilePic": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400",
+        "dateTime": "2025-07-17T22:30:00Z"
+      }
+    ],
+    "comments": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b6",
+        "content": "For social media, I'd recommend starting with PostgreSQL. Consider denormalizing some data for read performance.",
+        "timestamp": "2025-07-17T23:15:00Z"
+      }
+    ],
+    "views": 98,
+    "createdAt": "2025-07-17T21:45:00Z",
+    "updatedAt": "2025-07-17T23:15:00Z"
+  },
+  {
+    "author": {
+      "userId": "60f7b3b3b3b3b3b3b3b3b3b5",
+      "username": "ReactNinja",
+      "profilePic": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400"
+    },
+    "postType": "discussion",
+    "title": "The future of frontend development in 2025",
+    "content": "With all the new frameworks and tools coming out, what do you think the frontend landscape will look like in the next few years? Are we moving towards more meta-frameworks like Next.js, or will we see something completely new?",
+    "tags": ["frontend", "frameworks", "future", "next.js", "web-development"],
+    "likes": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b2",
+        "username": "AlgoPro",
+        "profilePic": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
+        "dateTime": "2025-07-18T08:45:00Z"
+      },
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b4",
+        "username": "WebDevWizard",
+        "profilePic": "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400",
+        "dateTime": "2025-07-18T09:20:00Z"
+      }
+    ],
+    "comments": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b4",
+        "content": "I think WebAssembly will play a bigger role. We might see more languages compiling to the web.",
+        "timestamp": "2025-07-18T09:30:00Z"
+      }
+    ],
+    "views": 67,
+    "createdAt": "2025-07-18T08:00:00Z",
+    "updatedAt": "2025-07-18T09:30:00Z"
+  },
+  {
+    "author": {
+      "userId": "60f7b3b3b3b3b3b3b3b3b3b6",
+      "username": "FullStackDev",
+      "profilePic": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400"
+    },
+    "postType": "query",
+    "title": "Help with Docker multi-stage builds",
+    "content": "I'm trying to optimize my Docker images using multi-stage builds but I'm running into issues with dependencies. The build works locally but fails in CI/CD. Has anyone faced similar issues?",
+    "codeSnippet": {
+      "language": "dockerfile",
+      "code": "# Multi-stage build\nFROM node:18-alpine AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --only=production\n\nFROM node:18-alpine AS runtime\nWORKDIR /app\nCOPY --from=builder /app/node_modules ./node_modules\nCOPY . .\nEXPOSE 3000\nCMD [\"npm\", \"start\"]"
+    },
+    "tags": ["docker", "devops", "ci-cd", "optimization"],
+    "likes": [],
+    "comments": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b9",
+        "content": "Try copying package.json before running npm ci in the runtime stage too. Dependencies might be missing.",
+        "timestamp": "2025-07-18T12:20:00Z"
+      }
+    ],
+    "views": 43,
+    "createdAt": "2025-07-18T11:30:00Z",
+    "updatedAt": "2025-07-18T12:20:00Z"
+  },
+  {
+    "author": {
+      "userId": "60f7b3b3b3b3b3b3b3b3b3b7",
+      "username": "CompetitiveCoder",
+      "profilePic": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400"
+    },
+    "postType": "achievement",
+    "title": "🏆 Won first place in university coding competition!",
+    "content": "Just won the annual coding competition at my university! The final problem was a challenging tree DP that took me 2 hours to solve, but the feeling when it finally passed all test cases was incredible! 🔥",
+    "codeSnippet": {
+      "language": "java",
+      "code": "public class TreeDP {\n    private static int[][] dp;\n    private static List<List<Integer>> adj;\n    \n    public static int solve(int node, int parent, int state) {\n        if (dp[node][state] != -1) {\n            return dp[node][state];\n        }\n        \n        int result = 0;\n        // DP logic here...\n        \n        return dp[node][state] = result;\n    }\n    \n    public static void main(String[] args) {\n        // Competition solution\n    }\n}"
+    },
+    "tags": ["achievement", "competition", "tree-dp", "java", "university"],
+    "likes": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b3",
+        "username": "DevGuru",
+        "profilePic": "https://images.unsplash.com/photo-1494790108755-2616b332c785?w=400",
+        "dateTime": "2025-07-17T20:30:00Z"
+      },
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b8",
+        "username": "AlgorithmExplorer",
+        "profilePic": "https://images.unsplash.com/photo-1463453091185-61582044d556?w=400",
+        "dateTime": "2025-07-17T21:15:00Z"
+      }
+    ],
+    "comments": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b3",
+        "content": "Awesome achievement! Tree DP problems are notoriously difficult. Congratulations! 🎉",
+        "timestamp": "2025-07-17T20:45:00Z"
+      }
+    ],
+    "views": 112,
+    "createdAt": "2025-07-17T19:30:00Z",
+    "updatedAt": "2025-07-17T21:15:00Z"
+  },
+  {
+    "author": {
+      "userId": "60f7b3b3b3b3b3b3b3b3b3b8",
+      "username": "AlgorithmExplorer",
+      "profilePic": "https://images.unsplash.com/photo-1463453091185-61582044d556?w=400"
+    },
+    "postType": "discussion",
+    "title": "Machine Learning vs Traditional Algorithms - When to use what?",
+    "content": "I've been wondering about this for a while. In competitive programming, we mostly use traditional algorithms, but in real-world applications, ML seems to be taking over. When should we choose traditional algorithms over ML solutions and vice versa?",
+    "tags": ["machine-learning", "algorithms", "discussion", "career"],
+    "likes": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b1",
+        "username": "CodeMaster123",
+        "profilePic": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400",
+        "dateTime": "2025-07-17T16:20:00Z"
+      }
+    ],
+    "comments": [
+      {
+        "userId": "60f7b3b3b3b3b3b3b3b3b3b1",
+        "content": "Great question! I think it depends on the problem complexity and data availability. Traditional algorithms are still crucial for system design.",
+        "timestamp": "2025-07-17T16:40:00Z"
+      }
+    ],
+    "views": 78,
+    "createdAt": "2025-07-17T15:45:00Z",
+    "updatedAt": "2025-07-17T16:40:00Z"
+  }
+]
