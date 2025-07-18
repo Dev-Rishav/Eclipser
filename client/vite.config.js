@@ -60,7 +60,8 @@ export default defineConfig({
       'react-router-dom',
       'react-redux',
       'framer-motion'
-    ]
+    ],
+    exclude: ['lottie-web', 'react-lottie']
   },
   server: {
     preTransformRequests: false
