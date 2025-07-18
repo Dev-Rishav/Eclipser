@@ -1,12 +1,19 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSelector } from "react-redux";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import PostCards from './PostCards';
 import RightSidebar from './RightSidebar';
 import PostCreationModal from '../PostCreationModal';
 import { createPost } from '../../utility/createPost';
 import { toast } from 'react-hot-toast';
+import { usePostLoader } from '../../hooks/usePostLoader';
+import { fetchRecentChats } from '../../utility/chatUtils';
+import { ChatModal } from '../ChatModal';
+import { AnimatedModal } from '../AnimateModal';
+import { ChatPreview } from '../ChatPreview';
+import { clearPostCache } from '../../utility/storageCleaner';
+import socket from '../../config/socket';
 
 const Feed = () => {
   const { user } = useSelector((state) => state.auth);
@@ -14,14 +21,112 @@ const Feed = () => {
   const [sortBy, setSortBy] = useState('newest');
   const [filterBy, setFilterBy] = useState('all');
   const [postType, setPostType] = useState('query'); // Track which type of post to create
+  
+  // Legacy Home.jsx state management
+  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [selectedSort, setSelectedSort] = useState("newest");
+  // const [isCreatingPost, setIsCreatingPost] = useState(false);
+  
+  // Post loader hook from legacy
+  const {
+    posts,
+    setPosts,
+    isLoading,
+    lastPostRef,
+    allPostsExhausted,
+    livePosts,
+    // eslint-disable-next-line no-unused-vars
+    setLivePosts, // Used internally by socket integration in usePostLoader
+    setIsLoading,
+  } = usePostLoader(user);
+  
+  // Chat management from legacy
+  const [chats, setChats] = useState([]);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMoreChats, setHasMoreChats] = useState(true);
+
+  // Legacy useEffects for cleanup and initialization
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      clearPostCache();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  // Loading simulation from legacy
+  useEffect(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+  }, [setIsLoading]);
+
+  // Chat loading from legacy
+  useEffect(() => {
+    const loadChats = async () => {
+      try {
+        const recentChats = await fetchRecentChats();
+        setChats(recentChats.chats || []);
+      } catch (error) {
+        console.error('Error loading chats:', error);
+        setChats([]);
+      }
+    };
+    loadChats();
+  }, []);
+
+  // Socket connection from legacy
+  useEffect(() => {
+    if (!user?._id) return;
+    
+    socket.connect();
+    console.log("Socket connected");
+    socket.emit("register", user._id);
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from socket");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user?._id]);
+
+  // Load more chats functionality from legacy
+  const loadMoreChats = async () => {
+    if (!hasMoreChats) return;
+
+    try {
+      const response = await fetchRecentChats(page + 1);
+      setChats((prev) => [...prev, ...response.chats]);
+      setPage((prev) => prev + 1);
+      setHasMoreChats(response.chats.length > 0);
+    } catch (error) {
+      console.error('Error loading more chats:', error);
+    }
+  };
 
   const handlePostCreated = async (postData) => {
     try {
       const newPost = await createPost(postData);
+      
+      // Update posts state like legacy
+      setPosts([newPost, ...posts]);
+      localStorage.setItem(
+        "cachedPosts",
+        JSON.stringify([newPost, ...posts])
+      );
+      
       toast.success('Post created successfully!');
       
-      // Trigger a refresh of the PostCards component
-      // This could be improved with better state management
+      // Legacy refresh mechanism
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -36,6 +141,12 @@ const Feed = () => {
   const handlePostTypeClick = (type) => {
     setPostType(type);
     setShowCreatePost(true);
+    // setIsCreatingPost(true); // Legacy state
+  };
+
+  const handleCloseModal = () => {
+    setShowCreatePost(false);
+    // setIsCreatingPost(false); // Legacy state
   };
 
   const sortOptions = [
@@ -47,9 +158,9 @@ const Feed = () => {
 
   const filterOptions = [
     { value: 'all', label: 'All Posts', icon: '📑' },
-    { value: 'questions', label: 'Questions', icon: '❓' },
-    { value: 'solutions', label: 'Solutions', icon: '💡' },
-    { value: 'snippets', label: 'Code Snippets', icon: '📝' },
+    { value: 'query', label: 'Questions', icon: '❓' },
+    { value: 'discussion', label: 'Discussions', icon: '�' },
+    { value: 'achievement', label: 'Achievements', icon: '🏆' },
   ];
 
   return (
@@ -57,7 +168,8 @@ const Feed = () => {
       <div className="flex">
         <Sidebar />
         <main className="flex-1 p-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">          <div className="lg:col-span-2">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2">
             {/* Sorting and Filtering Controls */}
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
@@ -69,8 +181,11 @@ const Feed = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-eclipse-text-light dark:text-space-text">Sort by:</span>
                   <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                    value={selectedSort}
+                    onChange={(e) => {
+                      setSelectedSort(e.target.value);
+                      setSortBy(e.target.value);
+                    }}
                     className="bg-eclipse-border/30 dark:bg-space-darker border border-eclipse-border/50 dark:border-space-gray/50 rounded-lg px-3 py-1 text-sm text-eclipse-text-light dark:text-space-text focus:ring-2 focus:ring-stellar-blue/50 outline-none"
                   >
                     {sortOptions.map(option => (
@@ -84,8 +199,11 @@ const Feed = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-eclipse-text-light dark:text-space-text">Filter:</span>
                   <select
-                    value={filterBy}
-                    onChange={(e) => setFilterBy(e.target.value)}
+                    value={selectedFilter}
+                    onChange={(e) => {
+                      setSelectedFilter(e.target.value);
+                      setFilterBy(e.target.value);
+                    }}
                     className="bg-eclipse-border/30 dark:bg-space-darker border border-eclipse-border/50 dark:border-space-gray/50 rounded-lg px-3 py-1 text-sm text-eclipse-text-light dark:text-space-text focus:ring-2 focus:ring-stellar-orange/50 outline-none"
                   >
                     {filterOptions.map(option => (
@@ -162,21 +280,89 @@ const Feed = () => {
                 </div>
 
                 {/* Post Creation Modal */}
-                <PostCreationModal
-                  isOpen={showCreatePost}
-                  onClose={() => setShowCreatePost(false)}
-                  onPostCreated={handlePostCreated}
-                  initialPostType={postType}
-                />
+                <AnimatePresence>
+                  {showCreatePost && (
+                    <PostCreationModal
+                      isOpen={showCreatePost}
+                      onClose={handleCloseModal}
+                      onPostCreated={handlePostCreated}
+                      initialPostType={postType}
+                    />
+                  )}
+                </AnimatePresence>
               </motion.div>
-              <PostCards sortBy={sortBy} filterBy={filterBy} />
+              {/* Posts Section with Legacy Loading */}
+              {isLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-stellar-blue"></div>
+                </div>
+              ) : (
+                <>
+                  {/* Live Posts Section */}
+                  {livePosts && livePosts.length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-xl font-semibold text-eclipse-text-light dark:text-space-text mb-4">Live Updates</h3>
+                      {livePosts.map((post) => (
+                        <div key={`live-${post._id}`} className="mb-4 p-4 bg-stellar-blue/20 rounded-lg border border-stellar-blue/30">
+                          <p className="text-eclipse-text-light dark:text-space-text">New post: {post.title}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Main Posts Feed */}
+                  <PostCards sortBy={sortBy} filterBy={filterBy} />
+                  
+                  {/* Infinite Scroll Reference */}
+                  {!allPostsExhausted && (
+                    <div ref={lastPostRef} className="py-4 text-center">
+                      <span className="text-eclipse-muted-light dark:text-space-muted">Loading more posts...</span>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
             <div className="lg:col-span-1">
               <RightSidebar />
+              
+              {/* Chat Preview Integration */}
+              {chats.length > 0 && (
+                <div className="mt-4 bg-eclipse-surface dark:bg-space-dark rounded-lg border border-eclipse-border dark:border-space-gray">
+                  <ChatPreview
+                    chats={chats}
+                    title="Recent Chats"
+                    onStartNewChat={() => {
+                      setIsChatOpen(true);
+                      setSelectedChat(null);
+                    }}
+                    onLoadMore={loadMoreChats}
+                    hasMore={hasMoreChats}
+                    onSelectChat={(chat) => {
+                      setSelectedChat(chat);
+                      setIsChatOpen(true);
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </main>
       </div>
+
+      {/* Chat Modal with AnimatedModal wrapper */}
+      <AnimatedModal
+        isOpen={isChatOpen}
+        onClose={() => {}}
+      >
+        <ChatModal
+          chat={selectedChat}
+          onClose={() => {
+            setIsChatOpen(false);
+            console.log("Chat closed");
+            setSelectedChat(null);
+          }}
+        />
+      </AnimatedModal>
     </div>
   );
 };
