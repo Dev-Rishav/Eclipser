@@ -5,7 +5,6 @@ import { LiveActivity } from "../components/LiveActivity";
 import { ChatPreview } from "../components/ChatPreview";
 import { PostCard } from "../components/PostCard";
 import FeedControlBar from "../components/FeedControlBar";
-import { HighlightSyntax } from "../components/HighlightSyntax";
 import { toast } from "react-hot-toast";
 import { createPost } from "../utility/createPost";
 import { useSelector } from "react-redux";
@@ -14,20 +13,13 @@ import { usePostLoader } from "../hooks/usePostLoader";
 import { fetchRecentChats } from "../utility/chatUtils";
 import { AnimatedModal } from "../components/AnimateModal";
 import { ChatModal } from "../components/ChatModal";
+import PostCreationModal from "../components/PostCreationModal";
 import socket from "../config/socket";
 
 const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [selectedSort, setSelectedSort] = useState("newest");
   const [isCreatingPost, setIsCreatingPost] = useState(false);
-  const [newPost, setNewPost] = useState({
-    title: "",
-    content: "",
-    postType: "query",
-    tags: [],
-    codeSnippet: "",
-    language: "javascript",
-  });
   const user = useSelector((state) => state.auth.user);
   const {
     posts,

@@ -4,12 +4,39 @@ import { useState } from 'react';
 import Sidebar from './Sidebar';
 import PostCards from './PostCards';
 import RightSidebar from './RightSidebar';
+import PostCreationModal from '../PostCreationModal';
+import { createPost } from '../../utility/createPost';
+import { toast } from 'react-hot-toast';
 
 const Feed = () => {
   const { user } = useSelector((state) => state.auth);
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
   const [filterBy, setFilterBy] = useState('all');
+  const [postType, setPostType] = useState('query'); // Track which type of post to create
+
+  const handlePostCreated = async (postData) => {
+    try {
+      const newPost = await createPost(postData);
+      toast.success('Post created successfully!');
+      
+      // Trigger a refresh of the PostCards component
+      // This could be improved with better state management
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
+      return newPost;
+    } catch (error) {
+      console.error('Error creating post:', error);
+      throw error;
+    }
+  };
+
+  const handlePostTypeClick = (type) => {
+    setPostType(type);
+    setShowCreatePost(true);
+  };
 
   const sortOptions = [
     { value: 'newest', label: 'Newest First', icon: '🕒' },
@@ -105,7 +132,7 @@ const Feed = () => {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowCreatePost(true)}
+                      onClick={() => handlePostTypeClick('query')}
                       className="flex items-center gap-2 px-4 py-2 bg-stellar-blue/10 hover:bg-stellar-blue/20 text-stellar-blue rounded-lg transition-colors border border-stellar-blue/30"
                     >
                       <span className="text-lg">❓</span>
@@ -115,40 +142,32 @@ const Feed = () => {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowCreatePost(true)}
+                      onClick={() => handlePostTypeClick('discussion')}
                       className="flex items-center gap-2 px-4 py-2 bg-stellar-orange/10 hover:bg-stellar-orange/20 text-stellar-orange rounded-lg transition-colors border border-stellar-orange/30"
                     >
-                      <span className="text-lg">💡</span>
-                      <span className="text-sm font-medium">Share Solution</span>
+                      <span className="text-lg">�</span>
+                      <span className="text-sm font-medium">Start Discussion</span>
                     </motion.button>
                     
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowCreatePost(true)}
+                      onClick={() => handlePostTypeClick('achievement')}
                       className="flex items-center gap-2 px-4 py-2 bg-stellar-green/10 hover:bg-stellar-green/20 text-stellar-green rounded-lg transition-colors border border-stellar-green/30"
                     >
-                      <span className="text-lg">📝</span>
-                      <span className="text-sm font-medium">Code Snippet</span>
+                      <span className="text-lg">🏆</span>
+                      <span className="text-sm font-medium">Share Achievement</span>
                     </motion.button>
                   </div>
                 </div>
 
-                {/* Simple Create Post Modal/Placeholder */}
-                {showCreatePost && (
-                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-eclipse-surface dark:bg-space-dark rounded-lg p-6 max-w-md w-full mx-4 border border-eclipse-border dark:border-space-gray">
-                      <h3 className="text-lg font-semibold text-eclipse-text-light dark:text-space-text mb-4">Create New Post</h3>
-                      <p className="text-eclipse-muted-light dark:text-space-muted mb-4">Post creation feature coming soon!</p>
-                      <button
-                        onClick={() => setShowCreatePost(false)}
-                        className="px-4 py-2 bg-stellar-blue hover:bg-stellar-blue/80 text-white rounded-lg transition-colors"
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {/* Post Creation Modal */}
+                <PostCreationModal
+                  isOpen={showCreatePost}
+                  onClose={() => setShowCreatePost(false)}
+                  onPostCreated={handlePostCreated}
+                  initialPostType={postType}
+                />
               </motion.div>
               <PostCards sortBy={sortBy} filterBy={filterBy} />
             </div>
