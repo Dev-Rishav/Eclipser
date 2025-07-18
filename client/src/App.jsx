@@ -1,14 +1,12 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./Redux/store";
-import Home from "./pages/Home";
-import Login from "./components/Login";
 import PrivateRoute from "./Redux/PrivateRoute";
-import Signup from "./components/Signup";
 import { Toaster } from "react-hot-toast";
 import PersistentLayout from "./components/PersistentLayout";
 import Contest from "./pages/Contest";
 import Profile from "./pages/Profile";
+import UnderConstruction from "./pages/UnderConstruction";
 import { useState } from "react";
 import LoadingPage from "./components/LoadingPage";
 import Feed from "./components/newUI/Feed";
@@ -46,6 +44,11 @@ const App = () => {
               <Route path="/contest" element={<Contest />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/feed" element={<Feed />} />
+              <Route path="/topics" element={<UnderConstruction />} />
+              <Route path="/discussions" element={<UnderConstruction />} />
+              <Route path="/help" element={<UnderConstruction />} />
+              <Route path="/leaderboard" element={<UnderConstruction />} />
+              <Route path="/under-construction" element={<UnderConstruction />} />
               {/* <Route path="/posts" element={<PostList />} /> */}
               {/* Add other authenticated routes here */}
             </Route>

@@ -31,23 +31,35 @@ const Navbar = () => {
     >
       <div className="flex items-center">
         <div className="mr-6">
-          <div className="flex items-center">
-            <div className="w-10 h-10 bg-stellar-blue rounded-full flex items-center justify-center shadow-stellar-blue-glow">
+          <NavLink to="/" className="flex items-center">
+            <div className="w-10 h-10 bg-stellar-blue rounded-full flex items-center justify-center shadow-stellar-blue-glow hover:bg-stellar-blue/80 transition-colors">
               <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12z" clipRule="evenodd" />
               </svg>
             </div>
-            <span className="ml-2 text-xl font-bold text-stellar-blue">ECLIPSER</span>
-          </div>
+            <span className="ml-2 text-xl font-bold text-stellar-blue hover:text-stellar-blue/80 transition-colors">ECLIPSER</span>
+          </NavLink>
         </div>
         
         <ul className="flex space-x-8">
           <li>
             <NavLink 
+              to="/" 
+              className={({ isActive }) =>
+                `border-b-2 pb-1 transition-colors ${
+                  isActive ? "border-stellar-blue" : "border-transparent hover:border-stellar-blue"
+                }`
+              }
+            >
+              Home
+            </NavLink>
+          </li>
+          <li>
+            <NavLink 
               to="/topics" 
               className={({ isActive }) =>
                 `border-b-2 pb-1 transition-colors ${
-                  isActive ? "border-stellar-blue text-stellar-blue shadow-stellar-blue-glow" : "border-transparent hover:border-stellar-blue hover:text-stellar-blue"
+                  isActive ? "border-stellar-blue" : "border-transparent hover:border-stellar-blue"
                 }`
               }
             >
@@ -58,8 +70,8 @@ const Navbar = () => {
             <NavLink 
               to="/contest"
               className={({ isActive }) =>
-                `transition-colors ${
-                  isActive ? "text-stellar-orange shadow-stellar-orange-glow" : "hover:text-stellar-orange"
+                `border-b-2 pb-1 transition-colors ${
+                  isActive ? "border-stellar-orange" : "border-transparent hover:border-stellar-orange"
                 }`
               }
             >
@@ -73,8 +85,8 @@ const Navbar = () => {
             <NavLink 
               to="/discussions" 
               className={({ isActive }) =>
-                `transition-colors ${
-                  isActive ? "text-stellar-blue shadow-stellar-blue-glow" : "hover:text-stellar-blue"
+                `border-b-2 pb-1 transition-colors ${
+                  isActive ? "border-stellar-blue" : "border-transparent hover:border-stellar-blue"
                 }`
               }
             >
@@ -85,8 +97,8 @@ const Navbar = () => {
             <NavLink 
               to="/help" 
               className={({ isActive }) =>
-                `transition-colors ${
-                  isActive ? "text-stellar-green shadow-stellar-green-glow" : "hover:text-stellar-green"
+                `border-b-2 pb-1 transition-colors ${
+                  isActive ? "border-stellar-green" : "border-transparent hover:border-stellar-green"
                 }`
               }
             >
@@ -97,8 +109,8 @@ const Navbar = () => {
             <NavLink 
               to="/leaderboard" 
               className={({ isActive }) =>
-                `transition-colors ${
-                  isActive ? "text-stellar-orange shadow-stellar-orange-glow" : "hover:text-stellar-orange"
+                `border-b-2 pb-1 transition-colors ${
+                  isActive ? "border-stellar-orange" : "border-transparent hover:border-stellar-orange"
                 }`
               }
             >

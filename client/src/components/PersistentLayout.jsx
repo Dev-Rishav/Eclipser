@@ -6,20 +6,25 @@ import Contest from "../pages/Contest";
 import Profile from "../pages/Profile";
 import PostList from "../pages/PostList";
 import Feed from "./newUI/Feed";
+import UnderConstruction from "../pages/UnderConstruction";
 
 // Memoized layout component to prevent re-renders
 const PersistentLayout = memo(() => (
-    <Layout>
-      <Routes>
-        {/* All authenticated routes will be rendered here */}
-        <Route path="/" element={<Feed />} />
-        <Route path="/contest" element={<Contest />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/feed" element={<Feed />} />
-        {/* <Route path="/posts" element={<PostList />} /> */}
-      </Routes>
-    </Layout>
-  ));
+  <Layout>
+    <Routes>
+      {/* All authenticated routes will be rendered here */}
+      <Route path="/" element={<Feed />} />
+      <Route path="/contest" element={<Contest />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/feed" element={<Feed />} />
+      <Route path="/topics" element={<UnderConstruction />} />
+      <Route path="/discussions" element={<UnderConstruction />} />
+      <Route path="/help" element={<UnderConstruction />} />
+      <Route path="/leaderboard" element={<UnderConstruction />} />
+      <Route path="/under-construction" element={<UnderConstruction />} />
+      {/* <Route path="/posts" element={<PostList />} /> */}
+    </Routes>
+  </Layout>
+));
 
 export default PersistentLayout;
-
