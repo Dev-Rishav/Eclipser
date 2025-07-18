@@ -15,6 +15,7 @@ import { createComment } from "../utility/createComment.js";
 import { fetchUsersByIds } from "../utility/fetchUsersByIds.js";
 import { CodeHighlighter } from "./CodeHighlighter.jsx";
 import { useNavigate } from "react-router-dom";
+import { sseManager } from "../config/sseConfig.js";
 
 export const PostCard = ({ post: initialPost }) => {
   const [post, setPost] = useState(initialPost);
@@ -118,13 +119,13 @@ export const PostCard = ({ post: initialPost }) => {
   };
 
   useEffect(() => {
-    const eventSource = new EventSource("http://localhost:3000/stream", {
-      withCredentials: true,
-    });
+    // Connect to SSE stream if not already connected
+    if (!sseManager.isConnected) {
+      sseManager.connect('/stream');
+    }
 
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
+    // Handler for like events
+    const handleLikeEvent = (data) => {
       if (data.type === "like" && data.postId === post._id) {
         const alreadyLiked = post.likes.some(
           (like) => like.userId === data.userId
@@ -147,7 +148,12 @@ export const PostCard = ({ post: initialPost }) => {
             toast.success("Post liked successfully!");
           }
         }
-      } else if (data.type === "comment" && data.postId === post._id) {
+      }
+    };
+
+    // Handler for comment events
+    const handleCommentEvent = (data) => {
+      if (data.type === "comment" && data.postId === post._id) {
         setEnrichedComments((prev) => [
           ...prev,
           {
@@ -164,12 +170,18 @@ export const PostCard = ({ post: initialPost }) => {
       }
     };
 
-    eventSource.onerror = () => {
-      eventSource.close();
+    // Combined message handler
+    const handleMessage = (data) => {
+      handleLikeEvent(data);
+      handleCommentEvent(data);
     };
 
+    // Add event listener for this post
+    sseManager.addEventListener('message', handleMessage);
+
+    // Cleanup function
     return () => {
-      eventSource.close();
+      sseManager.removeEventListener('message', handleMessage);
     };
   }, [post._id, user._id, post.likes, post.comments]);
 

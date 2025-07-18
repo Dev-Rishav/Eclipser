@@ -14,6 +14,7 @@ import LoadingPage from "./components/LoadingPage";
 import Feed from "./components/newUI/Feed";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import LandingPage from "./pages/LandingPage.jsx";
+import ConnectionDebugPanel from "./components/ConnectionDebugPanel.jsx";
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(false); // State to control loading screen
@@ -50,6 +51,8 @@ const App = () => {
             </Route>
           </Route>
         </Routes>
+        {/* Debug panel - only shows in development */}
+        {import.meta.env.DEV && <ConnectionDebugPanel />}
       </Router>
     </Provider>
     </ThemeProvider>
