@@ -1,23 +1,16 @@
-import axios from "axios";
+import axiosInstance from "../config/axiosConfig.js";
+import { API_ENDPOINTS, apiLog, apiError } from "../config/api.js";
 
 export const getFollowStatus = async (followingId) => {
   try {
-    const res = await axios.get(
-      `http://localhost:3000/api/users/followStats/${followingId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      }
-    );
+    const res = await axiosInstance.get(API_ENDPOINTS.USERS.FOLLOW_STATS(followingId));
 
-    if (res.status == 200) console.log("status fetched successfully");
-    console.log("res.data=",res.data);
-    
+    if (res.status == 200) apiLog("status fetched successfully");
+    apiLog("res.data=", res.data);
 
     return res.data.isFollowing;
   } catch (error) {
-    console.error("error fetching follow status ",error);
+    apiError("error fetching follow status", error);
     throw error;
   }
 };

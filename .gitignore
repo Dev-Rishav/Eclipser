@@ -11,3 +11,5 @@ client/.env
 server/contest-service/.env
 server/contest-service/SOCKET_TESTING_GUIDE.md
 server/contest-service/AWS_FREE_TIER_GUIDE.md
+client/.env.production
+client/.env.staging

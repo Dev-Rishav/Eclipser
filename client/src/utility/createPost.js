@@ -1,4 +1,5 @@
-import axios from "axios";
+import axiosInstance from "../config/axiosConfig.js";
+import { API_ENDPOINTS, apiLog, apiError } from "../config/api.js";
 
 /**
  * Utility function to create a new post
@@ -8,18 +9,13 @@ import axios from "axios";
  */
 export const createPost = async (post) => {
   try {
-    const newPost={...post, tags: post.tags.split(",").map((tag) => tag.trim())};
-    console.log("Creating post:", newPost);
+    const newPost = { ...post, tags: post.tags.split(",").map((tag) => tag.trim()) };
+    apiLog("Creating post:", newPost);
     
-    const response = await axios.post("http://localhost:3000/api/posts", newPost, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      },
-    });
+    const response = await axiosInstance.post(API_ENDPOINTS.POSTS.BASE, newPost);
     return response.data; // Return the created post
   } catch (error) {
-    console.error("Error creating post:", error);
+    apiError("Error creating post:", error);
     throw error; // Re-throw the error to handle it in the calling function
   }
 };

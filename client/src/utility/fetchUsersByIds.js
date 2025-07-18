@@ -1,20 +1,12 @@
-import axios from "axios";
+import axiosInstance from "../config/axiosConfig.js";
+import { API_ENDPOINTS, apiError } from "../config/api.js";
 
 export const fetchUsersByIds = async (userIds) => {
   try {
-    const res = await axios.post(
-      "http://localhost:3000/api/users/bulk",
-      { userIds }, // Send userIds as a payload
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      }
-    );
-
+    const res = await axiosInstance.post(API_ENDPOINTS.USERS.BULK, { userIds });
     return res.data; // Assuming the backend returns an array of user objects
   } catch (error) {
-    console.error("Error fetching users:", error.message);
+    apiError("Error fetching users:", error.message);
     throw error;
   }
 };
