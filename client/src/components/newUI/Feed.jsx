@@ -11,6 +11,7 @@ import { ChatModal } from '../ChatModal';
 import { AnimatedModal } from '../AnimateModal';
 import { ChatPreview } from '../ChatPreview';
 import { clearPostCache } from '../../utility/storageCleaner';
+import { createPost } from '../../utility/createPost';
 import socket from '../../config/socket';
 
 const Feed = () => {
@@ -110,10 +111,10 @@ const Feed = () => {
   };
 
   const handlePostCreated = async (postData) => {
-    // This will be handled by the PostCards component itself
     try {
+      const createdPost = await createPost(postData);
       toast.success('Post created successfully!');
-      return postData;
+      return createdPost;
     } catch (error) {
       console.error('Error creating post:', error);
       throw error;
@@ -338,10 +339,11 @@ const Feed = () => {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
-                  className="bg-eclipse-surface dark:bg-space-dark rounded-lg border border-eclipse-border dark:border-space-gray p-4"
+                  className="max-w-4xl mx-auto"
                 >
-                  <div className="flex flex-wrap gap-4 items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="bg-eclipse-surface dark:bg-space-dark rounded-lg border border-eclipse-border dark:border-space-gray p-4">
+                    <div className="flex flex-wrap gap-4 items-center justify-between">
+                      <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-eclipse-text-light dark:text-space-text">Sort by:</span>
                       <select
                         value={selectedSort}
@@ -376,6 +378,7 @@ const Feed = () => {
                         ))}
                       </select>
                     </div>
+                    </div>
                   </div>
                 </motion.div>
 
@@ -384,6 +387,7 @@ const Feed = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8 }}
+                  className="max-w-4xl mx-auto"
                 >
                   <div className="bg-eclipse-surface dark:bg-space-dark rounded-lg border border-eclipse-border dark:border-space-gray p-4 shadow-space-card">
                     <div className="flex items-center gap-3 mb-3">
