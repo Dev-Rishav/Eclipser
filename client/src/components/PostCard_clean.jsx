@@ -15,6 +15,7 @@ import { createComment } from "../utility/createComment.js";
 import { fetchUsersByIds } from "../utility/fetchUsersByIds.js";
 import { CodeHighlighter } from "./CodeHighlighter.jsx";
 import { useNavigate } from "react-router-dom";
+import { API_CONFIG } from "../config/api.js";
 
 export const PostCard = ({ post: initialPost }) => {
   const [post, setPost] = useState(initialPost);
@@ -118,7 +119,7 @@ export const PostCard = ({ post: initialPost }) => {
   };
 
   useEffect(() => {
-    const eventSource = new EventSource("http://localhost:3000/stream", {
+    const eventSource = new EventSource(`${API_CONFIG.BASE_URL}/stream`, {
       withCredentials: true,
     });
 

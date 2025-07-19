@@ -3,6 +3,7 @@ import { Editor, loader } from "@monaco-editor/react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import PropTypes from "prop-types";
+import { API_CONFIG } from "../../config/api.js";
 
 export default function CodeEditor({ contestId, userId, problem, onSubmissionSuccess }) {
   const [code, setCode] = useState('');
@@ -189,7 +190,7 @@ int main() {
     setLoading(true);
     
     try {
-      const res = await axios.post("http://localhost:3001/api/contest/submit", {
+      const res = await axios.post(`${API_CONFIG.CONTEST_BASE_URL}/api/contest/submit`, {
         contestId,
         userId,
         problemId: problem?.id,
