@@ -5,6 +5,7 @@ import { LiveActivity } from "../components/LiveActivity";
 import { ChatPreview } from "../components/ChatPreview";
 import { PostCard } from "../components/PostCard";
 import FeedControlBar from "../components/FeedControlBar";
+import HighlightSyntax from "../components/HighlightSyntax";
 import { toast } from "react-hot-toast";
 import { createPost } from "../utility/createPost";
 import { useSelector } from "react-redux";
@@ -13,13 +14,21 @@ import { usePostLoader } from "../hooks/usePostLoader";
 import { fetchRecentChats } from "../utility/chatUtils";
 import { AnimatedModal } from "../components/AnimateModal";
 import { ChatModal } from "../components/ChatModal";
-import PostCreationModal from "../components/PostCreationModal";
+import PersonalizationBanner from "../components/PersonalizationBanner";
 import socket from "../config/socket";
 
 const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [selectedSort, setSelectedSort] = useState("newest");
   const [isCreatingPost, setIsCreatingPost] = useState(false);
+  const [newPost, setNewPost] = useState({
+    title: "",
+    content: "",
+    postType: "query",
+    tags: [],
+    codeSnippet: "",
+    language: "javascript",
+  });
   const user = useSelector((state) => state.auth.user);
   const {
     posts,
@@ -30,6 +39,7 @@ const HomePage = () => {
     livePosts,
     setLivePosts,
     setIsLoading,
+    feedType,
   } = usePostLoader(user);
   const [chats, setChats] = useState([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -160,18 +170,17 @@ const HomePage = () => {
             </div>
           ) : (
             <>
-              <div className="space-y-4 mb-4">
-                {(user?.subscribedTopics || []).length === 0 && (
-                  <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg text-center">
-                    <span className="text-lg font-medium text-blue-800 mb-2 inline-block">
-                      🏷️ No Topics Subscribed
-                    </span>
-                    <p className="text-blue-600 text-sm">
-                      Subscribe to topics to see personalized content...
-                    </p>
-                  </div>
-                )}
-              </div>
+              {/* Personalization Banner */}
+              <PersonalizationBanner 
+                feedType={feedType}
+                onSubscribeTopics={() => {
+                  // Scroll to right sidebar or highlight topics section
+                  const topicsSection = document.querySelector('.topics-section');
+                  if (topicsSection) {
+                    topicsSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              />
               
               {livePosts.length > 0 && (
                 <div
