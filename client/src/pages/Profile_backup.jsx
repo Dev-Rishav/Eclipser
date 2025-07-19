@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import {
   TrophyIcon,
   ChatBubbleLeftIcon,
@@ -15,9 +15,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {follow,unfollow} from "../utility/updateFollower"
 import toast from "react-hot-toast";
 import {getFollowStatus} from "../utility/getFollowStatus"
-import FeedControlBar from "../components/FeedControlBar";
-import { AnimatedModal } from "../components/AnimateModal";
-import { ChatModal } from "../components/ChatModal";
 
 const Profile = () => {
   //? the only reason I am passing props but not using state is this component is used in multiple places to populate multiple users.
@@ -31,14 +28,6 @@ const Profile = () => {
   const [userPost, setUserPost] = useState(null);
   const [isAuthor, setIsAuthor] = useState(false);
   const [isFollowing, setIsFollowing] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [sort, setSort] = useState("newest");
-  const [filter, setFilter] = useState("All");
-  const [badges, setBadges] = useState([]);
-  const [isOwnProfile, setIsOwnProfile] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isUnfollowing, setIsUnfollowing] = useState(false);
-  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const author=useSelector((state)=>state.auth.user);
   const authorId=useSelector((state) => state.auth.user._id); //this the user Id that is stored in redux store
   const dispatch=useDispatch();
@@ -66,11 +55,10 @@ const Profile = () => {
   useEffect(() => {
     if(authorId===userId){
       setIsAuthor(true);
-      setIsOwnProfile(true);
-    } else{
-      setIsAuthor(false);
-      setIsOwnProfile(false);
     }
+      else{
+        setIsAuthor(false);
+      }
   },[userId,authorId]);
 
   //to load user from local storage
@@ -111,27 +99,24 @@ const Profile = () => {
   }, [userId]);
 
   //function to fetch user posts
-  const fetchUserPosts = useCallback(async () => {
-    if (!user?._id) return;
-    
+  const fetchUserPosts = async () => {
     try {
-      const fetchedPosts = await fetchPostsByUser(user._id);
+      const posts = await fetchPostsByUser(user._id);
 
-      if (fetchedPosts) {
-        setUserPost(fetchedPosts);
-        setPosts(fetchedPosts); // Also set the posts state for the feed display
-        console.log("User posts fetched successfully:", fetchedPosts);
+      if (posts) {
+        setUserPost(posts);
+        console.log("User posts fetched successfully:", posts);
       }
     } catch (error) {
       console.error("Error fetching user posts:", error);
     }
-  }, [user?._id]);
+  };
 
   useEffect(() => {
     if (user) {
       fetchUserPosts();
     }
-  }, [user, fetchUserPosts]);
+  }, [user]);
 
   const handleUpdateProfile = async () => {
     if (!user) return;
@@ -223,45 +208,6 @@ const Profile = () => {
       console.error("Error in follow/unfollow operation:", error);
       toast.error("Failed to update follow status. Please try again.");
     }
-  };
-
-  // Handle profile save
-  const handleSaveProfile = async () => {
-    setIsUpdating(true);
-    try {
-      await handleUpdateProfile();
-      toast.success("Profile updated successfully!");
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error("Failed to update profile");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  // Handle follow toggle
-  const handleFollowToggle = () => {
-    handleFollow();
-  };
-
-  // Handle chat modal
-  const handleChatClick = () => {
-    setIsChatModalOpen(true);
-  };
-
-  const handleChatCloseModal = () => {
-    setIsChatModalOpen(false);
-  };
-
-  // Handle feed control changes
-  const handleFilterChange = (newFilter) => {
-    setFilter(newFilter);
-    // Add logic to filter posts based on newFilter if needed
-  };
-
-  const handleSortChange = (newSort) => {
-    setSort(newSort);
-    // Add logic to sort posts based on newSort if needed
   };
 
   if (!user) {
@@ -512,7 +458,6 @@ const Profile = () => {
               )}
             </div>
           </div>
-        </div>
 
         {/* Achievement Display Panel */}
         {badges && badges.length > 0 && (
@@ -557,12 +502,7 @@ const Profile = () => {
             <div className="flex-1 h-1 bg-gradient-to-r from-stellar-blue to-transparent"></div>
           </div>
 
-          <FeedControlBar 
-            filter={filter} 
-            sort={sort} 
-            onFilterChange={handleFilterChange} 
-            onSortChange={handleSortChange} 
-          />
+          <FeedControlBar setSort={setSort} setPosts={setPosts} />
 
           {/* Mission Feed Display */}
           <div className="space-y-6 mt-6">
@@ -593,9 +533,11 @@ const Profile = () => {
       </div>
 
       {/* Comlink Modal */}
-      <AnimatedModal isOpen={isChatModalOpen} onClose={handleChatCloseModal}>
-        <ChatModal user={user} onClose={handleChatCloseModal} />
-      </AnimatedModal>
+      {isChatModalOpen && (
+        <AnimateModal onClose={handleChatCloseModal}>
+          <ChatModal user={user} onClose={handleChatCloseModal} />
+        </AnimateModal>
+      )}
     </div>
   );
 };

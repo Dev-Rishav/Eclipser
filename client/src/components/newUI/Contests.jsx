@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { FaMeteor, FaClock, FaTrophy, FaUsers } from 'react-icons/fa';
 import { motion, useInView } from 'framer-motion';
-import { baseOriginal, baseWebp1024, baseWebp512 } from '../../assets/images.js';
+import { contestOriginal, contestWebp1024, contestWebp512 } from '../../assets/images.js';
 import OptimizedImage from '../OptimizedImage.jsx';
 
 const Contests = () => {
@@ -47,9 +47,9 @@ const Contests = () => {
                 }}
               />
               <OptimizedImage
-                src={baseOriginal}
-                webpSrc512={baseWebp512}
-                webpSrc1024={baseWebp1024}
+                src={contestOriginal}
+                webpSrc512={contestWebp512}
+                webpSrc1024={contestWebp1024}
                 alt="Coding Contest in space environment"
                 className="relative rounded-xl shadow-space-card border border-eclipse-border dark:border-space-gray w-full"
               />
