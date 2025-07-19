@@ -316,3 +316,20 @@ html {
 .notification-scroll::-webkit-scrollbar-thumb:hover {
   @apply bg-stellar-blue;
 }
+
+/* Custom scrollbar for comments section */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-eclipse-border/30 dark:bg-space-gray/30 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-stellar-blue/60 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-stellar-blue;
+}
