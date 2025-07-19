@@ -13,6 +13,7 @@ const userRoutes = require('./routes/userRoutes');
 const { streamUpdates } = require('./controllers/postController');
 const startTagStatsJob = require('./jobs/tagsStatsWorker');
 const messageRoutes = require('./routes/messageRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 require("./jobs/onlineCleanup")
 
 // Load environment variables from the root directory
@@ -62,6 +63,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/user', uploadRoutes);
 app.use('/api/users',userRoutes)
 app.use("/api/messages",messageRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 
 // Health check route

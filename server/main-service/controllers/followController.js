@@ -1,10 +1,20 @@
 const Follow = require('../models/Follow');
+const notificationService = require('../services/notificationService');
 
-exports.followUser = async (req, res,next) => {
+exports.followUser = async (req, res, next) => {
   const { followerId, followingId } = req.body;
 
   try {
     await Follow.create({ follower: followerId, following: followingId });
+    
+    // Send notification to the user being followed
+    try {
+      await notificationService.notifyNewFollower(followingId, followerId);
+    } catch (notificationError) {
+      console.error("Error sending follow notification:", notificationError);
+      // Don't fail the follow operation if notification fails
+    }
+    
     next();
   } catch (error) {
     console.error('Error following user:', error);

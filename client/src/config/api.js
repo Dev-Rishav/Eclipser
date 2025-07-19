@@ -37,6 +37,7 @@ export const API_ENDPOINTS = {
   // Posts
   POSTS: {
     BASE: `${API_URL}/api/posts`,
+    BY_ID: (postId) => `${API_URL}/api/posts/${postId}`,
     BY_TAGS: `${API_URL}/api/posts/tags`,
     REMAINING: `${API_URL}/api/posts/remainingPosts`,
     BY_USER: (userId) => `${API_URL}/api/posts/user/${userId}`,

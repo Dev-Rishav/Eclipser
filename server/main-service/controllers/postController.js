@@ -3,6 +3,7 @@ const sanitizeHtml = require("sanitize-html");
 const client = require("../configs/redis");
 const { getIo } = require("../configs/socket");
 const { postObjectFlattener } = require("../utils/postObjectFlattener");
+const notificationService = require("../services/notificationService");
 
 //! Took: 18hours to implement the redis cache and denormalization, dont touch this code you have wasted a lot of time on this
 //TODO: in redis cache, its making temp:taggedPosts which temporaily holds the postIds that is to be retrieved, and is deleted after the request is completed. What if two users tries to fetch at the same time and same object is overridden, so use a unique key for each request or implement a locking mechanism
@@ -420,7 +421,20 @@ exports.likePost = async (req, res) => {
   }
 
 
-    // Broadcast like event via SSE
+    // Send notification to post author
+    try {
+      await notificationService.notifyPostLike(
+        post.author.userId,
+        req.user.id,
+        post._id,
+        post.title
+      );
+    } catch (notificationError) {
+      console.error("Error sending like notification:", notificationError);
+      // Don't fail the like operation if notification fails
+    }
+
+    // Broadcast like event via SSE (legacy support)
     broadcastUpdate({
       type: "like",
       postId: post._id,
@@ -469,7 +483,21 @@ exports.commentOnPost = async (req, res) => {
       return res.status(500).json({ message: "Error writing comments in redis", error });
     }
 
-    // Broadcast comment event via SSE
+    // Send notification to post author
+    try {
+      await notificationService.notifyPostComment(
+        post.author.userId,
+        req.user.id,
+        post._id,
+        post.title,
+        content
+      );
+    } catch (notificationError) {
+      console.error("Error sending comment notification:", notificationError);
+      // Don't fail the comment operation if notification fails
+    }
+
+    // Broadcast comment event via SSE (legacy support)
     broadcastUpdate({
       type: "comment",
       postId: post._id,
@@ -558,6 +586,40 @@ exports.getTagStats = async (req, res) => {
     res.status(200).json(JSON.parse(tagStats));
   } catch (error) {
     res.status(500).json({ message: "Error fetching tag stats", error });
+  }
+};
+
+// Get a single post by ID
+exports.getPostById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find post by ID and populate comment authors (author info is already embedded in post)
+    const post = await Post.findById(id)
+      .populate("comments.userId", "name username profilePicture");
+      
+    if (!post) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Post not found" 
+      });
+    }
+
+    // Optionally increment view count
+    post.views = (post.views || 0) + 1;
+    await post.save();
+
+    res.status(200).json({
+      success: true,
+      data: post
+    });
+  } catch (error) {
+    console.error("Error fetching post by ID:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Error fetching post", 
+      error: error.message 
+    });
   }
 };
 

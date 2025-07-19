@@ -4,6 +4,7 @@ import { logoutUser } from "../../Redux/actions/authActions";
 import { useNavigate, NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeSwitcher from "../ThemeSwitcher";
+import { useNotifications } from "../../hooks/useNotifications";
 
 const Navbar = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -14,6 +15,18 @@ const Navbar = () => {
   const [showContestDropdown, setShowContestDropdown] = useState(false);
   const notificationRef = useRef(null);
   const contestRef = useRef(null);
+
+  // Use the real notification system
+  const {
+    notifications: realNotifications,
+    unreadCount: realUnreadCount,
+    isConnected,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    sendTestNotification,
+    handleNotificationClick
+  } = useNotifications();
 
   const handleLogout = useCallback(() => {
     dispatch(logoutUser());
@@ -43,8 +56,8 @@ const Navbar = () => {
     };
   }, []);
 
-  // Sample notifications data
-  const notifications = [
+  // Sample notifications data (fallback)
+  const fallbackNotifications = [
     {
       id: 1,
       type: 'contest',
@@ -74,7 +87,33 @@ const Navbar = () => {
     }
   ];
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  // Use real notifications if available, fallback to sample data
+  const notifications = realNotifications?.length > 0 ? realNotifications : fallbackNotifications;
+  const unreadCount = realUnreadCount > 0 ? realUnreadCount : fallbackNotifications.filter(n => !n.read).length;
+
+  // Handle notification click with mark as read
+  const handleNotificationClickWithMarkRead = async (notification) => {
+    if (!notification.read) {
+      try {
+        const notificationId = notification.id || notification._id;
+        await markAsRead(notificationId);
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
+    
+    // Use the navigation handler from the hook
+    handleNotificationClick(notification);
+  };
+
+  // Handle mark all as read
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllAsRead();
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
+  };
 
   return (
     <motion.nav 
@@ -259,6 +298,10 @@ const Navbar = () => {
                     {unreadCount}
                   </span>
                 )}
+                {/* Connection status indicator */}
+                <div className={`absolute -bottom-1 -right-1 w-2 h-2 rounded-full ${
+                  isConnected ? 'bg-green-500' : 'bg-red-500'
+                }`}></div>
               </button>
 
               {/* Notification Dropdown Panel */}
@@ -276,12 +319,27 @@ const Navbar = () => {
                       <div className="flex items-center justify-between">
                         <h3 className="text-sm font-semibold text-eclipse-text-light dark:text-space-text">
                           Notifications
+                          {!isConnected && (
+                            <span className="ml-2 text-xs text-stellar-orange">
+                              (Offline)
+                            </span>
+                          )}
                         </h3>
-                        {unreadCount > 0 && (
-                          <span className="text-xs text-stellar-blue">
-                            {unreadCount} new
-                          </span>
-                        )}
+                        <div className="flex items-center space-x-2">
+                          {unreadCount > 0 && (
+                            <span className="text-xs text-stellar-blue">
+                              {unreadCount} new
+                            </span>
+                          )}
+                          {unreadCount > 0 && (
+                            <button
+                              onClick={handleMarkAllAsRead}
+                              className="text-xs text-stellar-blue hover:text-stellar-blue/80 transition-colors"
+                            >
+                              Mark all read
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -290,11 +348,12 @@ const Navbar = () => {
                       {notifications.length > 0 ? (
                         notifications.map((notification) => (
                           <motion.div
-                            key={notification.id}
+                            key={notification.id || notification._id}
                             whileHover={{ backgroundColor: "rgba(123, 104, 238, 0.05)" }}
                             className={`px-4 py-3 border-b border-eclipse-border dark:border-space-gray/50 cursor-pointer transition-colors ${
                               !notification.read ? 'bg-stellar-blue/5' : ''
                             }`}
+                            onClick={() => handleNotificationClickWithMarkRead(notification)}
                           >
                             <div className="flex items-start space-x-3">
                               <div className="flex-shrink-0 text-xl">
@@ -305,15 +364,27 @@ const Navbar = () => {
                                   <h4 className="text-sm font-medium text-eclipse-text-light dark:text-space-text truncate">
                                     {notification.title}
                                   </h4>
-                                  {!notification.read && (
-                                    <div className="w-2 h-2 bg-stellar-blue rounded-full flex-shrink-0 ml-2"></div>
-                                  )}
+                                  <div className="flex items-center space-x-2">
+                                    {!notification.read && (
+                                      <div className="w-2 h-2 bg-stellar-blue rounded-full flex-shrink-0"></div>
+                                    )}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const notificationId = notification.id || notification._id;
+                                        deleteNotification(notificationId);
+                                      }}
+                                      className="text-eclipse-muted-light dark:text-space-muted hover:text-stellar-orange transition-colors text-xs opacity-0 group-hover:opacity-100"
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
                                 </div>
                                 <p className="text-xs text-eclipse-muted-light dark:text-space-muted mt-1 line-clamp-2">
                                   {notification.message}
                                 </p>
                                 <p className="text-xs text-eclipse-muted-light dark:text-space-muted mt-2">
-                                  {notification.time}
+                                  {notification.time || new Date(notification.createdAt).toLocaleString()}
                                 </p>
                               </div>
                             </div>
@@ -332,9 +403,31 @@ const Navbar = () => {
                     {/* Footer */}
                     {notifications.length > 0 && (
                       <div className="px-4 py-3 border-t border-eclipse-border dark:border-space-gray bg-eclipse-border/50 dark:bg-space-gray/50">
-                        <button className="w-full text-sm text-stellar-blue hover:text-stellar-blue/80 transition-colors text-center">
-                          View all notifications
-                        </button>
+                        <div className="flex justify-between items-center">
+                          <button className="text-sm text-stellar-blue hover:text-stellar-blue/80 transition-colors">
+                            View all notifications
+                          </button>
+                          {/* Test notification button (development only) */}
+                          {import.meta.env.DEV && (
+                            <button 
+                              onClick={async () => {
+                                try {
+                                  await sendTestNotification({
+                                    type: 'system',
+                                    title: 'Test Notification',
+                                    message: 'This is a test notification!',
+                                    icon: '🧪'
+                                  });
+                                } catch (error) {
+                                  console.error('Test failed:', error);
+                                }
+                              }}
+                              className="text-xs text-stellar-orange hover:text-stellar-orange/80 transition-colors px-2 py-1 rounded border border-stellar-orange/30"
+                            >
+                              Test 🧪
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
                   </motion.div>
