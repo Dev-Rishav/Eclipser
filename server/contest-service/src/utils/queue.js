@@ -4,7 +4,7 @@ let codeQueue;
 
 try {
   codeQueue = new Bull('code-evaluation', {
-    redis: { host: process.env.REDIS_HOST, port: 6379 },
+    redis: { host: process.env.REDIS_HOST, port: process.env.REDIS_PORT },
   });
 
   codeQueue.on('error', (err) => {
