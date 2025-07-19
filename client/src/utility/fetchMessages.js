@@ -3,7 +3,7 @@ import { API_ENDPOINTS, apiLog, apiError } from "../config/api.js";
 
 export const fetchChatHistory = async (id, page = 1, limit = 20) => {
     try {
-        const res = await axiosInstance.get(`${API_ENDPOINTS.MESSAGES.BASE(id)}?page=${page}&limit=${limit}`);
+        const res = await axiosInstance.get(`${API_ENDPOINTS.MESSAGES.BY_USER(id)}?page=${page}&limit=${limit}`);
         apiLog("res ", res.data);
         
         const data = res.data;

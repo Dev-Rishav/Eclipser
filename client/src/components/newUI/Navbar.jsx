@@ -135,7 +135,7 @@ const Navbar = () => {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="fixed top-1 left-0 right-0 z-50 h-16 flex items-center justify-between px-4 border-b border-stellar-blue/20 bg-gradient-to-r from-eclipse-surface/95 via-eclipse-border/95 to-eclipse-surface/95 dark:from-space-darker/95 dark:via-space-dark/95 dark:to-space-darker/95 backdrop-blur-lg text-eclipse-text-light dark:text-space-text shadow-lg"
+        className="fixed top-1 left-0 right-0 z-50 h-20 flex items-center justify-between px-4 border-b border-stellar-blue/20 bg-gradient-to-r from-eclipse-surface/95 via-eclipse-border/95 to-eclipse-surface/95 dark:from-space-darker/95 dark:via-space-dark/95 dark:to-space-darker/95 backdrop-blur-lg text-eclipse-text-light dark:text-space-text shadow-lg"
       >
       <div className="flex items-center">
         <div className="mr-6">

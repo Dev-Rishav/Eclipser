@@ -1,0 +1,1218 @@
+{
+	"info": {
+		"_postman_id": "eclipser-api-collection",
+		"name": "Eclipser API Collection",
+		"description": "Complete API collection for Eclipser platform including Main Service and Contest Service endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "eclipser-dev"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{authToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"exec": [
+					"// Auto-set auth token if available",
+					"if (pm.environment.get('authToken')) {",
+					"    pm.request.headers.add({",
+					"        key: 'Authorization',",
+					"        value: 'Bearer ' + pm.environment.get('authToken')",
+					"    });",
+					"}"
+				],
+				"type": "text/javascript"
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "mainServiceUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "contestServiceUrl",
+			"value": "http://localhost:3001",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    pm.test('User registered successfully', function () {",
+									"        pm.response.to.have.status(201);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/auth/register",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('authToken', response.token);",
+									"    pm.test('Login successful', function () {",
+									"        pm.response.to.have.status(200);",
+									"        pm.expect(response).to.have.property('token');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/auth/login",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Admin Route (Protected)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/auth/admin",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "auth", "admin"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "Create Post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Sample Post Title\",\n  \"content\": \"This is a sample post content for testing.\",\n  \"postType\": \"query\",\n  \"tags\": [\"javascript\", \"react\", \"web-development\"],\n  \"codeSnippet\": {\n    \"language\": \"javascript\",\n    \"code\": \"console.log('Hello World!');\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/posts",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "posts"]
+						}
+					}
+				},
+				{
+					"name": "Get Posts by Tags",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tags\": [\"javascript\", \"react\"],\n  \"page\": 1,\n  \"limit\": 10\n}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/posts/tags",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "posts", "tags"]
+						}
+					}
+				},
+				{
+					"name": "Get Remaining Posts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tags\": [],\n  \"page\": 1,\n  \"limit\": 10\n}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/posts/remainingPosts",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "posts", "remainingPosts"]
+						}
+					}
+				},
+				{
+					"name": "Get Posts by User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/posts/user/:userId",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "posts", "user", ":userId"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "USER_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Posts by Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/posts/type/:type",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "posts", "type", ":type"],
+							"variable": [
+								{
+									"key": "type",
+									"value": "query"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Tag Stats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/posts/tagStats",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "posts", "tagStats"]
+						}
+					}
+				},
+				{
+					"name": "Get Post by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/posts/:id",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "posts", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "POST_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Like Post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/posts/like/:id",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "posts", "like", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "POST_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Comment on Post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"This is a test comment\",\n  \"codeSnippet\": {\n    \"language\": \"javascript\",\n    \"code\": \"// Optional code snippet\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/posts/comment/:id",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "posts", "comment", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "POST_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/posts/:id",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "posts", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "POST_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "SSE Stream Updates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/stream",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["stream"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get Users by IDs (Bulk)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userIds\": [\"USER_ID_1\", \"USER_ID_2\", \"USER_ID_3\"]\n}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/users/bulk",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "users", "bulk"]
+						}
+					}
+				},
+				{
+					"name": "Get Single User by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/users/getUser/:userId",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "users", "getUser", ":userId"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "USER_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Follow User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"followerId\": \"FOLLOWER_USER_ID\",\n  \"followingId\": \"FOLLOWING_USER_ID\"\n}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/users/follow",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "users", "follow"]
+						}
+					}
+				},
+				{
+					"name": "Unfollow User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"followerId\": \"FOLLOWER_USER_ID\",\n  \"followingId\": \"FOLLOWING_USER_ID\"\n}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/users/unfollow",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "users", "unfollow"]
+						}
+					}
+				},
+				{
+					"name": "Get Follow Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/users/followStats/:userId",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "users", "followStats", ":userId"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "USER_ID_HERE"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Messages",
+			"item": [
+				{
+					"name": "Send Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"senderId\": \"SENDER_USER_ID\",\n  \"receiverId\": \"RECEIVER_USER_ID\",\n  \"content\": \"Hello! This is a test message.\",\n  \"messageType\": \"text\"\n}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/messages",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "messages"]
+						}
+					}
+				},
+				{
+					"name": "Get Messages with User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/messages/:userId?page=1&limit=20",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "messages", ":userId"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "USER_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Messages",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/messages/onetoone/allChats",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "messages", "onetoone", "allChats"]
+						}
+					}
+				},
+				{
+					"name": "Get Recent Chats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/messages/onetoone/recentChats?page=1&limit=10",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "messages", "onetoone", "recentChats"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Upload",
+			"item": [
+				{
+					"name": "Update Profile Picture",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "username",
+									"value": "updatedUsername",
+									"type": "text"
+								},
+								{
+									"key": "bio",
+									"value": "Updated bio text",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/user/profile/:userId",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "user", "profile", ":userId"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "USER_ID_HERE"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "Get Notifications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/notifications?page=1&limit=10",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "notifications"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Unread Count",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/notifications/unread-count",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "notifications", "unread-count"]
+						}
+					}
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/notifications/:notificationId/read",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "notifications", ":notificationId", "read"],
+							"variable": [
+								{
+									"key": "notificationId",
+									"value": "NOTIFICATION_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Mark All Notifications as Read",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/notifications/mark-all-read",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "notifications", "mark-all-read"]
+						}
+					}
+				},
+				{
+					"name": "Delete Notification",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/notifications/:notificationId",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "notifications", ":notificationId"],
+							"variable": [
+								{
+									"key": "notificationId",
+									"value": "NOTIFICATION_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "SSE Notification Stream",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/notifications/stream?token={{authToken}}",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "notifications", "stream"],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{authToken}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Send Test Notification",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"test\",\n  \"title\": \"Test Notification\",\n  \"message\": \"This is a test notification\"\n}"
+						},
+						"url": {
+							"raw": "{{mainServiceUrl}}/api/notifications/test",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["api", "notifications", "test"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Contest Service",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{contestServiceUrl}}/api/contest/ping",
+							"host": ["{{contestServiceUrl}}"],
+							"path": ["api", "contest", "ping"]
+						}
+					}
+				},
+				{
+					"name": "Create Contest",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Sample Contest\",\n  \"description\": \"This is a sample programming contest\",\n  \"startTime\": \"2025-01-20T10:00:00Z\",\n  \"endTime\": \"2025-01-20T12:00:00Z\",\n  \"problems\": [\n    {\n      \"title\": \"Problem 1\",\n      \"description\": \"Solve this problem\",\n      \"difficulty\": \"easy\",\n      \"testCases\": [\n        {\n          \"input\": \"5\",\n          \"expectedOutput\": \"120\"\n        }\n      ]\n    }\n  ],\n  \"maxParticipants\": 100\n}"
+						},
+						"url": {
+							"raw": "{{contestServiceUrl}}/api/contest/create",
+							"host": ["{{contestServiceUrl}}"],
+							"path": ["api", "contest", "create"]
+						}
+					}
+				},
+				{
+					"name": "Join Contest",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"contestId\": \"CONTEST_ID_HERE\",\n  \"userId\": \"USER_ID_HERE\"\n}"
+						},
+						"url": {
+							"raw": "{{contestServiceUrl}}/api/contest/join",
+							"host": ["{{contestServiceUrl}}"],
+							"path": ["api", "contest", "join"]
+						}
+					}
+				},
+				{
+					"name": "Submit Code",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"contestId\": \"CONTEST_ID_HERE\",\n  \"problemId\": \"PROBLEM_ID_HERE\",\n  \"userId\": \"USER_ID_HERE\",\n  \"code\": \"function factorial(n) {\\n  if (n <= 1) return 1;\\n  return n * factorial(n - 1);\\n}\\nconsole.log(factorial(5));\",\n  \"language\": \"javascript\"\n}"
+						},
+						"url": {
+							"raw": "{{contestServiceUrl}}/api/contest/submit",
+							"host": ["{{contestServiceUrl}}"],
+							"path": ["api", "contest", "submit"]
+						}
+					}
+				},
+				{
+					"name": "Get All Contests",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{contestServiceUrl}}/api/contest/all",
+							"host": ["{{contestServiceUrl}}"],
+							"path": ["api", "contest", "all"]
+						}
+					}
+				},
+				{
+					"name": "Get Contest by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{contestServiceUrl}}/api/contest/:contestId",
+							"host": ["{{contestServiceUrl}}"],
+							"path": ["api", "contest", ":contestId"],
+							"variable": [
+								{
+									"key": "contestId",
+									"value": "CONTEST_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User Contest History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{contestServiceUrl}}/api/contest/history/:userId",
+							"host": ["{{contestServiceUrl}}"],
+							"path": ["api", "contest", "history", ":userId"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "USER_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Contest Submissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{contestServiceUrl}}/api/contest/:contestId/submissions",
+							"host": ["{{contestServiceUrl}}"],
+							"path": ["api", "contest", ":contestId", "submissions"],
+							"variable": [
+								{
+									"key": "contestId",
+									"value": "CONTEST_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User Contest Submissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{contestServiceUrl}}/api/contest/:contestId/submissions/:userId",
+							"host": ["{{contestServiceUrl}}"],
+							"path": ["api", "contest", ":contestId", "submissions", ":userId"],
+							"variable": [
+								{
+									"key": "contestId",
+									"value": "CONTEST_ID_HERE"
+								},
+								{
+									"key": "userId",
+									"value": "USER_ID_HERE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Contest Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{contestServiceUrl}}/api/contest/:contestId/status",
+							"host": ["{{contestServiceUrl}}"],
+							"path": ["api", "contest", ":contestId", "status"],
+							"variable": [
+								{
+									"key": "contestId",
+									"value": "CONTEST_ID_HERE"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Health Checks",
+			"item": [
+				{
+					"name": "Main Service Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainServiceUrl}}/greet",
+							"host": ["{{mainServiceUrl}}"],
+							"path": ["greet"]
+						}
+					}
+				},
+				{
+					"name": "Contest Service Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{contestServiceUrl}}/api/contest/ping",
+							"host": ["{{contestServiceUrl}}"],
+							"path": ["api", "contest", "ping"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

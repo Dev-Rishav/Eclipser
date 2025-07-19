@@ -15,6 +15,8 @@ import { API_ENDPOINTS, apiLog, apiError } from "../config/api.js";
  * @throws {Error} - Throws an error if the request fails
  */
 export const createPost = async (post) => {
+  // console.log("HHit createPost!!!!!!!!!!!!!!!!!!!!");
+
   try {
     // Validate required fields
     if (!post.title?.trim()) {

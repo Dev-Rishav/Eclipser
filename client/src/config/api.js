@@ -73,6 +73,7 @@ export const API_ENDPOINTS = {
   USERS: {
     BASE: `${API_URL}/api/users`,
     BULK: `${API_URL}/api/users/bulk`,
+    BY_ID: (userId) => `${API_URL}/api/users/getUser/${userId}`,
     FOLLOW: `${API_URL}/api/users/follow`,
     UNFOLLOW: `${API_URL}/api/users/unfollow`,
     FOLLOW_STATS: (userId) => `${API_URL}/api/users/followStats/${userId}`,
@@ -80,8 +81,21 @@ export const API_ENDPOINTS = {
   
   // Messages
   MESSAGES: {
-    BASE: (id) => `${API_URL}/api/messages/${id}`,
+    CREATE: `${API_URL}/api/messages`,
+    BY_USER: (userId) => `${API_URL}/api/messages/${userId}`,
+    ALL_CHATS: `${API_URL}/api/messages/onetoone/allChats`,
     RECENT_CHATS: `${API_URL}/api/messages/onetoone/recentChats`,
+  },
+  
+  // Notifications
+  NOTIFICATIONS: {
+    BASE: `${API_URL}/api/notifications`,
+    STREAM: `${API_URL}/api/notifications/stream`,
+    UNREAD_COUNT: `${API_URL}/api/notifications/unread-count`,
+    MARK_READ: (notificationId) => `${API_URL}/api/notifications/${notificationId}/read`,
+    MARK_ALL_READ: `${API_URL}/api/notifications/mark-all-read`,
+    DELETE: (notificationId) => `${API_URL}/api/notifications/${notificationId}`,
+    TEST: `${API_URL}/api/notifications/test`,
   },
   
   // Upload
@@ -92,7 +106,15 @@ export const API_ENDPOINTS = {
   // Contest Service
   CONTEST: {
     BASE: `${CONTEST_API_URL}/api/contest`,
+    CREATE: `${CONTEST_API_URL}/api/contest/create`,
+    JOIN: `${CONTEST_API_URL}/api/contest/join`,
     SUBMIT: `${CONTEST_API_URL}/api/contest/submit`,
+    ALL: `${CONTEST_API_URL}/api/contest/all`,
+    BY_ID: (contestId) => `${CONTEST_API_URL}/api/contest/${contestId}`,
+    HISTORY: (userId) => `${CONTEST_API_URL}/api/contest/history/${userId}`,
+    SUBMISSIONS: (contestId) => `${CONTEST_API_URL}/api/contest/${contestId}/submissions`,
+    USER_SUBMISSIONS: (contestId, userId) => `${CONTEST_API_URL}/api/contest/${contestId}/submissions/${userId}`,
+    UPDATE_STATUS: (contestId) => `${CONTEST_API_URL}/api/contest/${contestId}/status`,
     RESULTS: (contestId) => `${CONTEST_API_URL}/api/contest/${contestId}/results`,
   },
 };

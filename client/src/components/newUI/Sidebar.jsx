@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useSelector } from "react-redux";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const sidebarItems = [
   { icon: "🏠", text: "Home", path: "/", desc: "Main Terminal" },
@@ -19,15 +19,26 @@ const footerItems = [
 
 const Sidebar = () => {
   const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
+  const handleNavigation = (item) => {
+    if (item.path === "/profile") {
+      // Navigate to profile with current user's ID in state
+      navigate("/profile", { state: { userId: user?._id } });
+    } else {
+      // Use regular navigation for other routes
+      navigate(item.path);
+    }
+  };
 
   return (
     <motion.div 
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed left-0 top-0 w-64 bg-gradient-to-b from-eclipse-surface/95 to-eclipse-border/95 dark:from-space-darker/95 dark:to-space-dark/95 border-r border-stellar-blue/20 min-h-screen pt-[69px] backdrop-blur-sm z-40"
+      className="w-full bg-gradient-to-b from-eclipse-surface/95 to-eclipse-border/95 dark:from-space-darker/95 dark:to-space-dark/95 border border-stellar-blue/20 rounded-lg backdrop-blur-sm shadow-lg"
     >
-      <div className="p-4 h-full flex flex-col">
+      <div className="p-4 flex flex-col">
         {/* Operator Profile */}
         <motion.div 
           className="mb-6 bg-gradient-to-br from-eclipse-surface/80 to-eclipse-border/60 dark:from-space-darker/80 dark:to-space-dark/60 rounded-xl overflow-hidden border border-stellar-blue/30 shadow-lg"
@@ -133,44 +144,72 @@ const Sidebar = () => {
                 whileHover={{ x: 8, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
                 className="rounded-lg transition-all group"
               >
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `flex items-center py-3 px-3 rounded-lg transition-all font-mono ${
-                      isActive 
-                        ? "bg-gradient-to-r from-stellar-blue/20 to-stellar-blue/10 text-stellar-blue border border-stellar-blue/30 shadow-stellar-blue-glow" 
-                        : "text-eclipse-text-light/80 dark:text-space-text/80 hover:text-stellar-blue border border-transparent hover:border-stellar-blue/20"
-                    }`
-                  }
-                >
-                  <motion.span 
-                    className="mr-3 text-lg"
-                    whileHover={{ scale: 1.2, rotate: 10 }}
-                    transition={{ duration: 0.2 }}
+                {item.path === "/profile" ? (
+                  <button
+                    onClick={() => handleNavigation(item)}
+                    className="w-full flex items-center py-3 px-3 rounded-lg transition-all font-mono text-eclipse-text-light/80 dark:text-space-text/80 hover:text-stellar-blue border border-transparent hover:border-stellar-blue/20"
                   >
-                    {item.icon}
-                  </motion.span>
-                  <div className="flex-1">
-                    <span className="text-sm font-bold uppercase tracking-wide">{item.text}</span>
-                    <div className="text-xs opacity-60 uppercase tracking-wider">{item.desc}</div>
-                  </div>
-                  <motion.div
-                    className="opacity-0 group-hover:opacity-100 text-stellar-blue"
-                    initial={{ scale: 0 }}
-                    whileHover={{ scale: 1 }}
+                    <motion.span 
+                      className="mr-3 text-lg"
+                      whileHover={{ scale: 1.2, rotate: 10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {item.icon}
+                    </motion.span>
+                    <div className="flex-1 text-left">
+                      <span className="text-sm font-bold uppercase tracking-wide">{item.text}</span>
+                      <div className="text-xs opacity-60 uppercase tracking-wider">{item.desc}</div>
+                    </div>
+                    <motion.div
+                      className="opacity-0 group-hover:opacity-100 text-stellar-blue"
+                      initial={{ scale: 0 }}
+                      whileHover={{ scale: 1 }}
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </motion.div>
+                  </button>
+                ) : (
+                  <NavLink
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `flex items-center py-3 px-3 rounded-lg transition-all font-mono ${
+                        isActive 
+                          ? "bg-gradient-to-r from-stellar-blue/20 to-stellar-blue/10 text-stellar-blue border border-stellar-blue/30 shadow-stellar-blue-glow" 
+                          : "text-eclipse-text-light/80 dark:text-space-text/80 hover:text-stellar-blue border border-transparent hover:border-stellar-blue/20"
+                      }`
+                    }
                   >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </motion.div>
-                </NavLink>
+                    <motion.span 
+                      className="mr-3 text-lg"
+                      whileHover={{ scale: 1.2, rotate: 10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {item.icon}
+                    </motion.span>
+                    <div className="flex-1">
+                      <span className="text-sm font-bold uppercase tracking-wide">{item.text}</span>
+                      <div className="text-xs opacity-60 uppercase tracking-wider">{item.desc}</div>
+                    </div>
+                    <motion.div
+                      className="opacity-0 group-hover:opacity-100 text-stellar-blue"
+                      initial={{ scale: 0 }}
+                      whileHover={{ scale: 1 }}
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </motion.div>
+                  </NavLink>
+                )}
               </motion.li>
             ))}
           </ul>
         </nav>
         
         {/* System Footer */}
-        <div className="mt-auto pt-6">
+        <div className="pt-6">
           <div className="border-t border-stellar-orange/20 pt-4">
             <div className="flex items-center gap-2 mb-4 px-2">
               <motion.div

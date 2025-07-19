@@ -1,7 +1,5 @@
 import axios from 'axios';
-import { API_CONFIG } from '../config/api';
-
-const API_BASE_URL = `${API_CONFIG.BASE_URL}/api`;
+import { API_ENDPOINTS } from '../config/api';
 
 class NotificationService {
   constructor() {
@@ -22,7 +20,7 @@ class NotificationService {
 
     try {
       // For SSE, we need to pass the token as a query parameter since EventSource doesn't support headers
-      const url = `${API_BASE_URL}/notifications/stream?token=${encodeURIComponent(token)}`;
+      const url = `${API_ENDPOINTS.NOTIFICATIONS.STREAM}?token=${encodeURIComponent(token)}`;
       this.eventSource = new EventSource(url);
 
       this.eventSource.onopen = () => {
@@ -120,7 +118,7 @@ class NotificationService {
   async getNotifications(params = {}) {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await axios.get(`${API_BASE_URL}/notifications`, {
+      const response = await axios.get(API_ENDPOINTS.NOTIFICATIONS.BASE, {
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -139,7 +137,7 @@ class NotificationService {
   async getUnreadCount() {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await axios.get(`${API_BASE_URL}/notifications/unread-count`, {
+      const response = await axios.get(API_ENDPOINTS.NOTIFICATIONS.UNREAD_COUNT, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -158,7 +156,7 @@ class NotificationService {
     try {
       const token = localStorage.getItem('authToken');
       const response = await axios.patch(
-        `${API_BASE_URL}/notifications/${notificationId}/read`,
+        API_ENDPOINTS.NOTIFICATIONS.MARK_READ(notificationId),
         {},
         {
           headers: {
@@ -180,7 +178,7 @@ class NotificationService {
     try {
       const token = localStorage.getItem('authToken');
       const response = await axios.patch(
-        `${API_BASE_URL}/notifications/mark-all-read`,
+        API_ENDPOINTS.NOTIFICATIONS.MARK_ALL_READ,
         {},
         {
           headers: {
@@ -201,7 +199,7 @@ class NotificationService {
   async deleteNotification(notificationId) {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await axios.delete(`${API_BASE_URL}/notifications/${notificationId}`, {
+      const response = await axios.delete(API_ENDPOINTS.NOTIFICATIONS.DELETE(notificationId), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -220,7 +218,7 @@ class NotificationService {
     try {
       const authToken = token || localStorage.getItem('authToken');
       const response = await axios.post(
-        `${API_BASE_URL}/notifications/test`,
+        API_ENDPOINTS.NOTIFICATIONS.TEST,
         data,
         {
           headers: {
