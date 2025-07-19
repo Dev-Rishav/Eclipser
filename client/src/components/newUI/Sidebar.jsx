@@ -25,9 +25,9 @@ const Sidebar = () => {
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed left-0 top-0 w-64 bg-gradient-to-b from-eclipse-surface/95 to-eclipse-border/95 dark:from-space-darker/95 dark:to-space-dark/95 border-r border-stellar-blue/20 min-h-screen pt-[69px] backdrop-blur-sm z-40"
+      className="w-full bg-gradient-to-b from-eclipse-surface/95 to-eclipse-border/95 dark:from-space-darker/95 dark:to-space-dark/95 border border-stellar-blue/20 rounded-lg backdrop-blur-sm shadow-lg"
     >
-      <div className="p-4 h-full flex flex-col">
+      <div className="p-4 flex flex-col">
         {/* Operator Profile */}
         <motion.div 
           className="mb-6 bg-gradient-to-br from-eclipse-surface/80 to-eclipse-border/60 dark:from-space-darker/80 dark:to-space-dark/60 rounded-xl overflow-hidden border border-stellar-blue/30 shadow-lg"
@@ -170,7 +170,7 @@ const Sidebar = () => {
         </nav>
         
         {/* System Footer */}
-        <div className="mt-auto pt-6">
+        <div className="pt-6">
           <div className="border-t border-stellar-orange/20 pt-4">
             <div className="flex items-center gap-2 mb-4 px-2">
               <motion.div

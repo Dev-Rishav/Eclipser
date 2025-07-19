@@ -154,7 +154,7 @@ const PostCards = ({
   // Error state
   if (error) {
     return (
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6 max-w-3xl mx-auto">
         <div className="text-center p-8 bg-red-500/10 border border-red-500/30 rounded-lg">
           <h3 className="text-lg font-semibold text-red-400 mb-2">
             Failed to load posts
@@ -174,7 +174,7 @@ const PostCards = ({
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto">
       {/* Feed Control Bar */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}

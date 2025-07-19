@@ -4,14 +4,14 @@ import OptionalCard from './Status';
 
 const RightSidebar = () => {
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
+    <div className="space-y-4 w-full">
+      <div className="w-full">
         <AccentThree />
       </div>
-      <div className="flex justify-end">
+      <div className="w-full">
         <ChatCard />
       </div>
-      <div className="flex justify-end">
+      <div className="w-full">
         <OptionalCard />
       </div>
     </div>
