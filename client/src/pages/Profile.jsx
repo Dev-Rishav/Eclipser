@@ -8,6 +8,7 @@ import { FaEdit } from "react-icons/fa";
 import { fetchPostsByUser } from "../utility/fetchPostsByUser";
 import { PostCard } from "../components/PostCard";
 import { useLocation} from "react-router-dom";
+import { API_CONFIG } from "../config/api";
 import Followers from "../assets/icons/Friends.svg"; 
 import Follwing from "../assets/icons/notFriends.svg";
 import { useDispatch, useSelector } from "react-redux";
@@ -73,7 +74,7 @@ const Profile = () => {
       const fetchUser = async () => {
         try {
           const response = await fetch(
-            `http://localhost:3000/api/users/getUser/${userId}`,
+            `${API_CONFIG.BASE_URL}/api/users/getUser/${userId}`,
             {
               method: "GET",
               headers: {
@@ -132,7 +133,7 @@ const Profile = () => {
 
       // Call your update API endpoint
       const response = await fetch(
-        `http://localhost:3000/api/user/profile/${user._id}`,
+        `${API_CONFIG.BASE_URL}/api/user/profile/${user._id}`,
         {
           method: "PATCH",
           headers: {

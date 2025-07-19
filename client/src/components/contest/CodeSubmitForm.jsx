@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useSocket } from "../../contexts/SocketContext";
+import { API_CONFIG } from "../../config/api";
 
 export default function CodeSubmitForm({ onSubmissionSuccess }) {
   const [code, setCode] = useState('print("Hello World")');
@@ -38,7 +39,7 @@ export default function CodeSubmitForm({ onSubmissionSuccess }) {
 
   const fetchContests = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/contest/all");
+      const res = await axios.get(`${API_CONFIG.CONTEST_BASE_URL}/api/contest/all`);
       setContests(res.data || []);
       if (res.data && res.data.length > 0) {
         setSelectedContest("686271a4adfb8d473d4ca20c");  //!Bruteforce selection
@@ -88,7 +89,7 @@ export default function CodeSubmitForm({ onSubmissionSuccess }) {
     joinUserRoom(selectedUser);
     
     try {
-      const res = await axios.post("http://localhost:3001/api/contest/submit", {
+      const res = await axios.post(`${API_CONFIG.CONTEST_BASE_URL}/api/contest/submit`, {
         contestId: selectedContest,
         userId: selectedUser,
         code,

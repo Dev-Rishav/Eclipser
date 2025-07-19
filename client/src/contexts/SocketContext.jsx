@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import { toast } from 'react-toastify';
+import { API_CONFIG } from '../config/api';
 
 const SocketContext = createContext();
 
@@ -21,7 +22,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Initialize socket connection
-    const newSocket = io(window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'wss://your-production-url.com', {
+    const newSocket = io(API_CONFIG.CONTEST_BASE_URL, {
       auth: { userId }, 
       transports: ['websocket', 'polling'],
       timeout: 20000,

@@ -1,9 +1,10 @@
 import axios from "axios";
+import { API_CONFIG } from "../config/api";
 
 export const createComment = async (postId, content) => {
   try {
     const res = await axios.post(
-      `http://localhost:3000/api/posts/comment/${postId}`,
+      `${API_CONFIG.BASE_URL}/api/posts/comment/${postId}`,
       { content },
       {
         headers: {

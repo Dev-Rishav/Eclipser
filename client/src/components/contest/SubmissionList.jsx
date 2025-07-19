@@ -2,6 +2,7 @@ import { useEffect, useState, forwardRef, useImperativeHandle, useCallback } fro
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useSocket } from "../../contexts/SocketContext";
+import { API_CONFIG } from "../../config/api.js";
 
 const SubmissionList = forwardRef((props, ref) => {
   const [submissions, setSubmissions] = useState([]);
@@ -40,7 +41,7 @@ const SubmissionList = forwardRef((props, ref) => {
 
   const fetchContests = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/contest/all");
+      const res = await axios.get(`${API_CONFIG.CONTEST_BASE_URL}/api/contest/all`);
       setContests(res.data || []);
       if (res.data && res.data.length > 0) {
         setSelectedContest(res.data[0]._id);
@@ -60,7 +61,7 @@ const SubmissionList = forwardRef((props, ref) => {
       setLoading(true);
       setError(null);
       
-      const res = await axios.get(`http://localhost:3001/api/contest/${selectedContest}/submissions`);
+      const res = await axios.get(`${API_CONFIG.CONTEST_BASE_URL}/api/contest/${selectedContest}/submissions`);
       console.log("Fetched submissions:", res.data);
       
       if (!res.data || !Array.isArray(res.data)) {

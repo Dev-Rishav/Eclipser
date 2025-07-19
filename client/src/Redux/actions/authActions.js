@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import { API_CONFIG } from '../../config/api';
 import {
     LOGIN_REQUEST,
     LOGIN_SUCCESS,
@@ -15,7 +16,9 @@ import {
 export const loginUser = (credentials) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
   try {
-    const response = await axios.post('http://localhost:3000/api/auth/login', credentials);
+    // console.log(`base url is ${API_CONFIG.BASE_URL}`);
+    
+    const response = await axios.post(`${API_CONFIG.BASE_URL}/api/auth/login`, credentials);
 
     const {token} = response.data;
     const user = response.data;;
@@ -40,7 +43,7 @@ export const loginUser = (credentials) => async (dispatch) => {
 export const registerUser = (credentials) => async (dispatch) => {
   dispatch({ type: SIGNUP_REQUEST });
   try {
-      await axios.post('http://localhost:3000/api/auth/register', credentials);
+      await axios.post(`${API_CONFIG.BASE_URL}/api/auth/register`, credentials);
       toast.success(`Registration successful! Please login with your credentials.`);
 
 
@@ -73,7 +76,7 @@ export const patchUserTopics = (targetTopic, isRemoving) => async (dispatch) => 
     const userId = JSON.parse(localStorage.getItem('user'))._id; // or from state
     // console.log('userId:', userId," targetTopic:", targetTopic, "isRemoving:", isRemoving);
     
-    const response = await axios.patch(`http://localhost:3000/api/user/profile/${userId}`, {
+    const response = await axios.patch(`${API_CONFIG.BASE_URL}/api/user/profile/${userId}`, {
       targetTopics: targetTopic,
       isRemoving: isRemoving,
     }, {

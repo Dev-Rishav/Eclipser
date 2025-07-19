@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_CONFIG } from "../config/api.js";
 
 const Signup = () => {
   const formRef = useRef(null);
@@ -14,7 +15,7 @@ const Signup = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/register", {
+      const response = await axios.post(`${API_CONFIG.BASE_URL}/api/auth/register`, {
         email,
         username,
         password

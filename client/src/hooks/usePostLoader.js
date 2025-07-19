@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { fetchPostsByTags, fetchRemainingPosts } from "../utility/fetchPost";
 import { io } from "socket.io-client";
+import { API_CONFIG } from "../config/api";
 
 const CACHE_KEY = "cached_posts";
 const TAG_PAGE_KEY = "cached_page_tags";
@@ -9,7 +10,7 @@ const EXHAUST_TAG_KEY = "tag_posts_exhausted";
 const EXHAUST_ALL_KEY = "all_posts_exhausted";
 const SCROLL_POSITION_KEY = "feed_scroll_position";
 
-const socket = io('http://localhost:3000/');
+const socket = io(API_CONFIG.SOCKET_URL);
 
 export const usePostLoader = (user) => {
   const [posts, setPosts] = useState(() => {

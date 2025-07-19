@@ -4,11 +4,33 @@
  * Manages all API endpoints and configurations for the application
  */
 
-// Environment variables with fallbacks
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
-const CONTEST_API_URL = import.meta.env.VITE_CONTEST_API_URL || 'http://localhost:3001';
-const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT || 'development';
+// Environment variables - NO FALLBACKS (fail fast if not configured)
+const API_URL = import.meta.env.VITE_API_URL;
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+const CONTEST_API_URL = import.meta.env.VITE_CONTEST_API_URL;
+const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
+
+console.log(`API_URL: ${API_URL}`);
+console.log(`SOCKET_URL: ${SOCKET_URL}`);
+console.log(`CONTEST_API_URL: ${CONTEST_API_URL}`);
+console.log(`ENVIRONMENT: ${ENVIRONMENT}`);
+// console.log(isProduction() ? 'Running in production mode' : 'Running in development mode');
+
+
+
+// Validate required environment variables
+if (!API_URL) {
+  throw new Error('❌ VITE_API_URL environment variable is required but not set');
+}
+if (!SOCKET_URL) {
+  throw new Error('❌ VITE_SOCKET_URL environment variable is required but not set');
+}
+if (!CONTEST_API_URL) {
+  throw new Error('❌ VITE_CONTEST_API_URL environment variable is required but not set');
+}
+if (!ENVIRONMENT) {
+  throw new Error('❌ VITE_ENVIRONMENT environment variable is required but not set');
+}
 
 // API Configuration
 export const API_CONFIG = {
