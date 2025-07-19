@@ -11,6 +11,8 @@ import LandingPage from "./pages/LandingPage.jsx";
 import ConnectionDebugPanel from "./components/ConnectionDebugPanel.jsx";
 import SSLWarningModal from "./components/SSLWarningModal.jsx";
 import { API_CONFIG } from "./config/api.js";
+// Initialize CORS debug tools
+import "./utils/corsHelper.js";
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(false); // State to control loading screen
@@ -22,6 +24,55 @@ const App = () => {
     if (!sslAccepted) {
       setShowSSLWarning(true);
     }
+    
+    // Set up global error handler for CORS issues
+    const handleGlobalError = (event) => {
+      // Check if the error is related to CORS or SSL certificate issues
+      const errorMessage = event.error?.message || event.message || '';
+      const isCORSError = errorMessage.includes('CORS') || 
+                         errorMessage.includes('Cross-Origin') ||
+                         errorMessage.includes('net::ERR_CERT') ||
+                         errorMessage.includes('SSL');
+      
+      if (isCORSError) {
+        console.warn('🔐 CORS/SSL Error detected, showing SSL warning modal');
+        setShowSSLWarning(true);
+        // Remove the accepted flag so modal shows again
+        localStorage.removeItem('ssl-certificate-accepted');
+      }
+    };
+
+    // Listen for custom SSL error events from axios
+    const handleSSLError = () => {
+      console.warn('🔐 SSL Error event received, showing SSL warning modal');
+      setShowSSLWarning(true);
+    };
+
+    // Listen for unhandled promise rejections (common with fetch/axios CORS failures)
+    const handlePromiseRejection = (event) => {
+      const errorMessage = event.reason?.message || event.reason || '';
+      const isCORSError = errorMessage.includes('CORS') || 
+                         errorMessage.includes('Cross-Origin') ||
+                         errorMessage.includes('Failed to fetch') ||
+                         errorMessage.includes('net::ERR_CERT') ||
+                         errorMessage.includes('SSL');
+      
+      if (isCORSError) {
+        console.warn('🔐 CORS/SSL Promise rejection detected, showing SSL warning modal');
+        setShowSSLWarning(true);
+        localStorage.removeItem('ssl-certificate-accepted');
+      }
+    };
+
+    window.addEventListener('error', handleGlobalError);
+    window.addEventListener('ssl-error', handleSSLError);
+    window.addEventListener('unhandledrejection', handlePromiseRejection);
+
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('ssl-error', handleSSLError);
+      window.removeEventListener('unhandledrejection', handlePromiseRejection);
+    };
   }, []);
 
   const handleLoginToHome = (navigate) => {

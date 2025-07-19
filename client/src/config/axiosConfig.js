@@ -1,6 +1,7 @@
 // src/config/axiosConfig.js
 import axios from 'axios';
 import { API_CONFIG, getAuthHeaders, apiError, apiLog } from './api.js';
+import { logSSLInstructions, resetSSLAccepted } from '../utils/sslHelper.js';
 
 // Create axios instance with default configuration
 const axiosInstance = axios.create({
@@ -53,7 +54,26 @@ axiosInstance.interceptors.response.use(
         }
       }
     } else if (error.request) {
-      // Network error
+      // Network error - potentially SSL/CORS issue
+      const errorMessage = error.message || '';
+      const isSSLCORSError = errorMessage.includes('CORS') || 
+                            errorMessage.includes('Cross-Origin') ||
+                            errorMessage.includes('Failed to fetch') ||
+                            errorMessage.includes('net::ERR_CERT') ||
+                            errorMessage.includes('SSL') ||
+                            error.code === 'ERR_NETWORK';
+      
+      if (isSSLCORSError) {
+        console.group('🔐 SSL/CORS Error Detected');
+        console.error('Error details:', error);
+        logSSLInstructions();
+        resetSSLAccepted();
+        
+        // Dispatch custom event to trigger SSL modal
+        window.dispatchEvent(new CustomEvent('ssl-error', { detail: error }));
+        console.groupEnd();
+      }
+      
       apiError('Network error:', error.message);
     } else {
       // Something else happened
