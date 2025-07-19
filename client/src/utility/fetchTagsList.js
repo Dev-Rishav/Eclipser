@@ -1,19 +1,12 @@
-import axios from "axios";
+import axiosInstance from "../config/axiosConfig.js";
+import { API_ENDPOINTS, apiError } from "../config/api.js";
 
-export const fetchTagsList = async () =>{
+export const fetchTagsList = async () => {
     try {
-        const response = await axios.get('http://localhost:3000/api/posts/tagStats',
-            {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-                },
-            }
-        );
-        // console.log("Tags List:", response.data);
-        
+        const response = await axiosInstance.get(API_ENDPOINTS.POSTS.TAG_STATS);
         return response.data;
     } catch (error) {
-        console.error('Error fetching tags list:', error);
+        apiError('Error fetching tags list:', error);
         throw error;
     }
 }

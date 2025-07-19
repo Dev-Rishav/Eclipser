@@ -1,50 +1,35 @@
-import axios from "axios";
+import axiosInstance from "../config/axiosConfig.js";
+import { API_ENDPOINTS, apiError } from "../config/api.js";
 
 export const follow = async (followerId, followingId) => {
   try {
-    const res = await axios.post(
-      "http://localhost:3000/api/users/follow",
-      {
-        followerId: followerId,
-        followingId: followingId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      }
-    );
+    const res = await axiosInstance.post(API_ENDPOINTS.USERS.FOLLOW, {
+      followerId: followerId,
+      followingId: followingId,
+    });
 
     if (res.status != 200) {
-      console.error("Failed to follow the user!");
+      apiError("Failed to follow the user!");
     }
     // return res.json();
   } catch (error) {
-    console.error("Cant make follow request ", error);
+    apiError("Can't make follow request", error);
     throw error;
   }
 };
 
 export const unfollow = async (followerId, followingId) => {
   try {
-    const res = await axios.post(
-      "http://localhost:3000/api/users/unfollow",
-      {
-        followerId: followerId,
-        followingId: followingId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      }
-    );
+    const res = await axiosInstance.post(API_ENDPOINTS.USERS.UNFOLLOW, {
+      followerId: followerId,
+      followingId: followingId,
+    });
 
-    if (res.status != 200) console.error("error unfollowing user!");
-
-    // return res.json();
+    if (res.status != 200) {
+      apiError("Failed to unfollow the user!");
+    }
   } catch (error) {
-    console.error("error unfollowing user ", error);
+    apiError("Can't make unfollow request", error);
     throw error;
   }
 };

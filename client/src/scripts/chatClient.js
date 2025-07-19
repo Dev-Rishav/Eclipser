@@ -1,7 +1,7 @@
-// const { io } = require("socket.io-client");
-import {io} from "socket.io-client";
+import { io } from "socket.io-client";
+import { API_CONFIG } from '../config/api.js';
 
-const socket = io("http://localhost:3000", {
+const socket = io(API_CONFIG.SOCKET_URL, {
   withCredentials: true,
   transports: ['websocket'], // Optional: use only WebSocket
   auth: {

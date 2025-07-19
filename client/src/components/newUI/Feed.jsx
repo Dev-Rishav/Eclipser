@@ -1,15 +1,135 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSelector } from "react-redux";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import PostCards from './PostCards';
 import RightSidebar from './RightSidebar';
+import PostCreationModal from '../PostCreationModal';
+import { toast } from 'react-hot-toast';
+import { fetchRecentChats } from '../../utility/chatUtils';
+import { ChatModal } from '../ChatModal';
+import { AnimatedModal } from '../AnimateModal';
+import { ChatPreview } from '../ChatPreview';
+import { clearPostCache } from '../../utility/storageCleaner';
+import socket from '../../config/socket';
 
 const Feed = () => {
   const { user } = useSelector((state) => state.auth);
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
   const [filterBy, setFilterBy] = useState('all');
+  const [postType, setPostType] = useState('query'); // Track which type of post to create
+  
+  // Legacy Home.jsx state management
+  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [selectedSort, setSelectedSort] = useState("newest");
+  // const [isCreatingPost, setIsCreatingPost] = useState(false);
+  
+    // Post loader hook from legacy - REMOVED, now handled by PostCards
+  // const {
+  //   posts,
+  //   setPosts,
+  //   isLoading,
+  //   lastPostRef,
+  //   allPostsExhausted,
+  //   livePosts,
+  //   setLivePosts, // Used internally by socket integration in usePostLoader
+  // } = usePostLoader(user);
+  
+  // Chat management from legacy
+  const [chats, setChats] = useState([]);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMoreChats, setHasMoreChats] = useState(true);
+
+  // Legacy useEffects for cleanup and initialization
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      clearPostCache();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  // Loading simulation from legacy - REMOVED to prevent interference
+  // useEffect(() => {
+  //   setIsLoading(true);
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //   }, 1500);
+  // }, [setIsLoading]);
+
+  // Chat loading from legacy
+  useEffect(() => {
+    const loadChats = async () => {
+      try {
+        const recentChats = await fetchRecentChats();
+        setChats(recentChats.chats || []);
+      } catch (error) {
+        console.error('Error loading chats:', error);
+        setChats([]);
+      }
+    };
+    loadChats();
+  }, []);
+
+  // Socket connection from legacy
+  useEffect(() => {
+    if (!user?._id) return;
+    
+    socket.connect();
+    console.log("Socket connected");
+    socket.emit("register", user._id);
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from socket");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user?._id]);
+
+  // Load more chats functionality from legacy
+  const loadMoreChats = async () => {
+    if (!hasMoreChats) return;
+
+    try {
+      const response = await fetchRecentChats(page + 1);
+      setChats((prev) => [...prev, ...response.chats]);
+      setPage((prev) => prev + 1);
+      setHasMoreChats(response.chats.length > 0);
+    } catch (error) {
+      console.error('Error loading more chats:', error);
+    }
+  };
+
+  const handlePostCreated = async (postData) => {
+    // This will be handled by the PostCards component itself
+    try {
+      toast.success('Post created successfully!');
+      return postData;
+    } catch (error) {
+      console.error('Error creating post:', error);
+      throw error;
+    }
+  };
+
+  const handlePostTypeClick = (type) => {
+    setPostType(type);
+    setShowCreatePost(true);
+    // setIsCreatingPost(true); // Legacy state
+  };
+
+  const handleCloseModal = () => {
+    setShowCreatePost(false);
+    // setIsCreatingPost(false); // Legacy state
+  };
 
   const sortOptions = [
     { value: 'newest', label: 'Newest First', icon: '🕒' },
@@ -20,17 +140,185 @@ const Feed = () => {
 
   const filterOptions = [
     { value: 'all', label: 'All Posts', icon: '📑' },
-    { value: 'questions', label: 'Questions', icon: '❓' },
-    { value: 'solutions', label: 'Solutions', icon: '💡' },
-    { value: 'snippets', label: 'Code Snippets', icon: '📝' },
+    { value: 'query', label: 'Questions', icon: '❓' },
+    { value: 'discussion', label: 'Discussions', icon: '�' },
+    { value: 'achievement', label: 'Achievements', icon: '🏆' },
+  ];
+
+  // Animated background elements
+  const floatingStars = Array.from({ length: 20 }, (_, i) => (
+    <motion.div
+      key={i}
+      className="absolute w-2 h-2 bg-stellar-blue rounded-full z-0"
+      style={{
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+      }}
+      animate={{
+        opacity: [0.4, 1, 0.4],
+        scale: [1, 2, 1],
+        rotate: [0, 360],
+      }}
+      transition={{
+        duration: 2 + Math.random() * 3,
+        repeat: Infinity,
+        delay: Math.random() * 2,
+      }}
+    />
+  ));
+
+  const planets = [
+    { size: 'w-20 h-20', color: 'bg-gradient-to-br from-stellar-purple/50 to-stellar-blue/50', position: 'top-20 left-20', delay: 0 },
+    { size: 'w-16 h-16', color: 'bg-gradient-to-br from-stellar-orange/40 to-stellar-green/40', position: 'top-40 right-32', delay: 1 },
+    { size: 'w-12 h-12', color: 'bg-gradient-to-br from-stellar-green/50 to-stellar-blue/50', position: 'bottom-32 left-40', delay: 2 },
+    { size: 'w-14 h-14', color: 'bg-gradient-to-br from-stellar-orange/40 to-stellar-purple/40', position: 'bottom-20 right-20', delay: 0.5 },
   ];
 
   return (
-    <div className="min-h-screen bg-eclipse-light dark:bg-space-void text-eclipse-text-light dark:text-space-text">
-      <div className="flex">
+    <div className="min-h-screen bg-eclipse-light dark:bg-space-void text-eclipse-text-light dark:text-space-text relative overflow-hidden">
+      {/* Animated Background Stars - Fixed Z-index */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {floatingStars}
+        
+        {/* Add some shooting stars for visibility test */}
+        {Array.from({ length: 3 }, (_, i) => (
+          <motion.div
+            key={`shooting-${i}`}
+            className="absolute w-1 h-8 bg-gradient-to-t from-stellar-blue to-transparent rounded-full"
+            style={{
+              left: `${20 + i * 30}%`,
+              top: `${10 + i * 20}%`,
+            }}
+            animate={{
+              x: [0, 200],
+              y: [0, 100],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              delay: i * 3,
+              ease: "easeOut",
+            }}
+          />
+        ))}
+      </div>
+      
+      {/* Floating Planets - Fixed Z-index */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {planets.map((planet, index) => (
+          <motion.div
+            key={index}
+            className={`absolute ${planet.size} ${planet.color} rounded-full ${planet.position}`}
+            animate={{
+              y: [-10, 10, -10],
+              rotate: [0, 360],
+            }}
+            transition={{
+              duration: 8 + index * 2,
+              repeat: Infinity,
+              delay: planet.delay,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Animated Particles - Fixed Z-index */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {Array.from({ length: 15 }, (_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-stellar-blue rounded-full shadow-lg shadow-stellar-blue/50"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [-20, -120],
+              opacity: [0, 0.8, 0],
+              scale: [1, 1.5, 0.5],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 3,
+              repeat: Infinity,
+              delay: Math.random() * 5,
+            }}
+          />
+        ))}
+        
+        {/* Add some larger glowing orbs for visibility */}
+        {Array.from({ length: 5 }, (_, i) => (
+          <motion.div
+            key={`orb-${i}`}
+            className="absolute w-3 h-3 bg-stellar-purple rounded-full shadow-lg shadow-stellar-purple/50"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              opacity: [0.2, 0.8, 0.2],
+              scale: [0.5, 1.2, 0.5],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 3,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Ambient cosmic glow - Fixed Z-index */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-stellar-blue/30 rounded-full blur-3xl"
+          animate={{
+            opacity: [0.4, 0.7, 0.4],
+            scale: [1, 1.3, 1],
+            x: [-20, 20, -20],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+          }}
+        />
+        
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-stellar-purple/30 rounded-full blur-3xl"
+          animate={{
+            opacity: [0.3, 0.6, 0.3],
+            scale: [1, 1.2, 1],
+            x: [20, -20, 20],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            delay: 2,
+          }}
+        />
+        
+        {/* Additional smaller glows */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 w-40 h-40 bg-stellar-orange/25 rounded-full blur-2xl"
+          animate={{
+            opacity: [0.2, 0.5, 0.2],
+            scale: [0.8, 1.4, 0.8],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            delay: 4,
+          }}
+        />
+      </div>      <div className="flex relative z-20">
+        {/* Subtle background glow effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-stellar-blue/10 via-transparent to-stellar-purple/10 pointer-events-none z-10" />
+        
         <Sidebar />
         <main className="flex-1 p-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">          <div className="lg:col-span-2">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2">
             {/* Sorting and Filtering Controls */}
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
@@ -42,8 +330,11 @@ const Feed = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-eclipse-text-light dark:text-space-text">Sort by:</span>
                   <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                    value={selectedSort}
+                    onChange={(e) => {
+                      setSelectedSort(e.target.value);
+                      setSortBy(e.target.value);
+                    }}
                     className="bg-eclipse-border/30 dark:bg-space-darker border border-eclipse-border/50 dark:border-space-gray/50 rounded-lg px-3 py-1 text-sm text-eclipse-text-light dark:text-space-text focus:ring-2 focus:ring-stellar-blue/50 outline-none"
                   >
                     {sortOptions.map(option => (
@@ -57,8 +348,11 @@ const Feed = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-eclipse-text-light dark:text-space-text">Filter:</span>
                   <select
-                    value={filterBy}
-                    onChange={(e) => setFilterBy(e.target.value)}
+                    value={selectedFilter}
+                    onChange={(e) => {
+                      setSelectedFilter(e.target.value);
+                      setFilterBy(e.target.value);
+                    }}
                     className="bg-eclipse-border/30 dark:bg-space-darker border border-eclipse-border/50 dark:border-space-gray/50 rounded-lg px-3 py-1 text-sm text-eclipse-text-light dark:text-space-text focus:ring-2 focus:ring-stellar-orange/50 outline-none"
                   >
                     {filterOptions.map(option => (
@@ -105,7 +399,7 @@ const Feed = () => {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowCreatePost(true)}
+                      onClick={() => handlePostTypeClick('query')}
                       className="flex items-center gap-2 px-4 py-2 bg-stellar-blue/10 hover:bg-stellar-blue/20 text-stellar-blue rounded-lg transition-colors border border-stellar-blue/30"
                     >
                       <span className="text-lg">❓</span>
@@ -115,49 +409,85 @@ const Feed = () => {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowCreatePost(true)}
+                      onClick={() => handlePostTypeClick('discussion')}
                       className="flex items-center gap-2 px-4 py-2 bg-stellar-orange/10 hover:bg-stellar-orange/20 text-stellar-orange rounded-lg transition-colors border border-stellar-orange/30"
                     >
-                      <span className="text-lg">💡</span>
-                      <span className="text-sm font-medium">Share Solution</span>
+                      <span className="text-lg">�</span>
+                      <span className="text-sm font-medium">Start Discussion</span>
                     </motion.button>
                     
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowCreatePost(true)}
+                      onClick={() => handlePostTypeClick('achievement')}
                       className="flex items-center gap-2 px-4 py-2 bg-stellar-green/10 hover:bg-stellar-green/20 text-stellar-green rounded-lg transition-colors border border-stellar-green/30"
                     >
-                      <span className="text-lg">📝</span>
-                      <span className="text-sm font-medium">Code Snippet</span>
+                      <span className="text-lg">🏆</span>
+                      <span className="text-sm font-medium">Share Achievement</span>
                     </motion.button>
                   </div>
                 </div>
 
-                {/* Simple Create Post Modal/Placeholder */}
-                {showCreatePost && (
-                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-eclipse-surface dark:bg-space-dark rounded-lg p-6 max-w-md w-full mx-4 border border-eclipse-border dark:border-space-gray">
-                      <h3 className="text-lg font-semibold text-eclipse-text-light dark:text-space-text mb-4">Create New Post</h3>
-                      <p className="text-eclipse-muted-light dark:text-space-muted mb-4">Post creation feature coming soon!</p>
-                      <button
-                        onClick={() => setShowCreatePost(false)}
-                        className="px-4 py-2 bg-stellar-blue hover:bg-stellar-blue/80 text-white rounded-lg transition-colors"
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {/* Post Creation Modal */}
+                <AnimatePresence>
+                  {showCreatePost && (
+                    <PostCreationModal
+                      isOpen={showCreatePost}
+                      onClose={handleCloseModal}
+                      onPostCreated={handlePostCreated}
+                      initialPostType={postType}
+                    />
+                  )}
+                </AnimatePresence>
               </motion.div>
-              <PostCards sortBy={sortBy} filterBy={filterBy} />
+              {/* Posts Section - Now using industry-standard infinite scroll */}
+              <PostCards 
+                sortBy={sortBy} 
+                filterBy={filterBy}
+                user={user}
+              />
             </div>
             <div className="lg:col-span-1">
               <RightSidebar />
+              
+              {/* Chat Preview Integration */}
+              {chats.length > 0 && (
+                <div className="mt-4 bg-eclipse-surface dark:bg-space-dark rounded-lg border border-eclipse-border dark:border-space-gray">
+                  <ChatPreview
+                    chats={chats}
+                    title="Recent Chats"
+                    onStartNewChat={() => {
+                      setIsChatOpen(true);
+                      setSelectedChat(null);
+                    }}
+                    onLoadMore={loadMoreChats}
+                    hasMore={hasMoreChats}
+                    onSelectChat={(chat) => {
+                      setSelectedChat(chat);
+                      setIsChatOpen(true);
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </main>
       </div>
+
+      {/* Chat Modal with AnimatedModal wrapper */}
+      <AnimatedModal
+        isOpen={isChatOpen}
+        onClose={() => {}}
+      >
+        <ChatModal
+          chat={selectedChat}
+          onClose={() => {
+            setIsChatOpen(false);
+            console.log("Chat closed");
+            setSelectedChat(null);
+          }}
+        />
+      </AnimatedModal>
     </div>
   );
 };

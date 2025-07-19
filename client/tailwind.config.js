@@ -22,6 +22,7 @@ export default {
         
         // Accent Colors (from reference)
         'stellar-blue': '#7B68EE',        // Primary blue accent
+        'stellar-purple': '#A855F7',      // Purple accent  
         'stellar-orange': '#FF4500',      // Orange accent
         'stellar-green': '#16A34A',       // Success/optional green (darker for light mode visibility)
         
@@ -34,6 +35,8 @@ export default {
       },
       boxShadow: {
         'stellar-blue-glow': '0 0 20px rgba(123, 104, 238, 0.5), 0 0 40px rgba(123, 104, 238, 0.2)',
+        'stellar-blue-glow-lg': '0 0 30px rgba(123, 104, 238, 0.7), 0 0 60px rgba(123, 104, 238, 0.3)',
+        'stellar-purple-glow': '0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.2)',
         'stellar-orange-glow': '0 0 20px rgba(255, 69, 0, 0.5), 0 0 40px rgba(255, 69, 0, 0.2)',
         'stellar-green-glow': '0 0 20px rgba(34, 255, 34, 0.5), 0 0 40px rgba(34, 255, 34, 0.2)',
         'space-card': '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',

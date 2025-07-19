@@ -1,18 +1,17 @@
-import axios from "axios";
+import axiosInstance from "../config/axiosConfig.js";
+import { API_ENDPOINTS, apiLog, apiError } from "../config/api.js";
 
-export const likePost=async(post)=>{
+export const likePost = async (post) => {
     try {
-        const res=await axios.put(`http://localhost:3000/api/posts/like/${post._id}`,{},{
-            headers:{
-                Authorization:`Bearer ${localStorage.getItem('authToken')}`
-            }
-        })
-        if(res.status===200){
-            console.log("Post liked successfully");
+        const res = await axiosInstance.put(API_ENDPOINTS.POSTS.LIKE(post._id), {});
+        
+        if (res.status === 200) {
+            apiLog("Post liked successfully");
         }
-        console.log("Post liked successfully",res.data);
+        apiLog("Post liked successfully", res.data);
         return res.data;
     } catch (error) {
-        console.error("❌ Error liking post:", error);
+        apiError("Error liking post:", error);
+        throw error;
     }
 };

@@ -1,16 +1,17 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo, memo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useSelector } from "react-redux";
-import { usePostLoader } from "../../hooks/usePostLoader";
 import { PostCard } from "../PostCard";
-import FeedControlBar from "../FeedControlBar";
 import { createPost } from "../../utility/createPost";
 import { toast } from "react-hot-toast";
 import { HighlightSyntax } from "../HighlightSyntax";
 import { AnimatedModal } from "../AnimateModal";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
-const PostCards = ({ sortBy = 'newest', filterBy = 'all' }) => {
-  const user = useSelector((state) => state.auth.user);
+const PostCards = ({ 
+  sortBy = 'newest', 
+  filterBy = 'all',
+  user
+}) => {
   const [isCreatingPost, setIsCreatingPost] = useState(false);
   const [newPost, setNewPost] = useState({
     title: "",
@@ -21,18 +22,40 @@ const PostCards = ({ sortBy = 'newest', filterBy = 'all' }) => {
     language: "javascript",
   });
 
+  // Use the new industry-standard infinite scroll hook
   const {
     posts,
-    setPosts,
     isLoading,
-    lastPostRef,
-    allPostsExhausted,
-    livePosts,
-    setLivePosts,
-  } = usePostLoader(user);
+    isInitialLoad,
+    hasNextPage,
+    error,
+    sentinelRef,
+    addPost,
+    refresh
+  } = useInfiniteScroll(user, {
+    pageSize: 15, // Larger page size for better performance
+    threshold: 0.1,
+    rootMargin: '200px', // Load earlier for smoother experience
+    retryAttempts: 3,
+    enableCache: true
+  });
 
-  // Filter and sort posts based on props
+  // Reset scroll to top on initial load to fix the scroll position issue
+  useEffect(() => {
+    if (isInitialLoad && posts.length === 0) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, [isInitialLoad, posts.length]);
+
+  // Filter and sort posts - Optimized with better memoization
   const filteredAndSortedPosts = useMemo(() => {
+    console.log('🔄 Processing posts for display:', posts.length);
+    
+    // Early return if no posts
+    if (!posts || posts.length === 0) {
+      return [];
+    }
+
     let filtered = [...posts];
 
     // Apply filtering
@@ -40,51 +63,73 @@ const PostCards = ({ sortBy = 'newest', filterBy = 'all' }) => {
       filtered = filtered.filter(post => {
         switch (filterBy) {
           case 'questions':
+          case 'query':
             return post.postType === 'query' || post.postType === 'question';
           case 'solutions':
             return post.postType === 'solution' || post.postType === 'answer';
           case 'snippets':
             return post.postType === 'snippet' || post.codeSnippet;
+          case 'discussion':
+            return post.postType === 'discussion';
+          case 'achievement':
+            return post.postType === 'achievement';
           default:
             return true;
         }
       });
     }
 
-    // Apply sorting
-    filtered.sort((a, b) => {
+    // Apply sorting with stable sort
+    const sortedPosts = [...filtered].sort((a, b) => {
+      const aDate = new Date(a.createdAt);
+      const bDate = new Date(b.createdAt);
+      
       switch (sortBy) {
         case 'oldest':
-          return new Date(a.createdAt) - new Date(b.createdAt);
+          return aDate - bDate;
         case 'popular': {
-          const aLikes = (a.likes?.length || 0) + (a.comments?.length || 0);
-          const bLikes = (b.likes?.length || 0) + (b.comments?.length || 0);
-          return bLikes - aLikes;
+          const aScore = (a.likes?.length || 0) + (a.comments?.length || 0);
+          const bScore = (b.likes?.length || 0) + (b.comments?.length || 0);
+          return bScore - aScore || bDate - aDate; // Secondary sort by date
         }
         case 'trending': {
+          const now = Date.now();
           const aScore = (a.likes?.length || 0) * 2 + (a.comments?.length || 0);
           const bScore = (b.likes?.length || 0) * 2 + (b.comments?.length || 0);
-          const aRecency = (Date.now() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60 * 24);
-          const bRecency = (Date.now() - new Date(b.createdAt).getTime()) / (1000 * 60 * 60 * 24);
-          return (bScore / (bRecency + 1)) - (aScore / (aRecency + 1));
+          const aAge = (now - aDate.getTime()) / (1000 * 60 * 60 * 24); // Days
+          const bAge = (now - bDate.getTime()) / (1000 * 60 * 60 * 24);
+          
+          // Trending score: engagement divided by age + 1
+          const aTrending = aScore / (aAge + 1);
+          const bTrending = bScore / (bAge + 1);
+          
+          return bTrending - aTrending;
         }
         case 'newest':
         default:
-          return new Date(b.createdAt) - new Date(a.createdAt);
+          return bDate - aDate;
       }
     });
 
-    return filtered;
+    console.log('✅ Processed posts:', {
+      original: posts.length,
+      filtered: filtered.length,
+      final: sortedPosts.length,
+      sortBy,
+      filterBy
+    });
+
+    return sortedPosts;
   }, [posts, sortBy, filterBy]);
 
   const handleCreatePost = async () => {
     try {
       const createdPost = await createPost(newPost);
-      setPosts([createdPost, ...posts]);
-      localStorage.setItem(
-        "cachedPosts",
-        JSON.stringify([createdPost, ...posts])
-      );
+      
+      // Add to the beginning of the posts list
+      addPost(createdPost);
+      
+      // Reset form
       setIsCreatingPost(false);
       setNewPost({
         title: "",
@@ -94,12 +139,39 @@ const PostCards = ({ sortBy = 'newest', filterBy = 'all' }) => {
         codeSnippet: "",
         language: "javascript",
       });
+      
       toast.success("Post created successfully!");
+      
+      // Don't refresh the page - just add the post
+      console.log('📝 Post created and added to feed');
+      
     } catch (error) {
       console.error("Error creating post:", error);
       toast.error("Failed to create post");
     }
   };
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6 max-w-6xl mx-auto">
+        <div className="text-center p-8 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <h3 className="text-lg font-semibold text-red-400 mb-2">
+            Failed to load posts
+          </h3>
+          <p className="text-red-300 mb-4">
+            {error.message || 'An unexpected error occurred'}
+          </p>
+          <button
+            onClick={refresh}
+            className="px-4 py-2 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 hover:bg-red-500/30 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -110,97 +182,85 @@ const PostCards = ({ sortBy = 'newest', filterBy = 'all' }) => {
         transition={{ duration: 0.6 }}
         className="sticky top-0 z-10 bg-space-dark/90 backdrop-blur-lg pb-2"
       >
-        {/* <FeedControlBar
-          selectedFilter={selectedFilter}
-          setSelectedFilter={setSelectedFilter}
-          selectedSort={selectedSort}
-          setSelectedSort={setSelectedSort}
-        /> */}
+        {/* Control bar content can be added here */}
       </motion.div>
 
-      {/* Create Post Button */}
-      {/* <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setIsCreatingPost(true)}
-        className="w-full p-4 bg-cyber-dark border border-cyber-blue/30 rounded-lg text-cyber-text hover:border-cyber-blue hover:shadow-cyber-blue-glow transition-all"
-      >
-        <div className="flex items-center justify-center space-x-2">
-          <span className="text-cyber-blue">✨</span>
-          <span>Start New Transmission</span>
-        </div>
-      </motion.button> */}
-
-      {/* Live Posts Indicator */}
-      {livePosts.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center bg-stellar-orange/20 border border-stellar-orange text-stellar-orange p-3 rounded-lg cursor-pointer hover:bg-stellar-orange/30 transition-all"
-          onClick={() => {
-            setPosts((prev) => [...livePosts, ...prev]);
-            localStorage.setItem(
-              "cachedPosts",
-              JSON.stringify([...livePosts, ...posts])
-            );
-            setLivePosts([]);
-          }}
-        >
-          🔔 {livePosts.length} new transmission(s) available. Click to load!
-        </motion.div>
-      )}
-
-      {/* Loading State */}
-      {isLoading ? (
-        <div className="text-center text-stellar-blue mt-4 text-lg font-mono">
-          <div className="animate-stellar-pulse">Summoning cosmic feed...</div>
+      {/* Initial Loading State */}
+      {isInitialLoad && isLoading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-stellar-blue mx-auto mb-4"></div>
+            <div className="text-stellar-blue text-lg font-mono">
+              Summoning cosmic feed...
+            </div>
+          </div>
         </div>
       ) : (
         <>
-          {/* No Topics Message */}
-          {/* {(user?.subscribedTopics || []).length === 0 && (
+          {/* Posts Feed - Optimized rendering without animations to prevent scroll jumping */}
+          <div className="space-y-4">
+            {filteredAndSortedPosts.map((post) => (
+              <div key={`post-${post._id}`} className="w-full">
+                <PostCard post={post} />
+              </div>
+            ))}
+          </div>
+
+          {/* No Posts Message */}
+          {filteredAndSortedPosts.length === 0 && !isLoading && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🌌</div>
+              <h3 className="text-xl font-semibold text-stellar-blue mb-2">
+                No posts in this cosmic sector
+              </h3>
+              <p className="text-space-muted">
+                {filterBy !== 'all' 
+                  ? `No ${filterBy} posts found. Try changing your filter.`
+                  : 'Be the first to share something with the universe!'
+                }
+              </p>
+            </div>
+          )}
+
+          {/* Infinite Scroll Sentinel */}
+          {hasNextPage && filteredAndSortedPosts.length > 0 && (
+            <div 
+              ref={sentinelRef}
+              className="flex items-center justify-center py-8"
+            >
+              {isLoading ? (
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stellar-blue/40 mx-auto mb-2"></div>
+                  <span className="text-sm font-mono text-stellar-blue/60">
+                    Loading more transmissions...
+                  </span>
+                </div>
+              ) : (
+                <div className="text-sm text-space-muted">
+                  Scroll to load more
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* End of Feed */}
+          {!hasNextPage && filteredAndSortedPosts.length > 0 && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="bg-cyber-dark/50 p-4 rounded-lg border border-cyber-purple/30 text-center"
+              className="text-center py-8"
             >
-              <span className="text-lg font-mono text-cyber-purple mb-2 inline-block">
-                🌌 No Celestial Tags Locked In
-              </span>
-              <p className="text-cyber-text/60 text-sm">
-                Catching stardust from across the universe...
-                <span className="ml-2 animate-cyber-pulse">✨</span>
+              <div className="text-4xl mb-2">🌟</div>
+              <p className="text-stellar-blue font-semibold">
+                All transmissions eclipsed. Await the next cosmic alignment!
               </p>
+              <button
+                onClick={refresh}
+                className="mt-4 px-4 py-2 bg-stellar-blue/20 border border-stellar-blue/30 rounded-lg text-stellar-blue hover:bg-stellar-blue/30 transition-colors"
+              >
+                Refresh Feed
+              </button>
             </motion.div>
-          )} */}
-
-          {/* Posts */}
-          <div className="space-y-4">
-            {filteredAndSortedPosts.map((post, index) => {
-              const isLast = index === filteredAndSortedPosts.length - 1;
-              return (
-                <motion.div 
-                  key={post._id} 
-                  ref={isLast ? lastPostRef : null}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                >
-                  <PostCard post={post} />
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* End of Posts */}
-          {allPostsExhausted && (
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center text-stellar-blue font-bold mt-4"
-            >
-              All transmissions eclipsed. Await the next cosmic alignment!
-            </motion.p>
           )}
         </>
       )}
@@ -237,6 +297,7 @@ const PostCards = ({ sortBy = 'newest', filterBy = 'all' }) => {
               >
                 <option value="query">Query</option>
                 <option value="discussion">Discussion</option>
+                <option value="achievement">Achievement</option>
               </select>
 
               <input
@@ -262,6 +323,9 @@ const PostCards = ({ sortBy = 'newest', filterBy = 'all' }) => {
                   <option value="python">Python</option>
                   <option value="java">Java</option>
                   <option value="cpp">C++</option>
+                  <option value="typescript">TypeScript</option>
+                  <option value="rust">Rust</option>
+                  <option value="go">Go</option>
                 </select>
 
                 <HighlightSyntax
@@ -294,7 +358,8 @@ const PostCards = ({ sortBy = 'newest', filterBy = 'all' }) => {
                 </button>
                 <button
                   onClick={handleCreatePost}
-                  className="px-6 py-2 bg-stellar-blue hover:bg-stellar-blue/80 text-white rounded-lg shadow-stellar-blue-glow transition-colors"
+                  disabled={!newPost.title.trim() || !newPost.content.trim()}
+                  className="px-6 py-2 bg-stellar-blue hover:bg-stellar-blue/80 disabled:bg-stellar-blue/30 disabled:cursor-not-allowed text-white rounded-lg shadow-stellar-blue-glow transition-colors"
                 >
                   Transmit to Cosmos
                 </button>
@@ -307,4 +372,4 @@ const PostCards = ({ sortBy = 'newest', filterBy = 'all' }) => {
   );
 };
 
-export default PostCards;
+export default memo(PostCards);

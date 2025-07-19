@@ -13,19 +13,19 @@ const userRoutes = require('./routes/userRoutes');
 const { streamUpdates } = require('./controllers/postController');
 const startTagStatsJob = require('./jobs/tagsStatsWorker');
 const messageRoutes = require('./routes/messageRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const validateEnvVariables = require('./utils/validateEnv');
 require("./jobs/onlineCleanup")
 
 // Load environment variables from the root directory
 dotenv.config({ path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env' });
 
-// Validate required environment variables
-const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
-requiredEnvVars.forEach((key) => {
-  if (!process.env[key]) {
-    console.error(`Missing required environment variable: ${key}`);
-    process.exit(1); // Exit the application if a required variable is missing
-  }
-});
+// Validate environment variables
+const envValidation = validateEnvVariables();
+if (!envValidation.valid) {
+  console.error('❌ Environment validation failed. Exiting...');
+  process.exit(1);
+}
 
 // Connect to the database
 connectDB();
@@ -42,7 +42,7 @@ app.use(express.json());
 
 // CORS configuration
 app.use(cors({
-  origin: "http://localhost:5173", // Replace with your frontend URL
+  origin: process.env.CORS_ORIGIN || process.env.CLIENT_URL || "http://localhost:5173",
   methods: ["GET", "POST","OPTIONS","PUT","DELETE","PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
@@ -62,6 +62,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/user', uploadRoutes);
 app.use('/api/users',userRoutes)
 app.use("/api/messages",messageRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 
 // Health check route
@@ -82,21 +83,22 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-setInterval(() => {
-    const memoryUsage = process.memoryUsage();
-    console.log({
-        rss: `${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB`,
-        heapTotal: `${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
-        heapUsed: `${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
-        external: `${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB`
-    });
-}, 5000); // Every 5s
+// setInterval(() => {
+//     const memoryUsage = process.memoryUsage();
+//     console.log({
+//         rss: `${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB`,
+//         heapTotal: `${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
+//         heapUsed: `${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
+//         external: `${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB`
+//     });
+// }, 5000); // Every 5s
 
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || process.env.DEFAULT_PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
   console.log(`MongoDB URI: ${process.env.MONGO_URI}`);
-  
+  console.log(`Frontend URL: ${process.env.CLIENT_URL || process.env.CORS_ORIGIN}`);
+  console.log(`Redis: ${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`);
 });

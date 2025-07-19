@@ -13,7 +13,7 @@ try {
 
 const app = require('./src/app');
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || process.env.DEFAULT_PORT || 3001;
 
 // Create HTTP server
 const server = http.createServer(app);
@@ -21,7 +21,7 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: process.env.SOCKET_CORS_ORIGIN || process.env.CORS_ORIGIN || "*",
     methods: ["GET", "POST"]
   }
 });

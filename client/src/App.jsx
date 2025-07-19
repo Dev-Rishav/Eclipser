@@ -1,19 +1,14 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./Redux/store";
-import Home from "./pages/Home";
-import Login from "./components/Login";
 import PrivateRoute from "./Redux/PrivateRoute";
-import Signup from "./components/Signup";
 import { Toaster } from "react-hot-toast";
 import PersistentLayout from "./components/PersistentLayout";
-import Contest from "./pages/Contest";
-import Profile from "./pages/Profile";
 import { useState } from "react";
 import LoadingPage from "./components/LoadingPage";
-import Feed from "./components/newUI/Feed";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import LandingPage from "./pages/LandingPage.jsx";
+import ConnectionDebugPanel from "./components/ConnectionDebugPanel.jsx";
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(false); // State to control loading screen
@@ -40,16 +35,11 @@ const App = () => {
             
             {/* Private routes with persistent layout */}
             <Route element={<PrivateRoute />}>
-            <Route element={<PersistentLayout />}>
-              <Route path="/" element={<Feed />} />
-              <Route path="/contest" element={<Contest />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/feed" element={<Feed />} />
-              {/* <Route path="/posts" element={<PostList />} /> */}
-              {/* Add other authenticated routes here */}
+              <Route path="/*" element={<PersistentLayout />} />
             </Route>
-          </Route>
         </Routes>
+        {/* Debug panel - only shows in development */}
+        {import.meta.env.DEV && <ConnectionDebugPanel />}
       </Router>
     </Provider>
     </ThemeProvider>

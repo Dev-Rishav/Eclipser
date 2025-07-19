@@ -1,47 +1,58 @@
-import axios from "axios";
+import axiosInstance from "../config/axiosConfig.js";
+import { API_ENDPOINTS, apiLog, apiError } from "../config/api.js";
 
-export const fetchPostsByTags = async (tags = [], page = 1, limit = 10) => {
-  console.log("🔄 Fetching Posts");
+export const fetchPost = async (postId) => {
+  apiLog(`🔄 Fetching Post ${postId}`);
 
   try {
-    console.log("🛠 Fetching from Backend");
-    const response = await axios.post("http://localhost:3000/api/posts/tags",{
+    apiLog("🛠 Fetching from Backend");
+    const response = await axiosInstance.get(API_ENDPOINTS.POSTS.BY_ID(postId));
+    
+    if (response.data.success) {
+      return response.data.data;
+    } else {
+      throw new Error(response.data.message || 'Failed to fetch post');
+    }
+  } catch (error) {
+    apiError("❌ Error fetching post:", error);
+    throw error;
+  }
+};
+
+export const fetchPostsByTags = async (tags = [], page = 1, limit = 10) => {
+  apiLog("🔄 Fetching Posts");
+
+  try {
+    apiLog("🛠 Fetching from Backend");
+    const response = await axiosInstance.post(API_ENDPOINTS.POSTS.BY_TAGS, {
       tags,
       page,
       limit,
-    },{
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      }});
+    });
 
     localStorage.setItem("cachedPosts", JSON.stringify(response.data)); // Store in cache
     return response.data;
   } catch (error) {
-    console.error("❌ Error fetching posts:", error);
+    apiError("❌ Error fetching posts:", error);
     return [];
   }
 };
 
 export const fetchRemainingPosts = async (tags = [], page = 1, limit = 10) => {
-  console.log("🔄 Fetching Remaining Posts");
+  apiLog("🔄 Fetching Remaining Posts");
 
   try {
-    console.log("🛠 Fetching from Backend");
-    const response = await axios.post("http://localhost:3000/api/posts/remainingPosts", {
+    apiLog("🛠 Fetching from Backend");
+    const response = await axiosInstance.post(API_ENDPOINTS.POSTS.REMAINING, {
       tags,
       page,
       limit,
-    },{
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      }});
+    });
 
     localStorage.setItem("cachedRemainingPosts", JSON.stringify(response.data)); // Store in cache
     return response.data;
   } catch (error) {
-    console.error("❌ Error fetching remaining posts:", error);
+    apiError("❌ Error fetching remaining posts:", error);
     return [];
   }
 };
