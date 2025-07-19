@@ -8,7 +8,8 @@
     "dev": "NODE_ENV=development nodemon server.js",
     "prod": "NODE_ENV=production node server.js",
     "start:dev": "NODE_ENV=development nodemon server.js",
-    "start:prod": "NODE_ENV=production node server.js"
+    "start:prod": "NODE_ENV=production node server.js",
+    "pm2:prod": "pm2 start ecosystem.config.js --env production"
   },
   "author": "",
   "license": "ISC",
