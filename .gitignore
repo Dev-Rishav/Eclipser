@@ -2,6 +2,9 @@
 /server/main-service/.env
 /server/main-service/.env.production
 
+server/main-service/ecosystem.config.js
+
+
 /server/contest-service/node_modules
 
 
