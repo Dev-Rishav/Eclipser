@@ -5,6 +5,7 @@
 server/main-service/ecosystem.config.js
 
 
+/server/main-service/logs/*
 /server/contest-service/node_modules
 
 
