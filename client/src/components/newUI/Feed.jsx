@@ -13,6 +13,8 @@ import { ChatPreview } from '../ChatPreview';
 import { clearPostCache } from '../../utility/storageCleaner';
 import { createPost } from '../../utility/createPost';
 import socket from '../../config/socket';
+import axiosInstance from '../../config/axiosConfig';
+import { API_ENDPOINTS, apiLog, apiError } from '../../config/api';
 
 const Feed = () => {
   const { user } = useSelector((state) => state.auth);
@@ -20,6 +22,7 @@ const Feed = () => {
   const [sortBy, setSortBy] = useState('newest');
   const [filterBy, setFilterBy] = useState('all');
   const [postType, setPostType] = useState('query'); // Track which type of post to create
+  const [isFilterLoading, setIsFilterLoading] = useState(false);
   
   // Legacy Home.jsx state management
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -113,7 +116,6 @@ const Feed = () => {
   const handlePostCreated = async (postData) => {
     try {
       const createdPost = await createPost(postData);
-      toast.success('Post created successfully!');
       return createdPost;
     } catch (error) {
       console.error('Error creating post:', error);
@@ -139,10 +141,45 @@ const Feed = () => {
     { value: 'trending', label: 'Trending', icon: '📈' },
   ];
 
+
+  //! Filter posts by type implementation
+  const onFilter = async(filterBy) => {
+    try {
+      setIsFilterLoading(true);
+      
+      // Update the local state immediately for UI responsiveness
+      setFilterBy(filterBy);
+      setSelectedFilter(filterBy);
+      
+      // If filtering by 'all', no need to make API call as PostCards will handle it
+      if (filterBy === 'all') {
+        apiLog('Showing all posts');
+        return;
+      }
+      
+      // Make API call for specific post types
+      apiLog(`🔍 Filtering posts by type: ${filterBy}`);
+      apiLog(`📡 API Endpoint: ${API_ENDPOINTS.POSTS.By_TYPE(filterBy)}`);
+      
+      const response = await axiosInstance.get(API_ENDPOINTS.POSTS.By_TYPE(filterBy));
+      const data = response.data;
+      
+      // The filtered data will be handled by PostCards component
+      // which listens to the filterBy prop changes
+      apiLog(`✅ Found ${data?.posts?.length || data?.length || 0} posts of type ${filterBy}`);
+      
+    } catch(error) {
+      apiError('Error fetching filter options:', error);
+      toast.error(`Failed to filter posts by ${filterBy}`);
+    } finally {
+      setIsFilterLoading(false);
+    }
+  }
+
   const filterOptions = [
     { value: 'all', label: 'All Posts', icon: '📑' },
     { value: 'query', label: 'Questions', icon: '❓' },
-    { value: 'discussion', label: 'Discussions', icon: '�' },
+    { value: 'discussion', label: 'Discussions', icon: '💬' },
     { value: 'achievement', label: 'Achievements', icon: '🏆' },
   ];
 
@@ -363,20 +400,33 @@ const Feed = () => {
                     
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-eclipse-text-light dark:text-space-text">Filter:</span>
-                      <select
-                        value={selectedFilter}
-                        onChange={(e) => {
-                          setSelectedFilter(e.target.value);
-                          setFilterBy(e.target.value);
-                        }}
-                        className="bg-eclipse-border/30 dark:bg-space-darker border border-eclipse-border/50 dark:border-space-gray/50 rounded-lg px-3 py-1 text-sm text-eclipse-text-light dark:text-space-text focus:ring-2 focus:ring-stellar-orange/50 outline-none"
-                      >
-                        {filterOptions.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.icon} {option.label}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={selectedFilter}
+                          onChange={(e) => {
+                            const newFilter = e.target.value;
+                            onFilter(newFilter);
+                          }}
+                          disabled={isFilterLoading}
+                          className="bg-eclipse-border/30 dark:bg-space-darker border border-eclipse-border/50 dark:border-space-gray/50 rounded-lg px-3 py-1 pr-8 text-sm text-eclipse-text-light dark:text-space-text focus:ring-2 focus:ring-stellar-orange/50 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {filterOptions.map(option => (
+                            <option key={option.value} value={option.value}>
+                              {option.icon} {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        {isFilterLoading && (
+                          <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                            <div className="w-4 h-4 border-2 border-stellar-orange border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        )}
+                      </div>
+                      {selectedFilter !== 'all' && (
+                        <span className="px-2 py-1 text-xs bg-stellar-orange/20 text-stellar-orange rounded-full border border-stellar-orange/30 font-medium">
+                          Active: {filterOptions.find(f => f.value === selectedFilter)?.label}
+                        </span>
+                      )}
                     </div>
                     </div>
                   </div>

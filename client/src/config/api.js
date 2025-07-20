@@ -67,6 +67,7 @@ export const API_ENDPOINTS = {
     COMMENT: (postId) => `${API_URL}/api/posts/comment/${postId}`,
     DELETE: (postId) => `${API_URL}/api/posts/${postId}`,
     TAG_STATS: `${API_URL}/api/posts/tagStats`,
+    By_TYPE: (type) => `${API_URL}/api/posts/type/${type}`,
   },
   
   // Users
