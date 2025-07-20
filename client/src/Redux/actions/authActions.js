@@ -12,6 +12,7 @@ import {
     UPDATE_USER,
     UPDATE_FOLLOWING_COUNT
 } from './authActionTypes';
+import { CLEAR_NOTIFICATIONS } from './notificationActionTypes';
 
 export const loginUser = (credentials) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
@@ -67,6 +68,9 @@ export const logoutUser = () => (dispatch) => {
   localStorage.removeItem('authToken');
   localStorage.removeItem('user')
   dispatch({ type: LOGOUT });
+  
+  // Clear notifications on logout
+  dispatch({ type: CLEAR_NOTIFICATIONS });
 };
 
 

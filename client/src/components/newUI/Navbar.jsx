@@ -4,7 +4,7 @@ import { logoutUser } from "../../Redux/actions/authActions";
 import { useNavigate, NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeSwitcher from "../ThemeSwitcher";
-import { useNotifications } from "../../hooks/useNotifications";
+import { useNotificationsRedux } from "../../hooks/useNotificationsRedux";
 
 const Navbar = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -16,7 +16,7 @@ const Navbar = () => {
   const notificationRef = useRef(null);
   const contestRef = useRef(null);
 
-  // Use the real notification system
+  // Use the Redux-based notification system with post author binding
   const {
     notifications: realNotifications,
     unreadCount: realUnreadCount,
@@ -26,7 +26,7 @@ const Navbar = () => {
     deleteNotification,
     sendTestNotification,
     handleNotificationClick
-  } = useNotifications();
+  } = useNotificationsRedux();
 
   const handleLogout = useCallback(() => {
     dispatch(logoutUser());

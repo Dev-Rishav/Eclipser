@@ -492,6 +492,7 @@ exports.commentOnPost = async (req, res) => {
         post.title,
         content
       );
+      console.log("Comment notification sent successfully");
     } catch (notificationError) {
       console.error("Error sending comment notification:", notificationError);
       // Don't fail the comment operation if notification fails

@@ -31,7 +31,7 @@ exports.streamNotifications = async (req, res) => {
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGIN );
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+    // res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
 
     const userId = user._id.toString();
     
@@ -247,6 +247,67 @@ exports.testNotification = async (req, res) => {
   }
 };
 
+/**
+ * Debug endpoint to check SSE client status
+ */
+exports.debugSSEStatus = async (req, res) => {
+  try {
+    const status = notificationService.getSSEClientStatus();
+    
+    res.status(200).json({
+      success: true,
+      data: status
+    });
+  } catch (error) {
+    console.error('Error getting SSE status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error getting SSE status',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Debug endpoint to send notification to specific user
+ */
+exports.debugSendNotification = async (req, res) => {
+  try {
+    const { targetUserId, title = 'Debug Notification', message = 'This is a debug notification' } = req.body;
+    const userId = req.user.id;
+    
+    if (!targetUserId) {
+      return res.status(400).json({
+        success: false,
+        message: 'targetUserId is required'
+      });
+    }
+
+    const notification = await notificationService.createNotification({
+      recipientId: targetUserId,
+      senderId: userId,
+      type: 'system',
+      title,
+      message,
+      icon: '🐛',
+      priority: 'medium'
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Debug notification sent successfully',
+      data: notification
+    });
+  } catch (error) {
+    console.error('Error sending debug notification:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error sending debug notification',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   streamNotifications: exports.streamNotifications,
   getNotifications: exports.getNotifications,
@@ -254,5 +315,7 @@ module.exports = {
   markAsRead: exports.markAsRead,
   markAllAsRead: exports.markAllAsRead,
   deleteNotification: exports.deleteNotification,
-  testNotification: exports.testNotification
+  testNotification: exports.testNotification,
+  debugSSEStatus: exports.debugSSEStatus,
+  debugSendNotification: exports.debugSendNotification
 };
