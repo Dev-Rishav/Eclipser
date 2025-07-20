@@ -219,7 +219,8 @@ exports.testNotification = async (req, res) => {
       type = 'system', 
       title = 'Test Notification', 
       message = 'This is a test notification from the system',
-      icon = '🧪'
+      icon = '🧪',
+      markAsReadImmediately = true  // Test notifications should not appear as unread by default
     } = req.body;
 
     const notification = await notificationService.createNotification({
@@ -229,8 +230,17 @@ exports.testNotification = async (req, res) => {
       title,
       message,
       icon,
-      priority: 'medium'
+      priority: 'medium',
+      metadata: {
+        isTestNotification: true,
+        autoRead: markAsReadImmediately
+      }
     });
+
+    // If markAsReadImmediately is true, mark the notification as read
+    if (markAsReadImmediately) {
+      await notification.markAsRead();
+    }
 
     res.status(200).json({
       success: true,

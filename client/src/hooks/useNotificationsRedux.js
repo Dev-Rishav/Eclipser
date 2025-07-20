@@ -11,9 +11,9 @@ import {
   markAllNotificationsAsRead,
   deleteNotification,
   updateConnectionStatus,
-  sendTestNotification,
   clearNotifications
 } from '../Redux/actions/notificationActions';
+import { UNREAD_COUNT_SUCCESS } from '../Redux/actions/notificationActionTypes';
 
 export const useNotificationsRedux = () => {
   const dispatch = useDispatch();
@@ -36,6 +36,10 @@ export const useNotificationsRedux = () => {
   // Handle real-time notification events from SSE
   const handleNotificationEvent = useCallback((data) => {
     switch (data.type) {
+      case 'heartbeat':
+        // Heartbeat events are just for connection health - ignore them
+        break;
+        
       case 'notification': {
         // Enhanced notification with post author binding
         const enrichedNotification = {
@@ -58,7 +62,11 @@ export const useNotificationsRedux = () => {
       case 'unread_count':
         // Update unread count from server
         if (data.count !== undefined) {
-          dispatch(loadUnreadCount());
+          // Use the server count directly instead of reloading
+          dispatch({
+            type: UNREAD_COUNT_SUCCESS,
+            payload: data.count
+          });
         }
         break;
         
@@ -71,10 +79,6 @@ export const useNotificationsRedux = () => {
       case 'error':
         dispatch(updateConnectionStatus('disconnected'));
         console.log('📡 Notification stream disconnected via Redux');
-        break;
-        
-      case 'heartbeat':
-        // Keep connection alive - no action needed
         break;
         
       default:
@@ -135,14 +139,6 @@ export const useNotificationsRedux = () => {
       await dispatch(deleteNotification(notificationId));
     } catch (error) {
       console.error('Error deleting notification:', error);
-    }
-  }, [dispatch]);
-
-  const handleSendTestNotification = useCallback(async (testData = {}) => {
-    try {
-      await dispatch(sendTestNotification(testData));
-    } catch (error) {
-      console.error('Error sending test notification:', error);
     }
   }, [dispatch]);
 
@@ -245,7 +241,6 @@ export const useNotificationsRedux = () => {
     markAsRead: handleMarkAsRead,
     markAllAsRead: handleMarkAllAsRead,
     deleteNotification: handleDeleteNotification,
-    sendTestNotification: handleSendTestNotification,
     handleNotificationClick,
     
     // Utilities

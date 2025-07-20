@@ -93,6 +93,7 @@ const notificationReducer = (state = initialState, action) => {
       // Add new notification to the beginning of the list
       // Also increment unread count if it's unread
       const newNotification = action.payload;
+      
       return {
         ...state,
         notifications: [newNotification, ...state.notifications],

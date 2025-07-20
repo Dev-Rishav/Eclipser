@@ -24,7 +24,6 @@ const Navbar = () => {
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    sendTestNotification,
     handleNotificationClick
   } = useNotificationsRedux();
 
@@ -56,40 +55,11 @@ const Navbar = () => {
     };
   }, []);
 
-  // Sample notifications data (fallback)
-  const fallbackNotifications = [
-    {
-      id: 1,
-      type: 'contest',
-      title: 'New Contest Available',
-      message: 'CodeJam 2025 is now live! Join before time runs out.',
-      time: '2 min ago',
-      read: false,
-      icon: '🏆'
-    },
-    {
-      id: 2,
-      type: 'achievement',
-      title: 'Achievement Unlocked',
-      message: 'You earned the "Problem Solver" badge!',
-      time: '1 hour ago',
-      read: false,
-      icon: '🏅'
-    },
-    {
-      id: 3,
-      type: 'post',
-      title: 'New Reply',
-      message: 'Someone replied to your discussion about algorithms.',
-      time: '3 hours ago',
-      read: true,
-      icon: '💬'
-    }
-  ];
+
 
   // Use real notifications if available, fallback to sample data
-  const notifications = realNotifications?.length > 0 ? realNotifications : fallbackNotifications;
-  const unreadCount = realUnreadCount > 0 ? realUnreadCount : fallbackNotifications.filter(n => !n.read).length;
+  const notifications = realNotifications ;
+  const unreadCount = realUnreadCount;
 
   // Handle notification click with mark as read
   const handleNotificationClickWithMarkRead = async (notification) => {
@@ -566,27 +536,6 @@ const Navbar = () => {
                           >
                             VIEW ALL COMMS
                           </motion.button>
-                          {/* Test notification button (development only) */}
-                          {import.meta.env.DEV && (
-                            <motion.button 
-                              onClick={async () => {
-                                try {
-                                  await sendTestNotification({
-                                    type: 'system',
-                                    title: 'SYSTEM TEST',
-                                    message: 'Cockpit communication test successful!',
-                                    icon: '🔧'
-                                  });
-                                } catch (error) {
-                                  console.error('Test failed:', error);
-                                }
-                              }}
-                              className="text-xs text-stellar-orange hover:text-stellar-orange/80 transition-colors px-2 py-1 rounded border border-stellar-orange/30 font-mono uppercase"
-                              whileHover={{ scale: 1.05 }}
-                            >
-                              TEST 🔧
-                            </motion.button>
-                          )}
                         </div>
                       </div>
                     )}

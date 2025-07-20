@@ -7,7 +7,6 @@ const {
   markAsRead,
   markAllAsRead,
   deleteNotification,
-  testNotification,
   debugSSEStatus,
   debugSendNotification
 } = require('../controllers/notificationController');
@@ -32,9 +31,8 @@ router.patch('/mark-all-read', authMiddleware, markAllAsRead);
 // Delete notification
 router.delete('/:notificationId', authMiddleware, deleteNotification);
 
-// Test notification (development only)
+// Debug routes (development only)
 if (process.env.NODE_ENV !== 'production') {
-  router.post('/test', authMiddleware, testNotification);
   router.get('/debug/sse-status', authMiddleware, debugSSEStatus);
   router.post('/debug/send', authMiddleware, debugSendNotification);
 }

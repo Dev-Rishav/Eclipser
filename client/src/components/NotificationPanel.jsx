@@ -11,7 +11,6 @@ const NotificationPanel = () => {
     isConnected,
     markAllAsRead,
     deleteNotification,
-    sendTestNotification,
     handleNotificationClick,
     getNotificationsByType
   } = useNotificationsRedux();
@@ -152,19 +151,6 @@ const NotificationPanel = () => {
                       className="text-sm text-stellar-blue hover:text-stellar-blue/80 transition-colors"
                     >
                       Mark all read
-                    </button>
-                  )}
-                  {import.meta.env.DEV && (
-                    <button
-                      onClick={() => sendTestNotification({
-                        type: 'like',
-                        title: 'Test Notification',
-                        message: 'This is a test notification with post author binding!',
-                        icon: '🧪'
-                      })}
-                      className="text-sm text-stellar-purple hover:text-stellar-purple/80 transition-colors"
-                    >
-                      Test
                     </button>
                   )}
                 </div>

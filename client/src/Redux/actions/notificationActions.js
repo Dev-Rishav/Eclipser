@@ -207,22 +207,3 @@ export const updateConnectionStatus = (status) => ({
 export const clearNotifications = () => ({
   type: CLEAR_NOTIFICATIONS
 });
-
-/**
- * Send test notification (development only)
- */
-export const sendTestNotification = (testData = {}) => async () => {
-  try {
-    await axios.post(
-      API_ENDPOINTS.NOTIFICATIONS.TEST,
-      testData,
-      { headers: getAuthHeaders() }
-    );
-
-    toast.success('Test notification sent');
-  } catch (error) {
-    console.error('Failed to send test notification:', error);
-    toast.error('Failed to send test notification');
-    throw error;
-  }
-};

@@ -163,7 +163,9 @@ class NotificationService {
         relatedEntity,
         metadata,
         priority,
-        expiresAt
+        expiresAt,
+        // If it's a test notification with autoRead, mark as read immediately
+        read: metadata.autoRead === true
       });
 
       const savedNotification = await notification.save();
