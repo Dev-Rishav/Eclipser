@@ -7,6 +7,7 @@ import PostList from "../pages/PostList";
 import Feed from "./newUI/Feed";
 import UnderConstruction from "../pages/UnderConstruction";
 import PostDetail from "../pages/PostDetail";
+import Communications from "../pages/Communications";
 
 // Memoized layout component to prevent re-renders
 const PersistentLayout = memo(() => (
@@ -19,6 +20,7 @@ const PersistentLayout = memo(() => (
       <Route path="/feed" element={<Feed />} />
       <Route path="/topics" element={<UnderConstruction />} />
       <Route path="/discussions" element={<UnderConstruction />} />
+      <Route path="/communications" element={<Communications />} />
       <Route path="/help" element={<UnderConstruction />} />
       <Route path="/leaderboard" element={<UnderConstruction />} />
       <Route path="/under-construction" element={<UnderConstruction />} />
@@ -28,5 +30,7 @@ const PersistentLayout = memo(() => (
     </Routes>
   </Layout>
 ));
+
+PersistentLayout.displayName = 'PersistentLayout';
 
 export default PersistentLayout;

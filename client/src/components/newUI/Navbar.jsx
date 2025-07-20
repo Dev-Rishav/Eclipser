@@ -252,7 +252,7 @@ const Navbar = () => {
           </li>
           <li>
             <NavLink 
-              to="/discussions" 
+              to="/communications" 
               className={({ isActive }) =>
                 `relative border-b-2 pb-1 transition-all uppercase tracking-wide text-sm ${
                   isActive 

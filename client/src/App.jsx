@@ -64,6 +64,8 @@ const App = () => {
       }
     };
 
+    console.log("Backend URL:", API_CONFIG.BASE_URL);
+
     window.addEventListener('error', handleGlobalError);
     window.addEventListener('ssl-error', handleSSLError);
     window.addEventListener('unhandledrejection', handlePromiseRejection);

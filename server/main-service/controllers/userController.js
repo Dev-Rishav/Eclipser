@@ -38,11 +38,48 @@ const fetchSingleUserById = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    res.status(200).json(user); // Return the fetched user
+    res.status(200).json({ user }); // Return the fetched user
   } catch (error) {
     console.error("Error fetching user by ID:", error.message);
     res.status(500).json({ error: "Failed to fetch user" });
   }
-}
+};
 
-module.exports = { fetchUsersByIds , fetchSingleUserById};
+/**
+ * Fetch all users with optional search
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const fetchAllUsers = async (req, res) => {
+  try {
+    const { search, limit = 50 } = req.query;
+    const currentUserId = req.user.id;
+
+    let query = { _id: { $ne: currentUserId } }; // Exclude current user
+
+    // Add search functionality
+    if (search) {
+      query.$or = [
+        { username: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const users = await User.find(query)
+      .select("_id username profilePic email createdAt followerCount followingCount")
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      users,
+      count: users.length
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error.message);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+};
+
+module.exports = { fetchUsersByIds, fetchSingleUserById, fetchAllUsers };

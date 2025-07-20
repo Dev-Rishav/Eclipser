@@ -67,6 +67,7 @@ export const API_ENDPOINTS = {
     COMMENT: (postId) => `${API_URL}/api/posts/comment/${postId}`,
     DELETE: (postId) => `${API_URL}/api/posts/${postId}`,
     TAG_STATS: `${API_URL}/api/posts/tagStats`,
+    By_TYPE: (type) => `${API_URL}/api/posts/type/${type}`,
   },
   
   // Users
@@ -77,6 +78,8 @@ export const API_ENDPOINTS = {
     FOLLOW: `${API_URL}/api/users/follow`,
     UNFOLLOW: `${API_URL}/api/users/unfollow`,
     FOLLOW_STATS: (userId) => `${API_URL}/api/users/followStats/${userId}`,
+    FOLLOWERS: (userId) => `${API_URL}/api/users/followers/${userId}`,
+    FOLLOWING: (userId) => `${API_URL}/api/users/following/${userId}`,
   },
   
   // Messages
