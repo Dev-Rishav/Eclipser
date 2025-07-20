@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import Layout from "./Layout";
 import { memo } from "react";
-import Home from "../pages/Home";
 import Contest from "../pages/Contest";
 import Profile from "../pages/Profile";
 import PostList from "../pages/PostList";

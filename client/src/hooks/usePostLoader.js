@@ -21,6 +21,12 @@ export const usePostLoader = (user) => {
   // Track if this is initial load
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
+  // Track feed type for personalization
+  const [feedType, setFeedType] = useState(() => {
+    const hasSubscribedTopics = user?.subscribedTopics?.length > 0;
+    return hasSubscribedTopics ? 'personalized' : 'general';
+  });
+
   const [pageTags, setPageTags] = useState(
     () => parseInt(localStorage.getItem(TAG_PAGE_KEY)) || 1
   );
@@ -38,6 +44,12 @@ export const usePostLoader = (user) => {
 
   const observer = useRef();
   const fetchLock = useRef(false); // Prevent multiple fetches at once
+
+  // Update feed type when user subscriptions change
+  useEffect(() => {
+    const hasSubscribedTopics = user?.subscribedTopics?.length > 0;
+    setFeedType(hasSubscribedTopics ? 'personalized' : 'general');
+  }, [user?.subscribedTopics]);
 
   // Restore scroll position on initial load
   useEffect(() => {
@@ -240,6 +252,7 @@ export const usePostLoader = (user) => {
     allPostsExhausted,
     livePosts,
     setLivePosts,
-    setIsLoading
+    setIsLoading,
+    feedType
   };
 };

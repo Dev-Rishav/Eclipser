@@ -21,7 +21,8 @@ export default {
         'space-dim': '#6B7280',           // Disabled text
         
         // Accent Colors (from reference)
-        'stellar-blue': '#7B68EE',        // Primary blue accent
+        // 'stellar-blue': '#7B68EE',        // Primary blue accent
+        'stellar-blue': '#822DD7',        // Primary blue accent
         'stellar-purple': '#A855F7',      // Purple accent  
         'stellar-orange': '#FF4500',      // Orange accent
         'stellar-green': '#16A34A',       // Success/optional green (darker for light mode visibility)

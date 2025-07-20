@@ -15,16 +15,20 @@ class NotificationService {
    * Register an SSE client for a specific user
    */
   registerSSEClient(userId, response) {
-    if (!this.sseClients.has(userId)) {
-      this.sseClients.set(userId, new Set());
+    // Convert userId to string for consistent storage
+    const userIdString = userId.toString();
+    
+    if (!this.sseClients.has(userIdString)) {
+      this.sseClients.set(userIdString, new Set());
     }
     
     const clientId = Date.now() + Math.random();
-    const client = { id: clientId, response, userId };
+    const client = { id: clientId, response, userId: userIdString };
     
-    this.sseClients.get(userId).add(client);
+    this.sseClients.get(userIdString).add(client);
     
-    console.log(`SSE client registered for user ${userId}. Total clients: ${this.sseClients.get(userId).size}`);
+    console.log(`SSE client registered for user ${userIdString}. Total clients for this user: ${this.sseClients.get(userIdString).size}`);
+    console.log(`Total users with SSE connections: ${this.sseClients.size}`);
     
     return clientId;
   }
@@ -33,18 +37,21 @@ class NotificationService {
    * Unregister an SSE client
    */
   unregisterSSEClient(userId, clientId) {
-    if (this.sseClients.has(userId)) {
-      const clients = this.sseClients.get(userId);
+    // Convert userId to string for consistent lookup
+    const userIdString = userId.toString();
+    
+    if (this.sseClients.has(userIdString)) {
+      const clients = this.sseClients.get(userIdString);
       const clientToRemove = Array.from(clients).find(client => client.id === clientId);
       
       if (clientToRemove) {
         clients.delete(clientToRemove);
         
         if (clients.size === 0) {
-          this.sseClients.delete(userId);
+          this.sseClients.delete(userIdString);
         }
         
-        console.log(`SSE client unregistered for user ${userId}. Remaining clients: ${clients.size}`);
+        console.log(`SSE client unregistered for user ${userIdString}. Remaining clients: ${clients.size}`);
       }
     }
   }
@@ -53,28 +60,49 @@ class NotificationService {
    * Send real-time notification via SSE
    */
   sendRealtimeNotification(userId, notification) {
-    if (this.sseClients.has(userId)) {
-      const clients = this.sseClients.get(userId);
+    // Convert userId to string for consistent lookup
+    const userIdString = userId.toString();
+    
+    console.log(`Attempting to send notification to user: ${userIdString}`);
+    console.log(`Total SSE clients: ${this.sseClients.size}`);
+    
+    // Debug: log all registered users
+    this.sseClients.forEach((clients, registeredUserId) => {
+      console.log(`Registered user: ${registeredUserId}, clients: ${clients.size}`);
+    });
+    
+    if (this.sseClients.has(userIdString)) {
+      const clients = this.sseClients.get(userIdString);
+      console.log(`Found ${clients.size} clients for user ${userIdString}`);
+      
       const data = JSON.stringify({
         type: 'notification',
         data: notification
       });
 
       // Send to all connected clients for this user
+      let successCount = 0;
       clients.forEach(client => {
         try {
+          console.log(`Sending SSE to client ${client.id} for user ${userIdString}`);
           client.response.write(`data: ${data}\n\n`);
+          successCount++;
         } catch (error) {
           console.error(`Error sending SSE to client ${client.id}:`, error);
           // Remove dead connection
           clients.delete(client);
         }
       });
+      
+      console.log(`Successfully sent notification to ${successCount} clients`);
 
       // Clean up if no clients left
       if (clients.size === 0) {
-        this.sseClients.delete(userId);
+        this.sseClients.delete(userIdString);
+        console.log(`Cleaned up empty client list for user ${userIdString}`);
       }
+    } else {
+      console.log(`No SSE clients found for user ${userIdString}`);
     }
 
     // Also broadcast via WebSocket if available
@@ -135,7 +163,9 @@ class NotificationService {
         relatedEntity,
         metadata,
         priority,
-        expiresAt
+        expiresAt,
+        // If it's a test notification with autoRead, mark as read immediately
+        read: metadata.autoRead === true
       });
 
       const savedNotification = await notification.save();
@@ -188,6 +218,13 @@ class NotificationService {
         entityType: 'post',
         entityId: postId
       },
+      metadata: {
+        postTitle,
+        postId,
+        action: 'like',
+        // This will help frontend identify post-related notifications
+        isPostNotification: true
+      },
       priority: 'medium'
     });
   }
@@ -210,7 +247,12 @@ class NotificationService {
         entityId: postId
       },
       metadata: {
-        commentText: commentText.substring(0, 200)
+        commentText: commentText.substring(0, 200),
+        postTitle,
+        postId,
+        action: 'comment',
+        // This will help frontend identify post-related notifications
+        isPostNotification: true
       },
       priority: 'medium'
     });
@@ -373,10 +415,37 @@ class NotificationService {
   }
 
   /**
+   * Debug method to get current SSE client status
+   */
+  getSSEClientStatus() {
+    const status = {
+      totalUsers: this.sseClients.size,
+      users: []
+    };
+
+    this.sseClients.forEach((clients, userId) => {
+      status.users.push({
+        userId,
+        clientCount: clients.size,
+        clients: Array.from(clients).map(client => ({
+          id: client.id,
+          connected: true // Assume connected if in the map
+        }))
+      });
+    });
+
+    return status;
+  }
+
+  /**
    * Send heartbeat to keep SSE connections alive
    */
   sendHeartbeat() {
+    console.log(`Sending heartbeat to ${this.sseClients.size} users`);
+    
     this.sseClients.forEach((clients, userId) => {
+      console.log(`Sending heartbeat to ${clients.size} clients for user ${userId}`);
+      
       clients.forEach(client => {
         try {
           client.response.write(`data: ${JSON.stringify({ type: 'heartbeat', timestamp: Date.now() })}\n\n`);
@@ -389,6 +458,7 @@ class NotificationService {
       // Clean up if no clients left
       if (clients.size === 0) {
         this.sseClients.delete(userId);
+        console.log(`Cleaned up empty client list for user ${userId} during heartbeat`);
       }
     });
   }
