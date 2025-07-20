@@ -6,7 +6,7 @@ const sidebarItems = [
   { icon: "🏠", text: "Home", path: "/" },
   { icon: "🏆", text: "Contests", path: "/contest" },
   { icon: "📁", text: "Topics", path: "/topics" },
-  { icon: "💬", text: "Discussions", path: "/discussions" },
+  { icon: "💬", text: "Communications", path: "/communications" },
   { icon: "🔑", text: "Profile", path: "/profile" },
   { icon: "🔒", text: "Bookmarks", path: "/bookmarks" },
   { icon: "🔔", text: "Notifications", path: "/notifications" },

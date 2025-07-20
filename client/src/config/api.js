@@ -78,6 +78,8 @@ export const API_ENDPOINTS = {
     FOLLOW: `${API_URL}/api/users/follow`,
     UNFOLLOW: `${API_URL}/api/users/unfollow`,
     FOLLOW_STATS: (userId) => `${API_URL}/api/users/followStats/${userId}`,
+    FOLLOWERS: (userId) => `${API_URL}/api/users/followers/${userId}`,
+    FOLLOWING: (userId) => `${API_URL}/api/users/following/${userId}`,
   },
   
   // Messages

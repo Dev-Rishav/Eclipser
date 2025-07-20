@@ -6,7 +6,7 @@ const sidebarItems = [
   { icon: "🏠", text: "Home", path: "/", desc: "Main Terminal" },
   { icon: "🏆", text: "Contests", path: "/contest", desc: "Battle Arena" },
   { icon: "📁", text: "Topics", path: "/topics", desc: "Knowledge Base" },
-  { icon: "💬", text: "Comms", path: "/discussions", desc: "Chat Networks" },
+  { icon: "💬", text: "Comms", path: "/communications", desc: "Chat Networks" },
   { icon: "🔑", text: "Profile", path: "/profile", desc: "Operator Status" },
   { icon: "🔒", text: "Vault", path: "/bookmarks", desc: "Secured Files" },
   { icon: "�", text: "Alerts", path: "/notifications", desc: "Incoming Signals" },

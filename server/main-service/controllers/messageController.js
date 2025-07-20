@@ -2,40 +2,56 @@ const Message = require("../models/Message");
 const User = require('../models/User');
 const redis = require('../configs/redis');
 
-exports.sendMessage = async (req, res) => {
-  try {
-    const { receiverId, content } = req.body;
-    const message = new Message({
-      sender: req.user._id,
-      receiver: receiverId,
-      content,
-    });
-    await message.save();
-    res.status(201).json({ success: true, message });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Failed to send message" });
-  }
-};
+// Note: Message sending is now handled via Socket.IO only (chatHandler.js)
+// This controller only handles message retrieval operations
 
 //gets all messages between two users
 exports.getMessages = async (req, res) => {
   const { userId } = req.params; // person you are chatting with
   const page = parseInt(req.query.page) || 1; // default to page 1
-  const limit = parseInt(req.query.limit) || 20; // default to 20 messages per page
+  const limit = parseInt(req.query.limit) || 50; // default to 50 messages per page
   const skip = (page - 1) * limit;
-    if (!userId) {
-        return res.status(400).json({ success: false, message: "User ID is required" });
-    }
+  
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "User ID is required" });
+  }
+  
   try {
+    // Get messages between the two users
     const messages = await Message.find({
       $or: [
         { senderId: req.user._id, receiverId: userId },
         { senderId: userId, receiverId: req.user._id },
       ],
-    }).sort({ sentAt: -1 })
+    })
+    .populate('senderId', '_id username profilePic')
+    .populate('receiverId', '_id username profilePic')
+    .sort({ sentAt: 1 }) // Sort ascending for chat order
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .lean();
 
+    // Transform messages to match frontend format
+    const transformedMessages = messages.map(msg => ({
+      _id: msg._id,
+      sender: msg.senderId._id,
+      receiver: msg.receiverId._id,
+      content: msg.content,
+      timestamp: msg.sentAt,
+      senderName: msg.senderId.username,
+      senderProfilePic: msg.senderId.profilePic,
+      seen: msg.seen
+    }));
+
+    // Mark messages from the other user as read
+    await Message.updateMany(
+      { 
+        senderId: userId, 
+        receiverId: req.user._id, 
+        seen: false 
+      },
+      { seen: true }
+    );
 
     const totalMessages = await Message.countDocuments({
       $or: [
@@ -44,20 +60,18 @@ exports.getMessages = async (req, res) => {
       ],
     });
 
-
     res.status(200).json({ 
       success: true,
-       messages ,
-       pagination: {
+      messages: transformedMessages,
+      pagination: {
         totalMessages,
         currentPage: page,
         totalPages: Math.ceil(totalMessages / limit),
         hasMore: skip + messages.length < totalMessages,
       },
-      });
+    });
   } catch (error) {
     console.error("error happened while fetching messages", error);
-    
     res.status(500).json({ success: false, message: "Failed to fetch messages" });
   }
 };
@@ -136,7 +150,7 @@ exports.getRecentChats = async (req, res) => {
         },
         {
           $project: {
-            userId: "$_id",
+            otherUser: "$_id",
             latestMessage: 1,
           }
         }
@@ -146,7 +160,7 @@ exports.getRecentChats = async (req, res) => {
       
   
       // Step 2: Fetch user info in bulk
-      const userIds = recentMessages.map(msg => msg.userId);
+      const userIds = recentMessages.map(msg => msg.otherUser);
       const users = await User.find({ _id: { $in: userIds } }, '_id username profilePic');
       const userMap = {};
       users.forEach(user => {
@@ -155,7 +169,7 @@ exports.getRecentChats = async (req, res) => {
   
       // Step 3: Prepare final response
       const chats = await Promise.all(recentMessages.map(async (message) => {
-        const otherUserId = message.userId;
+        const otherUserId = message.otherUser;
         const unreadCount = await Message.countDocuments({
           senderId: otherUserId,
           receiverId: userId,
@@ -163,22 +177,17 @@ exports.getRecentChats = async (req, res) => {
         });
   
         const isOnline = await redis.exists(`online:${otherUserId}`);
-        const user = userMap[otherUserId] || { _id: otherUserId, username: 'Unknown', profilePic: null };
+        const user = userMap[otherUserId.toString()] || { _id: otherUserId, username: 'Unknown', profilePic: null };
   
         return {
-          id: otherUserId,
+          otherUser: otherUserId,
           user: {
             _id: user._id,
             username: user.username,
             profilePic: user.profilePic,
           },
-          lastMessage: {
-            content: message.latestMessage.content,
-            senderId: message.latestMessage.senderId,
-            sentAt: message.latestMessage.sentAt,
-            seen: message.latestMessage.seen,
-            type: message.latestMessage.type || 'text',
-          },
+          lastMessage: message.latestMessage.content,
+          lastMessageTime: message.latestMessage.sentAt,
           unreadCount,
           isOnline: !!isOnline,
         };
@@ -196,5 +205,59 @@ exports.getRecentChats = async (req, res) => {
       res.status(500).json({ success: false, message: 'Failed to fetch recent chats' });
     }
   };
+
+// Mark messages as read
+exports.markMessagesAsRead = async (req, res) => {
+  try {
+    const { otherUserId } = req.params;
+    const userId = req.user._id;
+
+    // Mark all unread messages from the other user as read
+    const result = await Message.updateMany(
+      {
+        senderId: otherUserId,
+        receiverId: userId,
+        seen: false
+      },
+      { seen: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Marked ${result.modifiedCount} messages as read`
+    });
+
+  } catch (error) {
+    console.error('Mark messages as read error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to mark messages as read'
+    });
+  }
+};
+
+// Get unread message count
+exports.getUnreadCount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const unreadCount = await Message.countDocuments({
+      receiverId: userId,
+      seen: false
+    });
+
+    res.status(200).json({
+      success: true,
+      unreadCount
+    });
+
+  } catch (error) {
+    console.error('Get unread count error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get unread count'
+    });
+  }
+};
   
   
