@@ -29,16 +29,6 @@ const Feed = () => {
   const [selectedSort, setSelectedSort] = useState("newest");
   // const [isCreatingPost, setIsCreatingPost] = useState(false);
   
-    // Post loader hook from legacy - REMOVED, now handled by PostCards
-  // const {
-  //   posts,
-  //   setPosts,
-  //   isLoading,
-  //   lastPostRef,
-  //   allPostsExhausted,
-  //   livePosts,
-  //   setLivePosts, // Used internally by socket integration in usePostLoader
-  // } = usePostLoader(user);
   
   // Chat management from legacy
   const [chats, setChats] = useState([]);
@@ -522,25 +512,6 @@ const Feed = () => {
                 <div className="sticky top-20 space-y-6 py-2 lg:py-4">
                   <RightSidebar />
                   
-                  {/* Chat Preview Integration */}
-                  {chats.length > 0 && (
-                    <div className="bg-eclipse-surface dark:bg-space-dark rounded-lg border border-eclipse-border dark:border-space-gray">
-                      <ChatPreview
-                        chats={chats}
-                        title="Recent Chats"
-                        onStartNewChat={() => {
-                          setIsChatOpen(true);
-                          setSelectedChat(null);
-                        }}
-                        onLoadMore={loadMoreChats}
-                        hasMore={hasMoreChats}
-                        onSelectChat={(chat) => {
-                          setSelectedChat(chat);
-                          setIsChatOpen(true);
-                        }}
-                      />
-                    </div>
-                  )}
                 </div>
               </aside>
 

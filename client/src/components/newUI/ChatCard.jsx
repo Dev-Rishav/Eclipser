@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { fetchRecentChats } from '../../utility/chatUtils';
 import { AnimatedModal } from '../AnimateModal';
 import { ChatModal } from '../ChatModal';
+import { useNavigate } from 'react-router-dom';
 
 const ChatCard = () => {
   const [chats, setChats] = useState([]);
@@ -10,6 +11,7 @@ const ChatCard = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [page, setPage] = useState(1);
   const [hasMoreChats, setHasMoreChats] = useState(true);
+  const navigate = useNavigate();
 
   // Load recent chats
   useEffect(() => {
@@ -49,6 +51,11 @@ const ChatCard = () => {
     setIsChatOpen(true);
   };
 
+  // Expand handler for navigation
+  const handleExpand = () => {
+    navigate('/communications');
+  };
+
   return (
     <>
       <motion.div 
@@ -57,25 +64,29 @@ const ChatCard = () => {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="bg-eclipse-surface dark:bg-space-darker rounded-lg p-5 border border-stellar-blue/50 shadow-stellar-blue-glow w-full max-w-xs animate-edge-glow"
       >
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold text-eclipse-text-light dark:text-space-text flex items-center gap-2">
-            <div className="w-2 h-2 bg-stellar-blue rounded-full animate-stellar-pulse"></div>
-            Stellar Communications
-          </h2>
-          <div className="text-xs text-stellar-blue font-mono">#7B68EE</div>
+        <div className="mb-4 flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-semibold text-eclipse-text-light dark:text-space-text flex items-center gap-2">
+              <div className="w-2 h-2 bg-stellar-blue rounded-full animate-stellar-pulse"></div>
+              Stellar Comms
+            </h2>
+            <div className="text-xs text-stellar-blue font-mono">#7B68EE</div>
+          </div>
+          {/* Logo only, no expand button */}
+          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-stellar-blue to-stellar-orange flex items-center justify-center">
+            <span className="text-lg font-bold text-white">✦</span>
+          </div>
         </div>
-        
         <div className="space-y-3">
           {/* New Chat Button */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={handleStartNewChat}
+            onClick={handleExpand}
             className="w-full p-3 rounded-lg border border-stellar-blue/50 bg-eclipse-border/30 dark:bg-space-void/50 hover:bg-stellar-blue/10 text-stellar-blue text-sm font-medium transition-all duration-300 hover:shadow-stellar-blue-glow"
           >
             + Start New Conversation
           </motion.button>
-
           {/* Recent Chats */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-eclipse-muted-light dark:text-space-text/80">Recent Chats</h3>
@@ -88,15 +99,15 @@ const ChatCard = () => {
                     className="p-2 rounded-lg border border-stellar-blue/20 bg-eclipse-border/20 dark:bg-space-void/30 hover:bg-stellar-blue/5 cursor-pointer transition-all duration-300"
                     onClick={() => handleChatSelect(chat)}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-r from-stellar-blue to-stellar-orange flex items-center justify-center">
                         <span className="text-xs font-bold text-white">
-                          {chat.username?.charAt(0).toUpperCase() || 'U'}
+                          {chat.username && chat.username.trim() ? chat.username.charAt(0).toUpperCase() : 'U'}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-eclipse-text-light dark:text-space-text truncate">
-                          {chat.username || 'Unknown User'}
+                        <p className="text-sm font-medium text-eclipse-text-light dark:text-space-text truncate cursor-pointer" onClick={handleExpand}>
+                          {chat.username && chat.username.trim() ? chat.username : 'User'}
                         </p>
                         <p className="text-xs text-eclipse-muted-light dark:text-space-text/60 truncate">
                           {chat.lastMessage || 'No messages yet'}
@@ -112,8 +123,7 @@ const ChatCard = () => {
                     </div>
                   </motion.div>
                 ))}
-                
-                {chats.length > 5 && hasMoreChats && (
+                {chats.length > 2 && hasMoreChats && (
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     onClick={loadMoreChats}
