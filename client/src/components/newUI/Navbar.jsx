@@ -47,6 +47,7 @@ const Navbar = () => {
     handleLogout();
   };
 
+
   // --- Updated useEffect for clicking outside ---
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -479,11 +480,15 @@ const Navbar = () => {
                             Users
                           </h4>
                           {searchResults.users.map((user) => (
-                            <NavLink
-                              to={`/user/${user.username}`}
+                            <div
                               key={user.id}
                               className="block hover:bg-stellar-blue/10"
-                              onClick={() => setShowResults(false)}
+                              onClick={() => {
+                                setShowResults(false)
+                                navigate("/profile", {
+                                  state: { userId: user.id },
+                                });
+                              }}
                             >
                               <div className="flex items-center px-4 py-3 space-x-3">
                                 {/* <img src={user.avatar} alt={user.username} className="w-8 h-8 rounded-full bg-stellar-blue/20 flex-shrink-0" /> */}
@@ -509,7 +514,7 @@ const Navbar = () => {
                                   </p>
                                 </div>
                               </div>
-                            </NavLink>
+                            </div>
                           ))}
                         </div>
                       )}

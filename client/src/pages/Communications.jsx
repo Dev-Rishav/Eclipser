@@ -574,7 +574,8 @@ const Communications = () => {
                     return (
                       <motion.div
                         key={user._id || chatUser._id}
-                        onClick={() => loadMessages(user._id ? chatUser : { ...user, _id: chatUser._id })}
+                        // onClick={() => loadMessages(user._id ? chatUser : { ...user, _id: chatUser._id })}
+                        onClick={() => loadMessages(user)}
                         className={`p-4 rounded-xl cursor-pointer transition-all ${
                           isActive
                             ? 'bg-stellar-blue/20 shadow-stellar-blue-glow border-l-4 border-stellar-blue'
