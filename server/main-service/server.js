@@ -63,6 +63,9 @@ app.use('/api/user', uploadRoutes);
 app.use('/api/users',userRoutes)
 app.use("/api/messages",messageRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.get('/', (req, res) => {
+    res.send('API is running on secure connection');
+});
 
 
 // Health check route
