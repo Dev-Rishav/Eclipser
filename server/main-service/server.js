@@ -15,6 +15,7 @@ const startTagStatsJob = require('./jobs/tagsStatsWorker');
 const messageRoutes = require('./routes/messageRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const validateEnvVariables = require('./utils/validateEnv');
+const searchRoutes = require('./routes/searchRoute');
 require("./jobs/onlineCleanup")
 
 // Load environment variables from the root directory
@@ -63,6 +64,7 @@ app.use('/api/user', uploadRoutes);
 app.use('/api/users',userRoutes)
 app.use("/api/messages",messageRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/search',searchRoutes);
 app.get('/', (req, res) => {
     res.send('API is running on secure connection');
 });

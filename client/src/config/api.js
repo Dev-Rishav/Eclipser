@@ -81,6 +81,11 @@ export const API_ENDPOINTS = {
     FOLLOWERS: (userId) => `${API_URL}/api/users/followers/${userId}`,
     FOLLOWING: (userId) => `${API_URL}/api/users/following/${userId}`,
   },
+
+  SEARCH:{
+    Search_Users_And_Posts: (query) => `${API_URL}/api/search?q=${query}`,
+    // Search_Contests: (query) => `${API_URL}/api/search?q=${query}`,
+  },
   
   // Messages
   MESSAGES: {
