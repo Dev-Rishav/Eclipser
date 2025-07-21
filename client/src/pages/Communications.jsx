@@ -282,8 +282,10 @@ const Communications = () => {
       // Send via socket for real-time delivery
       socket.emit('private_message', messageData);
       
+      if(socket.connected) {
       // Send via API for persistence
       await axiosInstance.post(API_ENDPOINTS.MESSAGES.CREATE, messageData);
+      }
       
       // Add to local messages immediately for better UX
       setMessages(prev => [...prev, { ...messageData, sender: user._id }]);
