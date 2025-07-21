@@ -22,7 +22,9 @@ import { ChatModal } from "../components/ChatModal";
 const Profile = () => {
   //? the only reason I am passing props but not using state is this component is used in multiple places to populate multiple users.
   const location= useLocation();
-  const { userId } = location.state || {};  //this is the current user Id
+  console.log("Profile.jsx: location.state:", location.state);
+  const { userId } = location.state || {};
+  console.log("Profile.jsx: userId:", userId);
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState("");
@@ -43,6 +45,8 @@ const Profile = () => {
   const authorId=useSelector((state) => state.auth.user._id); //this the user Id that is stored in redux store
   const dispatch=useDispatch();
 
+  // console.log("userId from location state:", userId);
+  
 
   //load the follow state
   useEffect(()=>{
@@ -62,6 +66,7 @@ const Profile = () => {
     fetchFollowStatus();
   },[userId]);
 
+
   //handle author identification
   useEffect(() => {
     if(authorId===userId){
@@ -77,14 +82,19 @@ const Profile = () => {
   useEffect(() => {
     if (!userId) {
       const storedUser = localStorage.getItem("user");
+      console.log("Profile.jsx: localStorage.getItem('user'):", storedUser);
       if (storedUser) {
         const userData = JSON.parse(storedUser);
+        console.log("Profile.jsx: Parsed userData from localStorage:", userData);
         setUser(userData);
         setNewUsername(userData.username);
+      } else {
+        console.warn("Profile.jsx: No user found in localStorage.");
       }
     } else {
       const fetchUser = async () => {
         try {
+          console.log("Profile.jsx: Fetching user from API for userId:", userId);
           const response = await fetch(
             `${API_CONFIG.BASE_URL}/api/users/getUser/${userId}`,
             {
@@ -95,15 +105,17 @@ const Profile = () => {
             }
           );
 
+          console.log("Profile.jsx: API response status:", response.status);
           if (!response.ok) {
             throw new Error("Failed to fetch user data");
           }
 
           const data = await response.json();
+          console.log("Profile.jsx: API response data:", data);
           setUser(data);
           setNewUsername(data.username);
         } catch (error) {
-          console.error("Error fetching user data:", error);
+          console.error("Profile.jsx: Error fetching user data:", error);
         }
       };
       fetchUser();
@@ -112,20 +124,25 @@ const Profile = () => {
 
   //function to fetch user posts
   const fetchUserPosts = useCallback(async () => {
-    if (!user?._id) return;
-    
+    if (!user?._id) {
+      console.warn("Profile.jsx: fetchUserPosts called but user._id is missing. user:", user);
+      return;
+    }
     try {
+      console.log("Profile.jsx: Fetching posts for user._id:", user._id);
       const fetchedPosts = await fetchPostsByUser(user._id);
 
       if (fetchedPosts) {
         setUserPost(fetchedPosts);
         setPosts(fetchedPosts); // Also set the posts state for the feed display
-        console.log("User posts fetched successfully:", fetchedPosts);
+        console.log("Profile.jsx: User posts fetched successfully:", fetchedPosts);
+      } else {
+        console.warn("Profile.jsx: No posts returned for user._id:", user._id);
       }
     } catch (error) {
-      console.error("Error fetching user posts:", error);
+      console.error("Profile.jsx: Error fetching user posts:", error);
     }
-  }, [user?._id]);
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -362,7 +379,7 @@ const Profile = () => {
           <div className="relative">
             <div className="flex items-center gap-8 mb-6">
               <div className="relative">
-                {user.profilePic.length !== 0 ? (
+                {user.profilePic?.length !== 0 ? (
                   <img
                     src={user.profilePic}
                     alt="Operator Profile"
