@@ -8,6 +8,7 @@ import Feed from "./newUI/Feed";
 import UnderConstruction from "../pages/UnderConstruction";
 import PostDetail from "../pages/PostDetail";
 import Communications from "../pages/Communications";
+import Profile_backup from "../pages/Profile_backup";
 
 // Memoized layout component to prevent re-renders
 const PersistentLayout = memo(() => (
@@ -16,7 +17,7 @@ const PersistentLayout = memo(() => (
       {/* All authenticated routes will be rendered here */}
       <Route path="/" element={<Feed />} />
       <Route path="/contest" element={<Contest />} />
-      <Route path="/profile" element={<Profile />} />
+      <Route path="/profile" element={<Profile_backup />} />
       <Route path="/feed" element={<Feed />} />
       <Route path="/topics" element={<UnderConstruction />} />
       <Route path="/discussions" element={<UnderConstruction />} />
