@@ -63,12 +63,18 @@ const Profile = () => {
 
   //to load user from local storage
   useEffect(() => {
-    if (!userId) {
+    setTimeout(() => {
+    console.log("User ID from location state:", userId);
+    
+    if (userId!== null && userId !== undefined) {
       const storedUser = localStorage.getItem("user");
+      console.log("Loaded user from local storage:", storedUser);
+      
       if (storedUser) {
         const userData = JSON.parse(storedUser);
         setUser(userData);
         setNewUsername(userData.username);
+        console.log("Loaded user from local storage:", userData);
       }
     } else {
       const fetchUser = async () => {
@@ -94,8 +100,10 @@ const Profile = () => {
           console.error("Error fetching user data:", error);
         }
       };
+    
       fetchUser();
     }
+  },1000) // Simulate a delay for demonstration
   }, [userId]);
 
   //function to fetch user posts
@@ -212,332 +220,219 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-space-void via-space-dark to-space-void flex items-center justify-center relative overflow-hidden">
-        {/* Aerospace Loading Background */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-gradient-to-r from-stellar-blue/10 via-transparent to-stellar-purple/10"></div>
-          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-stellar-blue/50 to-transparent animate-pulse"></div>
-          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-stellar-purple/50 to-transparent animate-pulse"></div>
-        </div>
-        
-        <div className="text-center space-y-6 relative">
-          {/* Profile Loading Indicator */}
-          <div className="relative">
-            <div className="animate-spin rounded-full h-20 w-20 border-4 border-stellar-orange/30 border-t-stellar-orange mx-auto shadow-stellar-orange-glow"></div>
-            <div className="absolute inset-4 animate-spin rounded-full h-12 w-12 border-2 border-stellar-purple/30 border-t-stellar-purple shadow-stellar-purple-glow" style={{animationDirection: 'reverse', animationDuration: '1.5s'}}></div>
-          </div>
-          
-          {/* Loading Text */}
-          <div className="space-y-2">
-            <p className="text-stellar-orange text-xl font-bold uppercase tracking-wider animate-pulse">
-              ACCESSING OPERATOR FILE
-            </p>
-            <p className="text-space-muted text-sm font-mono">
-              Decrypting profile data...
-            </p>
-          </div>
-          
-          {/* System Status Indicators */}
-          <div className="flex justify-center gap-4 pt-4">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-stellar-green rounded-full animate-pulse shadow-stellar-green-glow"></div>
-              <span className="text-xs text-space-muted font-mono">AUTH</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-stellar-blue rounded-full animate-pulse shadow-stellar-blue-glow"></div>
-              <span className="text-xs text-space-muted font-mono">DATA</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-stellar-orange rounded-full animate-pulse shadow-stellar-orange-glow"></div>
-              <span className="text-xs text-space-muted font-mono">SYNC</span>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-eclipse-light dark:bg-space-void">
+        <p className="text-eclipse-muted-light dark:text-space-muted text-lg">Loading profile...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-space-void via-space-dark to-space-void text-space-text p-6 relative overflow-hidden">
-      {/* Aerospace Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0 bg-gradient-to-r from-stellar-orange/5 via-transparent to-stellar-purple/5"></div>
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-stellar-orange/50 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-stellar-purple/50 to-transparent"></div>
-      </div>
-
-      <div className="max-w-6xl mx-auto space-y-8 relative z-10">
-        {/* Operator Profile Header - Mission Control Style */}
-        <div className="bg-gradient-to-r from-space-darker/80 via-space-dark/90 to-space-darker/80 rounded-2xl p-8 border-2 border-stellar-orange/30 backdrop-blur-xl relative shadow-stellar-orange-glow overflow-hidden">
-          {/* Background Grid Pattern */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute inset-0" style={{
-              backgroundImage: 'linear-gradient(rgba(255, 69, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 69, 0, 0.1) 1px, transparent 1px)',
-              backgroundSize: '20px 20px'
-            }}></div>
-          </div>
-          
-          {/* Status Indicator */}
-          <div className="absolute top-4 left-4 w-3 h-3 bg-stellar-green rounded-full animate-pulse shadow-stellar-green-glow z-10"></div>
-          
-          {/* Control Panel */}
-          <div className="absolute top-4 right-4 flex gap-3 z-10">
-            {isAuthor ? (
-              <button
-                onClick={() => setIsEditing(!isEditing)}
-                className="p-3 bg-gradient-to-r from-stellar-blue/20 to-stellar-purple/20 text-stellar-blue border-2 border-stellar-blue/50 rounded-lg hover:bg-gradient-to-r hover:from-stellar-blue/30 hover:to-stellar-purple/30 hover:border-stellar-blue/70 transition-all duration-300 shadow-stellar-blue-glow"
-              >
-                <FaEdit className="w-5 h-5" />
-              </button>
-            ) : (
-              <button
-                onClick={() => handleFollow()}
-                className={`px-6 py-3 rounded-lg font-bold uppercase tracking-wide transition-all duration-300 border-2 ${
-                  isFollowing 
-                    ? 'border-stellar-orange/50 bg-stellar-orange/10 text-stellar-orange hover:border-stellar-orange/70 hover:bg-stellar-orange/20 shadow-stellar-orange-glow' 
-                    : 'bg-gradient-to-r from-stellar-blue/20 to-stellar-purple/20 text-stellar-blue border-stellar-blue/50 hover:from-stellar-blue/30 hover:to-stellar-purple/30 hover:border-stellar-blue/70 shadow-stellar-blue-glow'
-                }`}
-              >
-                {isFollowing ? 'FOLLOWING' : 'FOLLOW'}
-              </button>
-            )}
-          </div>
+    <div className="min-h-screen bg-eclipse-light dark:bg-space-void text-eclipse-text-light dark:text-space-text p-6">
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Profile Header */}
+        <div className="bg-eclipse-surface dark:bg-space-dark rounded-2xl p-8 border border-eclipse-border dark:border-space-gray backdrop-blur-lg relative shadow-space-card">
+        {/* Edit/Follower Section */}
+  <div className="absolute top-4 right-4 flex gap-3">
+    {isAuthor ? (
+      <button
+        onClick={() => setIsEditing(!isEditing)}
+        className="text-eclipse-text-light dark:text-space-text hover:text-stellar-blue transition-colors"
+      >
+        <FaEdit className="w-6 h-6" />
+      </button>
+    ) : (
+      <button
+        onClick={()=>handleFollow()}
+        className={`px-4 py-2 rounded-lg transition-all ${
+          isFollowing 
+            ? 'border border-eclipse-border dark:border-space-gray text-eclipse-text-light dark:text-space-text hover:border-stellar-orange hover:text-stellar-orange' 
+            : 'bg-stellar-blue hover:bg-stellar-blue/80 text-white shadow-stellar-blue-glow'
+        }`}
+      >
+        {isFollowing ? 'Following ' : 'Follow '}
+      </button>
+    )}
+  </div>
         
           
-          {/* Operator Identity Panel */}
-          <div className="relative">
-            <div className="flex items-center gap-8 mb-6">
-              <div className="relative">
-                {user.profilePic.length !== 0 ? (
-                  <img
-                    src={user.profilePic}
-                    alt="Operator Profile"
-                    className="w-32 h-32 rounded-full object-cover border-4 border-stellar-orange/50 shadow-stellar-orange-glow"
-                  />
-                ) : (
-                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-stellar-orange to-stellar-blue flex items-center justify-center text-4xl font-bold text-white shadow-stellar-orange-glow border-4 border-stellar-orange/30">
-                    {user.username[0].toUpperCase()}
-                  </div>
-                )}
 
-                {/* Status Ring */}
-                <div className="absolute -inset-2 rounded-full border-2 border-stellar-green/30 animate-pulse"></div>
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-stellar-green rounded-full border-4 border-space-dark flex items-center justify-center shadow-stellar-green-glow">
-                  <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                </div>
-
-                {isEditing && (
-                  <div className="absolute bottom-0 right-0">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setSelectedFile(e.target.files[0])}
-                      className="hidden"
-                      id="profilePicInput"
-                    />
-                    <label
-                      htmlFor="profilePicInput"
-                      className="bg-stellar-orange text-white px-4 py-2 rounded-full text-sm cursor-pointer hover:bg-stellar-orange/80 transition-colors shadow-stellar-orange-glow font-bold border-2 border-stellar-orange/50"
-                    >
-                      {selectedFile ? "FILE READY" : "UPLOAD"}
-                    </label>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-4 flex-1">
-                {/* Operator Identification */}
-                <div className="space-y-2">
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={newUsername}
-                      onChange={(e) => setNewUsername(e.target.value)}
-                      className="text-4xl bg-space-darker/50 border-2 border-stellar-orange/30 text-space-text px-4 py-2 rounded-lg outline-none focus:border-stellar-orange/70 font-bold uppercase tracking-wide backdrop-blur-sm"
-                    />
-                  ) : (
-                    <h1 className="text-4xl text-space-text font-bold uppercase tracking-wide">
-                      <span className="text-stellar-orange">OPERATOR:</span> {user.username}
-                    </h1>
-                  )}
-
-                  <div className="flex items-center gap-6 text-space-muted font-mono">
-                    <div className="flex items-center gap-2 px-3 py-1 bg-space-darker/50 rounded border border-stellar-blue/30">
-                      <span className="w-2 h-2 bg-stellar-blue rounded-full animate-pulse"></span>
-                      <span className="text-sm uppercase">{user.email}</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-1 bg-space-darker/50 rounded border border-stellar-purple/30">
-                      <span className="w-2 h-2 bg-stellar-purple rounded-full animate-pulse"></span>
-                      <span className="text-sm uppercase font-bold">
-                        {user.achievements == null ? 0 : user.achievements} MISSIONS COMPLETE
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <p className="text-space-muted text-sm font-mono uppercase tracking-wider">
-                    <span className="text-stellar-orange">ENLISTED:</span> {new Date(user.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-
-                {/* Command Status Display */}
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                  <div className="bg-space-darker/50 rounded-lg p-4 border border-stellar-green/30 shadow-stellar-green-glow">
-                    <div className="flex items-center gap-3">
-                      <img className="w-8 h-8 opacity-80" alt="Followers" src={Followers}/>
-                      <div>
-                        <div className="text-2xl font-bold text-stellar-green font-mono">{user.followerCount || 0}</div>
-                        <div className="text-xs text-space-muted uppercase tracking-wider font-mono">FOLLOWERS</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-space-darker/50 rounded-lg p-4 border border-stellar-blue/30 shadow-stellar-blue-glow">
-                    <div className="flex items-center gap-3">
-                      <img className="w-8 h-8 opacity-80" src={Follwing} alt="Following"/>
-                      <div>
-                        <div className="text-2xl font-bold text-stellar-blue font-mono">{user.followingCount || 0}</div>
-                        <div className="text-xs text-space-muted uppercase tracking-wider font-mono">FOLLOWING</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Mission Control Actions */}
-            <div className="flex items-center gap-4 justify-end">
-              {isOwnProfile ? (
-                isEditing ? (
-                  <div className="flex gap-3">
-                    <button
-                      onClick={handleSaveProfile}
-                      disabled={isUpdating}
-                      className="px-6 py-3 bg-gradient-to-r from-stellar-green to-stellar-blue text-white font-bold rounded-lg hover:scale-105 transition-all shadow-stellar-green-glow border-2 border-stellar-green/30 uppercase tracking-wide"
-                    >
-                      {isUpdating ? "UPDATING..." : "CONFIRM CHANGES"}
-                    </button>
-                    <button
-                      onClick={() => setIsEditing(false)}
-                      className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:scale-105 transition-all shadow-red-glow border-2 border-red-500/30 uppercase tracking-wide"
-                    >
-                      ABORT
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-stellar-orange to-stellar-purple text-white font-bold rounded-lg hover:scale-105 transition-all shadow-stellar-orange-glow border-2 border-stellar-orange/30 uppercase tracking-wide"
-                  >
-                    MODIFY PROFILE
-                  </button>
-                )
+          <div className="flex items-center gap-6">
+            <div className="relative">
+              {user.profilePic?.length !== 0 ? (
+                <img
+                  src={user.profilePic}
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-stellar-blue/50 shadow-stellar-blue-glow"
+                />
               ) : (
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleFollowToggle}
-                    disabled={isFollowing || isUnfollowing}
-                    className={`px-6 py-3 font-bold rounded-lg hover:scale-105 transition-all border-2 uppercase tracking-wide ${
-                      user.isFollowing
-                        ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-red-glow border-red-500/30"
-                        : "bg-gradient-to-r from-stellar-green to-stellar-blue text-white shadow-stellar-green-glow border-stellar-green/30"
-                    }`}
+                <div className="w-24 h-24 rounded-full bg-stellar-blue flex items-center justify-center text-3xl font-bold text-white shadow-stellar-blue-glow">
+                  {user.username[0].toUpperCase()}
+                </div>
+              )}
+
+              {isEditing && (
+                <div className="absolute bottom-0 right-0">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setSelectedFile(e.target.files[0])}
+                    className="hidden"
+                    id="profilePicInput"
+                  />
+                  <label
+                    htmlFor="profilePicInput"
+                    className="bg-stellar-orange text-white px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-stellar-orange/80 transition-colors"
                   >
-                    {isFollowing || isUnfollowing
-                      ? "PROCESSING..."
-                      : user.isFollowing
-                      ? "UNFOLLOW"
-                      : "FOLLOW"}
-                  </button>
-                  <button
-                    onClick={handleChatClick}
-                    className="px-6 py-3 bg-gradient-to-r from-stellar-purple to-stellar-orange text-white font-bold rounded-lg hover:scale-105 transition-all shadow-stellar-purple-glow border-2 border-stellar-purple/30 uppercase tracking-wide"
-                  >
-                    COMLINK
-                  </button>
+                    {selectedFile ? selectedFile.name : "Change"}
+                  </label>
                 </div>
               )}
             </div>
-          </div>
 
-        {/* Achievement Display Panel */}
-        {badges && badges.length > 0 && (
-          <div className="bg-gradient-to-r from-space-darker/80 via-space-dark/90 to-space-darker/80 rounded-2xl p-8 border-2 border-stellar-orange/30 backdrop-blur-xl relative shadow-stellar-orange-glow">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-1 bg-gradient-to-r from-stellar-orange to-transparent"></div>
-              <h3 className="text-xl font-bold text-stellar-orange uppercase tracking-wide font-mono">
-                COMMENDATIONS & HONORS
-              </h3>
-              <div className="flex-1 h-1 bg-gradient-to-r from-stellar-orange to-transparent"></div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {badges.map((badge, index) => (
-                <div
-                  key={index}
-                  className="bg-space-darker/50 rounded-lg p-4 border border-stellar-orange/30 shadow-stellar-orange-glow hover:border-stellar-orange/60 transition-all group"
-                >
-                  <div className="flex flex-col items-center space-y-2">
-                    <div className="w-12 h-12 bg-gradient-to-br from-stellar-orange to-stellar-purple rounded-full flex items-center justify-center text-2xl font-bold group-hover:scale-110 transition-transform">
-                      🏅
-                    </div>
-                    <h4 className="text-sm font-bold text-stellar-orange uppercase text-center font-mono">
-                      {badge.title}
-                    </h4>
-                    <p className="text-xs text-space-muted text-center font-mono">
-                      {badge.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="space-y-2">
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  className="text-3xl bg-eclipse-border/30 dark:bg-space-darker border-b border-eclipse-border dark:border-space-gray text-eclipse-text-light dark:text-space-text px-2 py-1 outline-none focus:border-stellar-blue"
+                />
+              ) : (
+                <h1 className="text-3xl text-eclipse-text-light dark:text-space-text font-bold">
+                  {user.username}
+                </h1>
+              )}
+
+              <div className="flex items-center gap-4 text-eclipse-muted-light dark:text-space-muted">
+                <span>{user.email}</span>
+                <span className="text-sm bg-eclipse-border/30 dark:bg-space-darker px-3 py-1 rounded-full border border-eclipse-border/50 dark:border-space-gray/50">
+                  {user.achievements == null ? 0 : user.achievements}{" "}
+                  Achievements
+                </span>
+              </div>
+              <p className="text-eclipse-muted-light dark:text-space-muted text-sm">
+                Joined the cosmos on{" "}
+                {new Date(user.createdAt).toLocaleDateString()}
+              </p>
             </div>
           </div>
-        )}
+          {/* New social stats section */}
+      <div className="flex items-center gap-4 mb-3 mt-5">
+        <div className="flex items-center gap-1 text-eclipse-muted-light dark:text-space-muted hover:text-stellar-blue transition-colors cursor-pointer">
+          <img className="w-9 h-9 " alt="Followers" src={Followers}/>
+          <span className="font-bold">{user.followerCount? user.followerCount : 0}</span>
+          <span>Followers</span>
+        </div>
+        
+        <div className="flex items-center gap-1 text-eclipse-muted-light dark:text-space-muted hover:text-stellar-orange transition-colors cursor-pointer">
+          <img className="w-8 h-8" src={Follwing} alt="Following"/>
+          <span className="font-bold">{user.followingCount || 0}</span>
+          <span>Following</span>
+        </div>
+      </div>
 
-        {/* Mission Feed Control Panel */}
-        <div className="bg-gradient-to-r from-space-darker/80 via-space-dark/90 to-space-darker/80 rounded-2xl p-8 border-2 border-stellar-blue/30 backdrop-blur-xl relative shadow-stellar-blue-glow">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-1 bg-gradient-to-r from-stellar-blue to-transparent"></div>
-            <h3 className="text-xl font-bold text-stellar-blue uppercase tracking-wide font-mono">
-              MISSION REPORTS
-            </h3>
-            <div className="flex-1 h-1 bg-gradient-to-r from-stellar-blue to-transparent"></div>
+          {isEditing && (
+            <div className="mt-4 flex gap-4">
+              <button
+                onClick={handleUpdateProfile}
+                className="px-4 py-2 bg-stellar-blue hover:bg-stellar-blue/80 text-white rounded-lg shadow-stellar-blue-glow transition-colors"
+                disabled={loading}
+              >
+                {loading ? "Saving..." : "Save Changes"}
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  setSelectedFile(null);
+                  setNewUsername(user.username);
+                }}
+                className="px-4 py-2 bg-eclipse-border/30 dark:bg-space-darker border border-eclipse-border dark:border-space-gray text-eclipse-text-light dark:text-space-text rounded-lg hover:border-stellar-orange hover:text-stellar-orange transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Activity Stats */}
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="p-6 bg-eclipse-surface dark:bg-space-dark rounded-xl border border-eclipse-border dark:border-space-gray hover:border-stellar-blue/50 transition-colors shadow-space-card">
+            <div className="flex items-center gap-4">
+              <QuestionMarkCircleIcon className="w-8 h-8 text-stellar-orange" />
+              <div>
+                <p className="text-eclipse-muted-light dark:text-space-muted text-sm">Queries Posted</p>
+                <p className="text-2xl text-eclipse-text-light dark:text-space-text font-bold">
+                  {/*userPost?.length ||  0*/}
+                  {userPost
+                    ? userPost.filter((post) => post.postType === "query")
+                        .length
+                    : 0}
+                </p>
+              </div>
+            </div>
           </div>
 
-          <FeedControlBar setSort={setSort} setPosts={setPosts} />
+          <div className="p-6 bg-eclipse-surface dark:bg-space-dark rounded-xl border border-eclipse-border dark:border-space-gray hover:border-stellar-orange/50 transition-colors shadow-space-card">
+            <div className="flex items-center gap-4">
+              <ChatBubbleLeftIcon className="w-8 h-8 text-stellar-blue" />
+              <div>
+                <p className="text-eclipse-muted-light dark:text-space-muted text-sm">Discussions</p>
+                <p className="text-2xl text-eclipse-text-light dark:text-space-text font-bold">
+                  {userPost
+                    ? userPost.filter((post) => post.postType === "discussion")
+                        .length
+                    : 0}
+                </p>
+              </div>
+            </div>
+          </div>
 
-          {/* Mission Feed Display */}
-          <div className="space-y-6 mt-6">
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="inline-flex items-center gap-3 text-stellar-blue font-mono">
-                  <div className="w-8 h-8 border-4 border-stellar-blue/30 border-t-stellar-blue rounded-full animate-spin"></div>
-                  <span className="text-lg uppercase tracking-wide">LOADING MISSION DATA...</span>
-                </div>
+          <div className="p-6 bg-eclipse-surface dark:bg-space-dark rounded-xl border border-eclipse-border dark:border-space-gray hover:border-stellar-green/50 transition-colors shadow-space-card">
+            <div className="flex items-center gap-4">
+              <TrophyIcon className="w-8 h-8 text-stellar-green" />
+              <div>
+                <p className="text-eclipse-muted-light dark:text-space-muted text-sm">Achievements</p>
+                <p className="text-2xl text-eclipse-text-light dark:text-space-text font-bold">
+                  {userPost
+                    ? userPost.filter(
+                        (post) => post.postType === "achievements"
+                      ).length
+                    : 0}
+                </p>
               </div>
-            ) : posts.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="bg-space-darker/50 rounded-lg p-8 border border-stellar-orange/30">
-                  <div className="text-4xl mb-4">📡</div>
-                  <h3 className="text-xl font-bold text-stellar-orange mb-2 uppercase font-mono">
-                    NO TRANSMISSIONS DETECTED
-                  </h3>
-                  <p className="text-space-muted font-mono">
-                    This operator has not filed any mission reports yet.
-                  </p>
-                </div>
+            </div>
+          </div>
+        </div>
+
+        {/* all posts Section */}
+        <div className="bg-eclipse-surface dark:bg-space-dark rounded-2xl p-8 border border-eclipse-border dark:border-space-gray backdrop-blur-xl shadow-space-card">
+          <h2 className="text-3xl font-bold text-eclipse-text-light dark:text-space-text mb-8 flex items-center gap-3">
+            <span className="bg-stellar-blue text-white px-4 py-2 rounded-lg text-lg font-bold shadow-stellar-blue-glow">
+              {userPost?.length || 0}
+            </span>
+            Posts & Activities
+          </h2>
+
+          <div className="grid gap-6">
+            {userPost?.map((post) => (
+              <PostCard key={post._id} post={post} />
+            ))}
+
+            {(userPost == null || userPost?.length === 0) && (
+              <div className="flex flex-col items-center py-12 text-center">
+                <div className="mb-4 text-6xl text-eclipse-muted-light dark:text-space-muted">�</div>
+                <p className="text-xl font-bold text-eclipse-text-light dark:text-space-text mb-2">
+                  Empty Space
+                </p>
+                <p className="text-eclipse-muted-light dark:text-space-muted max-w-md">
+                  Your journey begins here - create your first post to
+                  start engaging with the community!
+                </p>
               </div>
-            ) : (
-              posts.map((post) => <PostCard key={post.id} post={post} />)
             )}
           </div>
         </div>
       </div>
-
-      {/* Comlink Modal */}
-      {isChatModalOpen && (
-        <AnimateModal onClose={handleChatCloseModal}>
-          <ChatModal user={user} onClose={handleChatCloseModal} />
-        </AnimateModal>
-      )}
     </div>
   );
 };

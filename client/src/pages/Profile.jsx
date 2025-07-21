@@ -80,7 +80,7 @@ const Profile = () => {
 
   //to load user from local storage
   useEffect(() => {
-    if (!userId) {
+    if (userId!=null && userId !== undefined) {
       const storedUser = localStorage.getItem("user");
       console.log("Profile.jsx: localStorage.getItem('user'):", storedUser);
       if (storedUser) {
