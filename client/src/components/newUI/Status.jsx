@@ -62,7 +62,7 @@ const Status = () => {
             <div className="ml-2">
               <span className="text-stellar-orange">&quot;achievements&quot;</span>
               <span className="text-eclipse-text-light dark:text-space-text">: </span>
-              <span className="text-stellar-green">&quot;{user?.achievementTitle || 'Not logged in'}&quot;</span>
+              <span className="text-stellar-green">&quot;{user?.achievements || 'Not logged in'}&quot;</span>
             </div>
             <div className="text-stellar-blue">{'}'}</div>
           </div>
