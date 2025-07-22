@@ -1,1218 +1,229 @@
-{
-	"info": {
-		"_postman_id": "eclipser-api-collection",
-		"name": "Eclipser API Collection",
-		"description": "Complete API collection for Eclipser platform including Main Service and Contest Service endpoints",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "eclipser-dev"
-	},
-	"auth": {
-		"type": "bearer",
-		"bearer": [
-			{
-				"key": "token",
-				"value": "{{authToken}}",
-				"type": "string"
-			}
-		]
-	},
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"exec": [
-					"// Auto-set auth token if available",
-					"if (pm.environment.get('authToken')) {",
-					"    pm.request.headers.add({",
-					"        key: 'Authorization',",
-					"        value: 'Bearer ' + pm.environment.get('authToken')",
-					"    });",
-					"}"
-				],
-				"type": "text/javascript"
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "mainServiceUrl",
-			"value": "http://localhost:3000",
-			"type": "string"
-		},
-		{
-			"key": "contestServiceUrl",
-			"value": "http://localhost:3001",
-			"type": "string"
-		},
-		{
-			"key": "authToken",
-			"value": "",
-			"type": "string"
-		}
-	],
-	"item": [
-		{
-			"name": "Authentication",
-			"item": [
-				{
-					"name": "Register User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 201) {",
-									"    pm.test('User registered successfully', function () {",
-									"        pm.response.to.have.status(201);",
-									"    });",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\"\n}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/auth/register",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "auth", "register"]
-						}
-					}
-				},
-				{
-					"name": "Login User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 200) {",
-									"    const response = pm.response.json();",
-									"    pm.environment.set('authToken', response.token);",
-									"    pm.test('Login successful', function () {",
-									"        pm.response.to.have.status(200);",
-									"        pm.expect(response).to.have.property('token');",
-									"    });",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/auth/login",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "auth", "login"]
-						}
-					}
-				},
-				{
-					"name": "Admin Route (Protected)",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/auth/admin",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "auth", "admin"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Posts",
-			"item": [
-				{
-					"name": "Create Post",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Sample Post Title\",\n  \"content\": \"This is a sample post content for testing.\",\n  \"postType\": \"query\",\n  \"tags\": [\"javascript\", \"react\", \"web-development\"],\n  \"codeSnippet\": {\n    \"language\": \"javascript\",\n    \"code\": \"console.log('Hello World!');\"\n  }\n}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/posts",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "posts"]
-						}
-					}
-				},
-				{
-					"name": "Get Posts by Tags",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"tags\": [\"javascript\", \"react\"],\n  \"page\": 1,\n  \"limit\": 10\n}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/posts/tags",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "posts", "tags"]
-						}
-					}
-				},
-				{
-					"name": "Get Remaining Posts",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"tags\": [],\n  \"page\": 1,\n  \"limit\": 10\n}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/posts/remainingPosts",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "posts", "remainingPosts"]
-						}
-					}
-				},
-				{
-					"name": "Get Posts by User",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/posts/user/:userId",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "posts", "user", ":userId"],
-							"variable": [
-								{
-									"key": "userId",
-									"value": "USER_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Posts by Type",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/posts/type/:type",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "posts", "type", ":type"],
-							"variable": [
-								{
-									"key": "type",
-									"value": "query"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Tag Stats",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/posts/tagStats",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "posts", "tagStats"]
-						}
-					}
-				},
-				{
-					"name": "Get Post by ID",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/posts/:id",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "posts", ":id"],
-							"variable": [
-								{
-									"key": "id",
-									"value": "POST_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Like Post",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/posts/like/:id",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "posts", "like", ":id"],
-							"variable": [
-								{
-									"key": "id",
-									"value": "POST_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Comment on Post",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"content\": \"This is a test comment\",\n  \"codeSnippet\": {\n    \"language\": \"javascript\",\n    \"code\": \"// Optional code snippet\"\n  }\n}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/posts/comment/:id",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "posts", "comment", ":id"],
-							"variable": [
-								{
-									"key": "id",
-									"value": "POST_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Delete Post",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/posts/:id",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "posts", ":id"],
-							"variable": [
-								{
-									"key": "id",
-									"value": "POST_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "SSE Stream Updates",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/stream",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["stream"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Users",
-			"item": [
-				{
-					"name": "Get Users by IDs (Bulk)",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"userIds\": [\"USER_ID_1\", \"USER_ID_2\", \"USER_ID_3\"]\n}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/users/bulk",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "users", "bulk"]
-						}
-					}
-				},
-				{
-					"name": "Get Single User by ID",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/users/getUser/:userId",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "users", "getUser", ":userId"],
-							"variable": [
-								{
-									"key": "userId",
-									"value": "USER_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Follow User",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"followerId\": \"FOLLOWER_USER_ID\",\n  \"followingId\": \"FOLLOWING_USER_ID\"\n}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/users/follow",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "users", "follow"]
-						}
-					}
-				},
-				{
-					"name": "Unfollow User",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"followerId\": \"FOLLOWER_USER_ID\",\n  \"followingId\": \"FOLLOWING_USER_ID\"\n}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/users/unfollow",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "users", "unfollow"]
-						}
-					}
-				},
-				{
-					"name": "Get Follow Status",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/users/followStats/:userId",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "users", "followStats", ":userId"],
-							"variable": [
-								{
-									"key": "userId",
-									"value": "USER_ID_HERE"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Messages",
-			"item": [
-				{
-					"name": "Send Message",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"senderId\": \"SENDER_USER_ID\",\n  \"receiverId\": \"RECEIVER_USER_ID\",\n  \"content\": \"Hello! This is a test message.\",\n  \"messageType\": \"text\"\n}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/messages",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "messages"]
-						}
-					}
-				},
-				{
-					"name": "Get Messages with User",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/messages/:userId?page=1&limit=20",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "messages", ":userId"],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "20"
-								}
-							],
-							"variable": [
-								{
-									"key": "userId",
-									"value": "USER_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get All Messages",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/messages/onetoone/allChats",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "messages", "onetoone", "allChats"]
-						}
-					}
-				},
-				{
-					"name": "Get Recent Chats",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/messages/onetoone/recentChats?page=1&limit=10",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "messages", "onetoone", "recentChats"],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Upload",
-			"item": [
-				{
-					"name": "Update Profile Picture",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "avatar",
-									"type": "file",
-									"src": []
-								},
-								{
-									"key": "username",
-									"value": "updatedUsername",
-									"type": "text"
-								},
-								{
-									"key": "bio",
-									"value": "Updated bio text",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/user/profile/:userId",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "user", "profile", ":userId"],
-							"variable": [
-								{
-									"key": "userId",
-									"value": "USER_ID_HERE"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Notifications",
-			"item": [
-				{
-					"name": "Get Notifications",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/notifications?page=1&limit=10",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "notifications"],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Unread Count",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/notifications/unread-count",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "notifications", "unread-count"]
-						}
-					}
-				},
-				{
-					"name": "Mark Notification as Read",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/notifications/:notificationId/read",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "notifications", ":notificationId", "read"],
-							"variable": [
-								{
-									"key": "notificationId",
-									"value": "NOTIFICATION_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Mark All Notifications as Read",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/notifications/mark-all-read",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "notifications", "mark-all-read"]
-						}
-					}
-				},
-				{
-					"name": "Delete Notification",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/notifications/:notificationId",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "notifications", ":notificationId"],
-							"variable": [
-								{
-									"key": "notificationId",
-									"value": "NOTIFICATION_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "SSE Notification Stream",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/notifications/stream?token={{authToken}}",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "notifications", "stream"],
-							"query": [
-								{
-									"key": "token",
-									"value": "{{authToken}}"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Send Test Notification",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{authToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"type\": \"test\",\n  \"title\": \"Test Notification\",\n  \"message\": \"This is a test notification\"\n}"
-						},
-						"url": {
-							"raw": "{{mainServiceUrl}}/api/notifications/test",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["api", "notifications", "test"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Contest Service",
-			"item": [
-				{
-					"name": "Health Check",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{contestServiceUrl}}/api/contest/ping",
-							"host": ["{{contestServiceUrl}}"],
-							"path": ["api", "contest", "ping"]
-						}
-					}
-				},
-				{
-					"name": "Create Contest",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Sample Contest\",\n  \"description\": \"This is a sample programming contest\",\n  \"startTime\": \"2025-01-20T10:00:00Z\",\n  \"endTime\": \"2025-01-20T12:00:00Z\",\n  \"problems\": [\n    {\n      \"title\": \"Problem 1\",\n      \"description\": \"Solve this problem\",\n      \"difficulty\": \"easy\",\n      \"testCases\": [\n        {\n          \"input\": \"5\",\n          \"expectedOutput\": \"120\"\n        }\n      ]\n    }\n  ],\n  \"maxParticipants\": 100\n}"
-						},
-						"url": {
-							"raw": "{{contestServiceUrl}}/api/contest/create",
-							"host": ["{{contestServiceUrl}}"],
-							"path": ["api", "contest", "create"]
-						}
-					}
-				},
-				{
-					"name": "Join Contest",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"contestId\": \"CONTEST_ID_HERE\",\n  \"userId\": \"USER_ID_HERE\"\n}"
-						},
-						"url": {
-							"raw": "{{contestServiceUrl}}/api/contest/join",
-							"host": ["{{contestServiceUrl}}"],
-							"path": ["api", "contest", "join"]
-						}
-					}
-				},
-				{
-					"name": "Submit Code",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"contestId\": \"CONTEST_ID_HERE\",\n  \"problemId\": \"PROBLEM_ID_HERE\",\n  \"userId\": \"USER_ID_HERE\",\n  \"code\": \"function factorial(n) {\\n  if (n <= 1) return 1;\\n  return n * factorial(n - 1);\\n}\\nconsole.log(factorial(5));\",\n  \"language\": \"javascript\"\n}"
-						},
-						"url": {
-							"raw": "{{contestServiceUrl}}/api/contest/submit",
-							"host": ["{{contestServiceUrl}}"],
-							"path": ["api", "contest", "submit"]
-						}
-					}
-				},
-				{
-					"name": "Get All Contests",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{contestServiceUrl}}/api/contest/all",
-							"host": ["{{contestServiceUrl}}"],
-							"path": ["api", "contest", "all"]
-						}
-					}
-				},
-				{
-					"name": "Get Contest by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{contestServiceUrl}}/api/contest/:contestId",
-							"host": ["{{contestServiceUrl}}"],
-							"path": ["api", "contest", ":contestId"],
-							"variable": [
-								{
-									"key": "contestId",
-									"value": "CONTEST_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get User Contest History",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{contestServiceUrl}}/api/contest/history/:userId",
-							"host": ["{{contestServiceUrl}}"],
-							"path": ["api", "contest", "history", ":userId"],
-							"variable": [
-								{
-									"key": "userId",
-									"value": "USER_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Contest Submissions",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{contestServiceUrl}}/api/contest/:contestId/submissions",
-							"host": ["{{contestServiceUrl}}"],
-							"path": ["api", "contest", ":contestId", "submissions"],
-							"variable": [
-								{
-									"key": "contestId",
-									"value": "CONTEST_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get User Contest Submissions",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{contestServiceUrl}}/api/contest/:contestId/submissions/:userId",
-							"host": ["{{contestServiceUrl}}"],
-							"path": ["api", "contest", ":contestId", "submissions", ":userId"],
-							"variable": [
-								{
-									"key": "contestId",
-									"value": "CONTEST_ID_HERE"
-								},
-								{
-									"key": "userId",
-									"value": "USER_ID_HERE"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Update Contest Status",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"status\": \"active\"\n}"
-						},
-						"url": {
-							"raw": "{{contestServiceUrl}}/api/contest/:contestId/status",
-							"host": ["{{contestServiceUrl}}"],
-							"path": ["api", "contest", ":contestId", "status"],
-							"variable": [
-								{
-									"key": "contestId",
-									"value": "CONTEST_ID_HERE"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Health Checks",
-			"item": [
-				{
-					"name": "Main Service Health",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{mainServiceUrl}}/greet",
-							"host": ["{{mainServiceUrl}}"],
-							"path": ["greet"]
-						}
-					}
-				},
-				{
-					"name": "Contest Service Health",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{contestServiceUrl}}/api/contest/ping",
-							"host": ["{{contestServiceUrl}}"],
-							"path": ["api", "contest", "ping"]
-						}
-					}
-				}
-			]
-		}
-	]
-}
+[
+  {
+    "author": {
+      "userId": "669e4f5a9f3b8b1a54b3c1d1",
+      "username": "Atul tandan"
+    },
+    "postType": "query",
+    "title": "Confused about JavaScript's 'reduce' method logic",
+    "content": "Can someone explain how to properly set the initial value in the `reduce` method? I have an array of objects and I'm trying to sum a property, but I keep getting `[Object object]` as the result. What am I doing wrong?",
+    "codeSnippet": {
+      "language": "javascript",
+      "code": "const items = [{ x: 10 }, { x: 20 }, { x: 30 }];\nconst sum = items.reduce((acc, curr) => acc + curr.x);\nconsole.log(sum); // Outputs: [object Object]2030"
+    },
+    "tags": ["javascript", "es6", "arrays", "reduce"],
+    "likes": [
+      {
+        "userId": "669e4f5a9f3b8b1a54b3c1d2",
+        "username": "Manas Das",
+        "dateTime": "2025-07-22T09:45:10.000Z"
+      }
+    ],
+    "comments": [],
+    "views": 112,
+    "createdAt": "2025-07-22T09:40:22.000Z",
+    "updatedAt": "2025-07-22T09:45:10.000Z"
+  },
+  {
+    "author": {
+      "userId": "669e4f5a9f3b8b1a54b3c1d2",
+      "username": "Manas Das"
+    },
+    "postType": "achievement",
+    "title": "Backend service successfully deployed on AWS Lambda! 🚀",
+    "content": "Finally got my Node.js backend for my new project running on AWS Lambda with API Gateway. It was a steep learning curve but the performance and cost benefits are amazing. Serverless is the future!",
+    "tags": ["aws", "serverless", "lambda", "nodejs", "devops"],
+    "likes": [
+      {
+        "userId": "669e4f5a9f3b8b1a54b3c1d1",
+        "username": "Atul tandan",
+        "dateTime": "2025-07-22T08:15:30.000Z"
+      },
+      {
+        "userId": "669e4f5a9f3b8b1a54b3c1d3",
+        "username": "Vikas Nayma",
+        "dateTime": "2025-07-22T08:20:00.000Z"
+      }
+    ],
+    "comments": [
+      {
+        "userId": "669e4f5a9f3b8b1a54b3c1d3",
+        "content": "Congrats, Manas! That's a huge milestone.",
+        "timestamp": "2025-07-22T08:20:15.000Z"
+      }
+    ],
+    "views": 248,
+    "createdAt": "2025-07-22T08:12:05.000Z",
+    "updatedAt": "2025-07-22T08:20:15.000Z"
+  },
+  {
+    "author": {
+      "userId": "669e4f5a9f3b8b1a54b3c1d3",
+      "username": "Vikas Nayma"
+    },
+    "postType": "discussion",
+    "title": "What's the future of frontend frameworks? Svelte, Solid, or something new?",
+    "content": "React, Vue, and Angular have been dominant for years. But with new compiler-based frameworks like Svelte and signal-based ones like Solid.js gaining traction, where do you see the frontend ecosystem heading in the next 3-5 years?",
+    "tags": ["frontend", "javascript", "svelte", "solidjs", "react"],
+    "likes": [],
+    "comments": [],
+    "views": 95,
+    "createdAt": "2025-07-22T05:30:00.000Z",
+    "updatedAt": "2025-07-22T05:30:00.000Z"
+  },
+  {
+    "author": {
+      "userId": "669e4f5a9f3b8b1a54b3c1d1",
+      "username": "Atul tandan"
+    },
+    "postType": "discussion",
+    "title": "Best practices for REST API versioning?",
+    "content": "My team is debating how to version our new API. URL-based (v1/users), header-based (Accept: application/vnd.company.v1+json), or query parameters? What are the pros and cons you've experienced with each approach?",
+    "tags": ["api", "rest", "backend", "architecture"],
+    "likes": [
+      {
+        "userId": "669e4f5a9f3b8b1a54b3c1d3",
+        "username": "Vikas Nayma",
+        "dateTime": "2025-07-21T18:00:11.000Z"
+      }
+    ],
+    "comments": [],
+    "views": 188,
+    "createdAt": "2025-07-21T17:55:41.000Z",
+    "updatedAt": "2025-07-21T18:00:11.000Z"
+  },
+  {
+    "author": {
+      "userId": "669e4f5a9f3b8b1a54b3c1d2",
+      "username": "Manas Das"
+    },
+    "postType": "query",
+    "title": "Help with a complex MongoDB Aggregation Pipeline",
+    "content": "I'm trying to perform a `$lookup` with a local and foreign field, then `$unwind` the result, but also keep documents that don't have a match. I think I need to use a combination of stages but I am getting lost. Any Mongo experts here?",
+    "tags": ["mongodb", "database", "aggregation", "nosql"],
+    "likes": [],
+    "comments": [],
+    "views": 76,
+    "createdAt": "2025-07-21T15:20:19.000Z",
+    "updatedAt": "2025-07-21T15:20:19.000Z"
+  },
+  {
+    "author": {
+      "userId": "669e4f5a9f3b8b1a54b3c1d3",
+      "username": "Vikas Nayma"
+    },
+    "postType": "achievement",
+    "title": "Passed the Certified Kubernetes Administrator (CKA) exam!",
+    "content": "It was a tough, hands-on exam but I'm thrilled to announce I am now a Certified Kubernetes Administrator! A big thanks to this community for answering my questions along the way. #CKA #Kubernetes",
+    "tags": ["kubernetes", "cka", "devops", "certification", "cloudnative"],
+    "likes": [
+      {
+        "userId": "669e4f5a9f3b8b1a54b3c1d1",
+        "username": "Atul tandan",
+        "dateTime": "2025-07-21T12:10:00.000Z"
+      },
+      {
+        "userId": "669e4f5a9f3b8b1a54b3c1d2",
+        "username": "Manas Das",
+        "dateTime": "2025-07-21T12:12:00.000Z"
+      }
+    ],
+    "comments": [
+       {
+        "userId": "669e4f5a9f3b8b1a54b3c1d2",
+        "content": "Awesome achievement, Vikas! Congratulations!",
+        "timestamp": "2025-07-21T12:12:10.000Z"
+      }
+    ],
+    "views": 310,
+    "createdAt": "2025-07-21T11:59:59.000Z",
+    "updatedAt": "2025-07-21T12:12:10.000Z"
+  },
+  {
+    "author": {
+      "userId": "669e4f5a9f3b8b1a54b3c1d1",
+      "username": "Atul tandan"
+    },
+    "postType": "query",
+    "title": "CSS Flexbox vs Grid for a main page layout?",
+    "content": "For a standard page layout with a header, footer, sidebar, and main content area, should I use CSS Grid for the overall structure and Flexbox for the components inside? Or can I just use Flexbox for everything? What are the modern conventions?",
+    "tags": ["css", "flexbox", "grid", "frontend", "webdev"],
+    "likes": [],
+    "comments": [],
+    "views": 65,
+    "createdAt": "2025-07-20T14:00:00.000Z",
+    "updatedAt": "2025-07-20T14:00:00.000Z"
+  },
+  {
+    "author": {
+      "userId": "669e4f5a9f3b8b1a54b3c1d2",
+      "username": "Manas Das"
+    },
+    "postType": "discussion",
+    "title": "Are microservices always the answer? Let's talk about the monolith.",
+    "content": "There's a lot of hype around microservices, but they introduce a lot of complexity (networking, discovery, distributed transactions). When is a well-structured monolith a better choice, especially for startups and small teams? Let's discuss the tradeoffs.",
+    "tags": ["architecture", "microservices", "monolith", "backend", "systemdesign"],
+    "likes": [
+      {
+        "userId": "669e4f5a9f3b8b1a54b3c1d3",
+        "username": "Vikas Nayma",
+        "dateTime": "2025-07-20T11:05:00.000Z"
+      }
+    ],
+    "comments": [],
+    "views": 201,
+    "createdAt": "2025-07-20T10:30:12.000Z",
+    "updatedAt": "2025-07-20T11:05:00.000Z"
+  },
+  {
+    "author": {
+      "userId": "669e4f5a9f3b8b1a54b3c1d3",
+      "username": "Vikas Nayma"
+    },
+    "postType": "query",
+    "title": "How to cache dependencies in a GitHub Actions CI/CD pipeline?",
+    "content": "My Node.js project's CI pipeline is slow because it runs `npm install` on every push. I know I can use `actions/cache` to speed this up, but I'm not sure how to configure the key and paths correctly for `node_modules`. Can anyone share a working example YAML?",
+    "codeSnippet": {
+      "language": "yaml",
+      "code": "- name: Cache node modules\n  uses: actions/cache@v3\n  with:\n    path: ~/.npm\n    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}\n    restore-keys: |\n      ${{ runner.os }}-node-"
+    },
+    "tags": ["github", "cicd", "actions", "devops", "nodejs"],
+    "likes": [],
+    "comments": [],
+    "views": 99,
+    "createdAt": "2025-07-19T20:10:50.000Z",
+    "updatedAt": "2025-07-19T20:10:50.000Z"
+  },
+  {
+    "author": {
+      "userId": "669e4f5a9f3b8b1a54b3c1d1",
+      "username": "Atul tandan"
+    },
+    "postType": "achievement",
+    "title": "My first PR to an open-source project was merged! 🎉",
+    "content": "I've been a long-time user of the `express` framework and today my first pull request to fix a small documentation typo was merged! It's a small step, but I'm proud to have contributed back to a project I use every day.",
+    "tags": ["opensource", "contribution", "github", "expressjs"],
+    "likes": [
+      {
+        "userId": "669e4f5a9f3b8b1a54b3c1d2",
+        "username": "Manas Das",
+        "dateTime": "2025-07-19T10:00:00.000Z"
+      },
+      {
+        "userId": "669e4f5a9f3b8b1a54b3c1d3",
+        "username": "Vikas Nayma",
+        "dateTime": "2025-07-19T10:05:00.000Z"
+      }
+    ],
+    "comments": [
+       {
+        "userId": "669e4f5a9f3b8b1a54b3c1d3",
+        "content": "That's how it starts! Congratulations!",
+        "timestamp": "2025-07-19T10:05:15.000Z"
+      }
+    ],
+    "views": 174,
+    "createdAt": "2025-07-19T09:55:00.000Z",
+    "updatedAt": "2025-07-19T10:05:15.000Z"
+  }
+]

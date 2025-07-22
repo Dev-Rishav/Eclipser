@@ -304,7 +304,7 @@ exports.getPostsByUser = async (req, res) => {
     //!userId is in user
     const posts = await Post.find({ "author.userId": req.params.userId });
     if (posts?.length === 0)
-      return res.status(404).json({ message: "Post not found" });
+      return res.status(200).json({ message: "No Posts Yet!" });
 
     await client.setEx(cacheKey, 3600, JSON.stringify(posts));
 
