@@ -15,6 +15,7 @@ import { createPost } from '../../utility/createPost';
 import socket from '../../config/socket';
 import axiosInstance from '../../config/axiosConfig';
 import { API_ENDPOINTS, apiLog, apiError } from '../../config/api';
+import EclipserAnimation from './EclipserAnimation';
 
 const Feed = () => {
   const { user } = useSelector((state) => state.auth);
@@ -90,18 +91,18 @@ const Feed = () => {
   }, [user?._id]);
 
   // Load more chats functionality from legacy
-  const loadMoreChats = async () => {
-    if (!hasMoreChats) return;
+  // const loadMoreChats = async () => {
+  //   if (!hasMoreChats) return;
 
-    try {
-      const response = await fetchRecentChats(page + 1);
-      setChats((prev) => [...prev, ...response.chats]);
-      setPage((prev) => prev + 1);
-      setHasMoreChats(response.chats.length > 0);
-    } catch (error) {
-      console.error('Error loading more chats:', error);
-    }
-  };
+  //   try {
+  //     const response = await fetchRecentChats(page + 1);
+  //     setChats((prev) => [...prev, ...response.chats]);
+  //     setPage((prev) => prev + 1);
+  //     setHasMoreChats(response.chats.length > 0);
+  //   } catch (error) {
+  //     console.error('Error loading more chats:', error);
+  //   }
+  // };
 
   const handlePostCreated = async (postData) => {
     try {
@@ -173,174 +174,13 @@ const Feed = () => {
     { value: 'achievement', label: 'Achievements', icon: '🏆' },
   ];
 
-  // Animated background elements
-  const floatingStars = Array.from({ length: 20 }, (_, i) => (
-    <motion.div
-      key={i}
-      className="absolute w-2 h-2 bg-stellar-blue rounded-full z-0"
-      style={{
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-      }}
-      animate={{
-        opacity: [0.4, 1, 0.4],
-        scale: [1, 2, 1],
-        rotate: [0, 360],
-      }}
-      transition={{
-        duration: 2 + Math.random() * 3,
-        repeat: Infinity,
-        delay: Math.random() * 2,
-      }}
-    />
-  ));
-
-  const planets = [
-    { size: 'w-20 h-20', color: 'bg-gradient-to-br from-stellar-purple/50 to-stellar-blue/50', position: 'top-20 left-20', delay: 0 },
-    { size: 'w-16 h-16', color: 'bg-gradient-to-br from-stellar-orange/40 to-stellar-green/40', position: 'top-40 right-32', delay: 1 },
-    { size: 'w-12 h-12', color: 'bg-gradient-to-br from-stellar-green/50 to-stellar-blue/50', position: 'bottom-32 left-40', delay: 2 },
-    { size: 'w-14 h-14', color: 'bg-gradient-to-br from-stellar-orange/40 to-stellar-purple/40', position: 'bottom-20 right-20', delay: 0.5 },
-  ];
 
   return (
     <div className="min-h-screen bg-eclipse-light dark:bg-space-void text-eclipse-text-light dark:text-space-text relative overflow-hidden">
-      {/* Animated Background Stars - Fixed Z-index */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        {floatingStars}
-        
-        {/* Add some shooting stars for visibility test */}
-        {Array.from({ length: 3 }, (_, i) => (
-          <motion.div
-            key={`shooting-${i}`}
-            className="absolute w-1 h-8 bg-gradient-to-t from-stellar-blue to-transparent rounded-full"
-            style={{
-              left: `${20 + i * 30}%`,
-              top: `${10 + i * 20}%`,
-            }}
-            animate={{
-              x: [0, 200],
-              y: [0, 100],
-              opacity: [0, 1, 0],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              delay: i * 3,
-              ease: "easeOut",
-            }}
-          />
-        ))}
-      </div>
-      
-      {/* Floating Planets - Fixed Z-index */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        {planets.map((planet, index) => (
-          <motion.div
-            key={index}
-            className={`absolute ${planet.size} ${planet.color} rounded-full ${planet.position}`}
-            animate={{
-              y: [-10, 10, -10],
-              rotate: [0, 360],
-            }}
-            transition={{
-              duration: 8 + index * 2,
-              repeat: Infinity,
-              delay: planet.delay,
-            }}
-          />
-        ))}
-      </div>
 
-      {/* Animated Particles - Fixed Z-index */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {Array.from({ length: 15 }, (_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-stellar-blue rounded-full shadow-lg shadow-stellar-blue/50"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [-20, -120],
-              opacity: [0, 0.8, 0],
-              scale: [1, 1.5, 0.5],
-            }}
-            transition={{
-              duration: 4 + Math.random() * 3,
-              repeat: Infinity,
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-        
-        {/* Add some larger glowing orbs for visibility */}
-        {Array.from({ length: 5 }, (_, i) => (
-          <motion.div
-            key={`orb-${i}`}
-            className="absolute w-3 h-3 bg-stellar-purple rounded-full shadow-lg shadow-stellar-purple/50"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              opacity: [0.2, 0.8, 0.2],
-              scale: [0.5, 1.2, 0.5],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 3,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Ambient cosmic glow - Fixed Z-index */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-stellar-blue/30 rounded-full blur-3xl"
-          animate={{
-            opacity: [0.4, 0.7, 0.4],
-            scale: [1, 1.3, 1],
-            x: [-20, 20, -20],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-          }}
-        />
-        
-        <motion.div
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-stellar-purple/30 rounded-full blur-3xl"
-          animate={{
-            opacity: [0.3, 0.6, 0.3],
-            scale: [1, 1.2, 1],
-            x: [20, -20, 20],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            delay: 2,
-          }}
-        />
-        
-        {/* Additional smaller glows */}
-        <motion.div
-          className="absolute top-1/2 left-1/2 w-40 h-40 bg-stellar-orange/25 rounded-full blur-2xl"
-          animate={{
-            opacity: [0.2, 0.5, 0.2],
-            scale: [0.8, 1.4, 0.8],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            delay: 4,
-          }}
-        />
-      </div>
+      <div><EclipserAnimation /></div>
       
+
       {/* Industry-Standard 3-Column Layout */}
       <div className="relative z-20 min-h-screen">
         {/* Subtle background glow effect */}
@@ -457,30 +297,28 @@ const Feed = () => {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handlePostTypeClick('query')}
-                        className="flex items-center gap-2 px-4 py-2 bg-stellar-blue/10 hover:bg-stellar-blue/20 text-stellar-blue rounded-lg transition-colors border border-stellar-blue/30"
+                        className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-stellar-blue/10 hover:bg-stellar-blue/20 text-stellar-blue rounded-md transition-colors border border-stellar-blue/30 text-xs sm:text-sm"
                       >
-                        <span className="text-lg">❓</span>
-                        <span className="text-sm font-medium">Ask Question</span>
+                        <span className="hidden sm:inline text-lg">❓</span>
+                        <span className="font-medium">Ask Question</span>
                       </motion.button>
-                      
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handlePostTypeClick('discussion')}
-                        className="flex items-center gap-2 px-4 py-2 bg-stellar-orange/10 hover:bg-stellar-orange/20 text-stellar-orange rounded-lg transition-colors border border-stellar-orange/30"
+                        className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-stellar-orange/10 hover:bg-stellar-orange/20 text-stellar-orange rounded-md transition-colors border border-stellar-orange/30 text-xs sm:text-sm"
                       >
-                        <span className="text-lg">💬</span>
-                        <span className="text-sm font-medium">Start Discussion</span>
+                        <span className="hidden sm:inline text-lg">💬</span>
+                        <span className="font-medium">Start Discussion</span>
                       </motion.button>
-                      
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handlePostTypeClick('achievement')}
-                        className="flex items-center gap-2 px-4 py-2 bg-stellar-green/10 hover:bg-stellar-green/20 text-stellar-green rounded-lg transition-colors border border-stellar-green/30"
+                        className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-stellar-green/10 hover:bg-stellar-green/20 text-stellar-green rounded-md transition-colors border border-stellar-green/30 text-xs sm:text-sm"
                       >
-                        <span className="text-lg">🏆</span>
-                        <span className="text-sm font-medium">Share Achievement</span>
+                        <span className="hidden sm:inline text-lg">🏆</span>
+                        <span className="font-medium">Share Achievement</span>
                       </motion.button>
                     </div>
                   </div>

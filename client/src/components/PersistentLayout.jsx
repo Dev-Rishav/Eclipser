@@ -17,7 +17,7 @@ const PersistentLayout = memo(() => (
       {/* All authenticated routes will be rendered here */}
       <Route path="/" element={<Feed />} />
       <Route path="/contest" element={<Contest />} />
-      <Route path="/profile" element={<Profile_backup />} />
+      <Route path="/profile" element={<Profile />} />
       <Route path="/feed" element={<Feed />} />
       <Route path="/topics" element={<UnderConstruction />} />
       <Route path="/discussions" element={<UnderConstruction />} />

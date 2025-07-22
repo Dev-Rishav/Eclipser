@@ -282,8 +282,10 @@ const Communications = () => {
       // Send via socket for real-time delivery
       socket.emit('private_message', messageData);
       
+      if(socket.connected) {
       // Send via API for persistence
       await axiosInstance.post(API_ENDPOINTS.MESSAGES.CREATE, messageData);
+      }
       
       // Add to local messages immediately for better UX
       setMessages(prev => [...prev, { ...messageData, sender: user._id }]);
@@ -572,7 +574,8 @@ const Communications = () => {
                     return (
                       <motion.div
                         key={user._id || chatUser._id}
-                        onClick={() => loadMessages(user._id ? chatUser : { ...user, _id: chatUser._id })}
+                        // onClick={() => loadMessages(user._id ? chatUser : { ...user, _id: chatUser._id })}
+                        onClick={() => loadMessages(user)}
                         className={`p-4 rounded-xl cursor-pointer transition-all ${
                           isActive
                             ? 'bg-stellar-blue/20 shadow-stellar-blue-glow border-l-4 border-stellar-blue'

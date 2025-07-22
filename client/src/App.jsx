@@ -21,9 +21,9 @@ const App = () => {
   // Check if SSL certificate has been accepted
   useEffect(() => {
     const sslAccepted = localStorage.getItem('ssl-certificate-accepted');
-    if (!sslAccepted) {
-      setShowSSLWarning(true);
-    }
+    // if (!sslAccepted) {
+    //   setShowSSLWarning(true);
+    // }
     
     // Set up global error handler for CORS issues
     const handleGlobalError = (event) => {
