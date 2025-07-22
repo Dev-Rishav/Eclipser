@@ -178,7 +178,7 @@ const Feed = () => {
   return (
     <div className="min-h-screen bg-eclipse-light dark:bg-space-void text-eclipse-text-light dark:text-space-text relative overflow-hidden">
 
-      <div><EclipserAnimation /></div>
+      <div className="hidden md:block"><EclipserAnimation /></div>
       
 
       {/* Industry-Standard 3-Column Layout */}
