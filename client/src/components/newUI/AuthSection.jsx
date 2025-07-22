@@ -200,7 +200,7 @@ const AuthSection = ({ onLogin }) => {
                 className="text-3xl sm:text-4xl lg:text-5xl font-bold"
               >
                 <span className="bg-gradient-to-r from-stellar-blue via-stellar-purple to-stellar-blue bg-clip-text text-transparent">
-                  Join the Eclipse
+                  Join the Eclipser
                 </span>
                 <br />
                 <span className="text-space-text-primary dark:text-space-text-primary-dark">
@@ -265,7 +265,7 @@ const AuthSection = ({ onLogin }) => {
                   transition={shouldAnimate ? { delay: 0.5, duration: 0.8, type: "spring" } : {}}
                   className="text-3xl font-bold text-stellar-blue"
                 >
-                  10K+
+                  Active
                 </motion.div>
                 <p className="text-space-text-muted dark:text-space-text-muted-dark">Developers</p>
               </div>
@@ -276,7 +276,7 @@ const AuthSection = ({ onLogin }) => {
                   transition={shouldAnimate ? { delay: 0.7, duration: 0.8, type: "spring" } : {}}
                   className="text-3xl font-bold text-stellar-orange"
                 >
-                  500+
+                  Custom
                 </motion.div>
                 <p className="text-space-text-muted dark:text-space-text-muted-dark">Contests</p>
               </div>
@@ -287,7 +287,7 @@ const AuthSection = ({ onLogin }) => {
                   transition={shouldAnimate ? { delay: 0.9, duration: 0.8, type: "spring" } : {}}
                   className="text-3xl font-bold text-stellar-green"
                 >
-                  50K+
+                  Instant
                 </motion.div>
                 <p className="text-space-text-muted dark:text-space-text-muted-dark">Solutions</p>
               </div>

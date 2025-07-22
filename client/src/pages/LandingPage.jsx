@@ -77,7 +77,9 @@ function LandingPage() {
       {/* Conditional Background Rendering */}
       {isDarkMode ? (
         // Dark mode: Space background with animations
+        <div className="hidden md:block">
         <SpaceBackground />
+        </div>
       ) : (
         // Light mode: Clean white background with subtle animations
         <div className="fixed inset-0 bg-white z-0">
@@ -226,9 +228,9 @@ function LandingPage() {
           </div>
         </Suspense>
         
-        <Suspense fallback={<SectionLoader />}>
-          <Testimonials />
-        </Suspense>
+        {/* <Suspense fallback={<SectionLoader />}> */}
+          {/* <Testimonials /> */}
+        {/* </Suspense> */}
         
         {/* Integrated Auth Section */}
         <Suspense fallback={<SectionLoader />}>
