@@ -4,6 +4,7 @@ import SpaceBackground from '../components/newUI/SpaceBackground';
 import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
 import ThemeSwitcher from '../components/ThemeSwitcher';
+import Navbar from '../components/newUI/Navbar';
 
 // Lazy load heavier components
 const Features = lazy(() => import('../components/newUI/Features'));
@@ -132,7 +133,7 @@ function LandingPage() {
       )}
       
       {/* Landing Page Navbar */}
-      <motion.nav 
+      {/* <motion.nav 
         initial={shouldAnimate ? { y: -50, opacity: 0 } : { y: 0, opacity: 1 }}
         animate={{ y: 0, opacity: 1 }}
         transition={shouldAnimate ? { duration: 0.5 } : {}}
@@ -200,7 +201,8 @@ function LandingPage() {
             </motion.button>
           </div>
         </div>
-      </motion.nav>
+      </motion.nav> */}
+      <Navbar />
 
       {/* Main content container with proper z-indexing */}
       <div className="relative z-10 pt-20">
