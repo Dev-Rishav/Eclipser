@@ -29,13 +29,14 @@ export const useUserProfile = (userId) => {
     //   ]);
         const userRes= await axiosInstance.get(API_ENDPOINTS.USERS.BY_ID(userId));
         const postsRes = await axiosInstance.get(API_ENDPOINTS.POSTS.BY_USER(userId));
+     
         const followStatusRes = await getFollowStatus(userId);
 
 
       setProfile(userRes.data.user);
       console.log("User Posts: ", postsRes.data.posts);
 
-      setPosts(postsRes.data.posts);
+      setPosts(postsRes?.data.posts);
       setIsFollowing(followStatusRes);
 
     } catch (err) {
