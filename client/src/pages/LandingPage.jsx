@@ -32,6 +32,7 @@ const SectionLoader = () => {
 };
 
 function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -76,14 +77,11 @@ function LandingPage() {
     <div className="min-h-screen text-eclipse-text-light dark:text-space-text relative">
       {/* Conditional Background Rendering */}
       {isDarkMode ? (
-        // Dark mode: Space background with animations
         <div className="hidden md:block">
-        <SpaceBackground />
+          <SpaceBackground />
         </div>
       ) : (
-        // Light mode: Clean white background with subtle animations
         <div className="fixed inset-0 bg-white z-0">
-          {/* Subtle animated background elements for light mode */}
           <div className="absolute inset-0">
             {/* Floating geometric shapes */}
             {shouldAnimate && Array.from({ length: 3 }).map((_, i) => (
@@ -106,8 +104,6 @@ function LandingPage() {
                 }}
               />
             ))}
-            
-            {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-stellar-blue/2 via-transparent to-stellar-purple/2" />
             
             {/* Light particles */}
@@ -133,9 +129,9 @@ function LandingPage() {
           </div>
         </div>
       )}
-      
-      {/* Landing Page Navbar */}
-      {/* <motion.nav 
+
+      {/* Responsive Navbar */}
+      <motion.nav
         initial={shouldAnimate ? { y: -50, opacity: 0 } : { y: 0, opacity: 1 }}
         animate={{ y: 0, opacity: 1 }}
         transition={shouldAnimate ? { duration: 0.5 } : {}}
@@ -153,37 +149,36 @@ function LandingPage() {
           </div>
           <span className="ml-2 text-xl font-bold text-stellar-blue">ECLIPSER</span>
         </div>
-        
-        <div className="flex items-center space-x-6">
-          <nav className="hidden md:flex space-x-6">
-            <button 
+
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center space-x-6">
+          <nav className="flex space-x-6">
+            <button
               onClick={() => scrollToSection('features')}
               className="text-eclipse-muted-light dark:text-space-muted hover:text-stellar-blue transition-colors"
             >
               Features
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection('how-it-works')}
               className="text-eclipse-muted-light dark:text-space-muted hover:text-stellar-orange transition-colors"
             >
               How it Works
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection('contests')}
               className="text-eclipse-muted-light dark:text-space-muted hover:text-stellar-green transition-colors"
             >
               Contests
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection('auth')}
               className="text-eclipse-muted-light dark:text-space-muted hover:text-stellar-purple transition-colors"
             >
               Join Us
             </button>
           </nav>
-          
           <ThemeSwitcher />
-          
           <div className="flex space-x-3">
             <motion.button
               whileHover={shouldAnimate ? { scale: 1.05 } : {}}
@@ -191,6 +186,7 @@ function LandingPage() {
               onClick={() => scrollToSection('auth')}
               className="px-4 py-2 text-eclipse-text-light dark:text-space-text border border-eclipse-border dark:border-space-gray rounded-lg hover:border-stellar-blue hover:text-stellar-blue transition-all duration-300"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className="inline w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               Login
             </motion.button>
             <motion.button
@@ -203,8 +199,68 @@ function LandingPage() {
             </motion.button>
           </div>
         </div>
-      </motion.nav> */}
-      <Navbar />
+
+        {/* Mobile nav */}
+        <div className="flex md:hidden items-center">
+          <ThemeSwitcher />
+          <button
+            className="ml-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-stellar-blue"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            aria-label="Open menu"
+          >
+            {/* Hamburger icon */}
+            <svg className="w-7 h-7 text-stellar-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </motion.nav>
+
+      {/* Mobile menu dropdown */}
+      {mobileMenuOpen && (
+        <div className="fixed top-16 left-0 w-full z-50 bg-eclipse-surface/95 dark:bg-space-dark/95 border-b border-eclipse-border dark:border-space-gray shadow-lg md:hidden animate-fade-in">
+          <nav className="flex flex-col items-center py-4 space-y-2">
+            <button
+              onClick={() => { scrollToSection('features'); setMobileMenuOpen(false); }}
+              className="w-full text-left px-6 py-2 text-eclipse-muted-light dark:text-space-muted hover:text-stellar-blue transition-colors"
+            >
+              Features
+            </button>
+            <button
+              onClick={() => { scrollToSection('how-it-works'); setMobileMenuOpen(false); }}
+              className="w-full text-left px-6 py-2 text-eclipse-muted-light dark:text-space-muted hover:text-stellar-orange transition-colors"
+            >
+              How it Works
+            </button>
+            <button
+              onClick={() => { scrollToSection('contests'); setMobileMenuOpen(false); }}
+              className="w-full text-left px-6 py-2 text-eclipse-muted-light dark:text-space-muted hover:text-stellar-green transition-colors"
+            >
+              Contests
+            </button>
+            <button
+              onClick={() => { scrollToSection('auth'); setMobileMenuOpen(false); }}
+              className="w-full text-left px-6 py-2 text-eclipse-muted-light dark:text-space-muted hover:text-stellar-purple transition-colors"
+            >
+              Join Us
+            </button>
+            <button
+              onClick={() => { scrollToSection('auth'); setMobileMenuOpen(false); }}
+              className="w-full flex items-center justify-center px-6 py-2 text-eclipse-text-light dark:text-space-text border border-eclipse-border dark:border-space-gray rounded-lg hover:border-stellar-blue hover:text-stellar-blue transition-all duration-300 mt-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="inline w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              Login
+            </button>
+            <button
+              onClick={() => { scrollToSection('auth'); setMobileMenuOpen(false); }}
+              className="w-full flex items-center justify-center px-6 py-2 bg-stellar-blue text-white rounded-lg hover:bg-stellar-blue/80 shadow-stellar-blue-glow transition-all duration-300"
+            >
+              Sign Up
+            </button>
+          </nav>
+        </div>
+      )}
+      {/* <Navbar /> */}
 
       {/* Main content container with proper z-indexing */}
       <div className="relative z-10 pt-20">
