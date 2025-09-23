@@ -1,0 +1,52 @@
+nohup: ignoring input
+[dotenv@17.0.0] injecting env (16) from .env – 🔐 encrypt with dotenvx: https://dotenvx.com
+🔍 Running startup diagnostics...
+[dotenv@17.0.0] injecting env (16) from .env – 🔐 encrypt with dotenvx: https://dotenvx.com
+🚀 Running startup diagnostics...
+
+🧪 Testing Socket Service...
+Socket ready before init: false
+🧪 Testing Queue Service...
+Bull queue initialized successfully!
+✅ Queue initialized successfully
+🧪 Testing MongoDB...
+MongoDB state: 0
+
+📊 Startup Status:
+Socket Service: ⚠️
+Queue Service: ✅
+MongoDB: ⚠️ (May connect after server starts)
+
+🎯 Starting server...
+✅ Socket service initialized
+🔧 Initializing Docker-based worker...
+[dotenv@17.0.0] injecting env (16) from .env – 🔐 encrypt with dotenvx: https://dotenvx.com
+🚀 Enhanced Docker-based Code Worker starting...
+🎯 Enhanced Docker-based code worker initialized and ready!
+✅ Enhanced Docker-based code worker initialized
+node:events:497
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1904:16)
+    at listenInCluster (node:net:1961:12)
+    at Server.listen (node:net:2063:7)
+    at Object.<anonymous> (/home/rishav/Desktop/Projects/Eclipser/server/contest-service/server.js:62:8)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:174:12)
+    at node:internal/main/run_main_module:28:49
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1940:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3001
+}
+
+Node.js v20.18.0
