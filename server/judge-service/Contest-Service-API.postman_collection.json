@@ -1,0 +1,1168 @@
+{
+	"info": {
+		"_postman_id": "contest-service-api",
+		"name": "Contest Service API",
+		"description": "Complete API collection for the Contest Service with Judge0 integration. This collection includes all endpoints for managing contests, problems, submissions, and admin operations.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "contest-service"
+	},
+	"item": [
+		{
+			"name": "Health & Admin",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								""
+							]
+						},
+						"description": "Basic health check endpoint to verify service is running"
+					},
+					"response": []
+				},
+				{
+					"name": "Service Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/admin/health",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"health"
+							]
+						},
+						"description": "Detailed health check for the judge service"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Judge0 Connection",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/admin/test-connection",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"test-connection"
+							]
+						},
+						"description": "Test connectivity to Judge0 API via RapidAPI"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Supported Languages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/admin/languages",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"languages"
+							]
+						},
+						"description": "Get list of supported programming languages"
+					},
+					"response": []
+				},
+				{
+					"name": "Service Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/admin/stats",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"stats"
+							]
+						},
+						"description": "Get overall service statistics including contests, problems, and submissions"
+					},
+					"response": []
+				},
+				{
+					"name": "System Information",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/admin/system-info",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"system-info"
+							]
+						},
+						"description": "Get Judge0 system information"
+					},
+					"response": []
+				}
+			],
+			"description": "Health checks and administrative endpoints"
+		},
+		{
+			"name": "Problems",
+			"item": [
+				{
+					"name": "Create Problem",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has success true\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Problem created with correct data\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('_id');",
+									"    pm.expect(jsonData.data.title).to.eql('Two Sum');",
+									"    pm.expect(jsonData.data.difficulty).to.eql('Easy');",
+									"});",
+									"",
+									"// Store problem ID for later use",
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('PROBLEM_ID', jsonData.data._id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Two Sum\",\n  \"description\": \"Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\\n\\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\\n\\nYou can return the answer in any order.\",\n  \"difficulty\": \"Easy\",\n  \"tags\": [\"Array\", \"Hash Table\"],\n  \"constraints\": \"2 <= nums.length <= 10^4\\n-10^9 <= nums[i] <= 10^9\\n-10^9 <= target <= 10^9\\nOnly one valid answer exists.\",\n  \"inputFormat\": \"First line contains space-separated integers representing the array.\\nSecond line contains the target integer.\",\n  \"outputFormat\": \"Two space-separated integers representing the indices of the two numbers.\",\n  \"sampleInput\": \"2 7 11 15\\n9\",\n  \"sampleOutput\": \"0 1\",\n  \"explanation\": \"Because nums[0] + nums[1] == 9, we return [0, 1].\",\n  \"testCases\": [\n    {\n      \"input\": \"2 7 11 15\\n9\",\n      \"expectedOutput\": \"0 1\",\n      \"isHidden\": false,\n      \"points\": 1\n    },\n    {\n      \"input\": \"3 2 4\\n6\",\n      \"expectedOutput\": \"1 2\",\n      \"isHidden\": false,\n      \"points\": 1\n    },\n    {\n      \"input\": \"3 3\\n6\",\n      \"expectedOutput\": \"0 1\",\n      \"isHidden\": true,\n      \"points\": 1\n    }\n  ],\n  \"timeLimit\": 2,\n  \"memoryLimit\": 128,\n  \"supportedLanguages\": [\"javascript\", \"java\"],\n  \"createdBy\": \"{{USER_ID}}\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/problems",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"problems"
+							]
+						},
+						"description": "Create a new programming problem with test cases"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Problems",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has problems array\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data.problems).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/problems?page=1&limit=10&sortBy=createdAt&sortOrder=desc",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"problems"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "difficulty",
+									"value": "Easy",
+									"disabled": true
+								},
+								{
+									"key": "tags",
+									"value": "Array,Hash Table",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "Two Sum",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Get list of problems with pagination and filtering options"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Problem by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has problem data\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('_id');",
+									"    pm.expect(jsonData.data).to.have.property('title');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/problems/{{PROBLEM_ID}}?includeHidden=false",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"problems",
+								"{{PROBLEM_ID}}"
+							],
+							"query": [
+								{
+									"key": "includeHidden",
+									"value": "false"
+								}
+							]
+						},
+						"description": "Get detailed information about a specific problem"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Problem",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Test result returned\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('result');",
+									"    pm.expect(jsonData.data).to.have.property('passed');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sourceCode\": \"const input = require('fs').readFileSync(0, 'utf8').trim().split('\\\\n');\\nconst nums = input[0].split(' ').map(Number);\\nconst target = parseInt(input[1]);\\n\\nfunction twoSum(nums, target) {\\n    const map = new Map();\\n    for (let i = 0; i < nums.length; i++) {\\n        const complement = target - nums[i];\\n        if (map.has(complement)) {\\n            return [map.get(complement), i];\\n        }\\n        map.set(nums[i], i);\\n    }\\n    return [];\\n}\\n\\nconst result = twoSum(nums, target);\\nconsole.log(result.join(' '));\",\n  \"language\": \"javascript\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/problems/{{PROBLEM_ID}}/test",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"problems",
+								"{{PROBLEM_ID}}",
+								"test"
+							]
+						},
+						"description": "Test a problem with sample input using provided code"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Problem Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/problems/{{PROBLEM_ID}}/stats",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"problems",
+								"{{PROBLEM_ID}}",
+								"stats"
+							]
+						},
+						"description": "Get submission statistics for a specific problem"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Problem",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Two Sum - Updated\",\n  \"description\": \"Updated description for Two Sum problem\",\n  \"difficulty\": \"Medium\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/problems/{{PROBLEM_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"problems",
+								"{{PROBLEM_ID}}"
+							]
+						},
+						"description": "Update an existing problem"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Problem",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/problems/{{PROBLEM_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"problems",
+								"{{PROBLEM_ID}}"
+							]
+						},
+						"description": "Soft delete a problem (sets isActive to false)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for managing programming problems"
+		},
+		{
+			"name": "Contests",
+			"item": [
+				{
+					"name": "Create Contest",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Contest created successfully\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('_id');",
+									"});",
+									"",
+									"// Store contest ID for later use",
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('CONTEST_ID', jsonData.data._id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Set future dates for the contest",
+									"const now = new Date();",
+									"const registrationEnd = new Date(now.getTime() + (60 * 60 * 1000)); // 1 hour from now",
+									"const startTime = new Date(now.getTime() + (2 * 60 * 60 * 1000)); // 2 hours from now",
+									"const endTime = new Date(now.getTime() + (4 * 60 * 60 * 1000)); // 4 hours from now",
+									"",
+									"pm.collectionVariables.set('REGISTRATION_END_TIME', registrationEnd.toISOString());",
+									"pm.collectionVariables.set('CONTEST_START_TIME', startTime.toISOString());",
+									"pm.collectionVariables.set('CONTEST_END_TIME', endTime.toISOString());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Weekly Programming Contest #1\",\n  \"description\": \"A practice contest featuring algorithmic problems. Test your skills in data structures and algorithms!\",\n  \"startTime\": \"{{CONTEST_START_TIME}}\",\n  \"endTime\": \"{{CONTEST_END_TIME}}\",\n  \"duration\": 120,\n  \"problems\": [\n    {\n      \"problemId\": \"{{PROBLEM_ID}}\",\n      \"points\": 100,\n      \"order\": 1\n    }\n  ],\n  \"registrationEndTime\": \"{{REGISTRATION_END_TIME}}\",\n  \"rules\": \"Standard ICPC rules apply. No external help allowed. Multiple submissions allowed.\",\n  \"prizes\": \"Winner gets bragging rights!\",\n  \"visibility\": \"public\",\n  \"scoringType\": \"icpc\",\n  \"allowedLanguages\": [\"javascript\", \"java\"],\n  \"createdBy\": \"{{USER_ID}}\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/contests",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"contests"
+							]
+						},
+						"description": "Create a new programming contest"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Contests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has contests array\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data.contests).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/contests?page=1&limit=10&visibility=public&sortBy=startTime&sortOrder=desc",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"contests"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "status",
+									"value": "upcoming",
+									"disabled": true
+								},
+								{
+									"key": "visibility",
+									"value": "public"
+								},
+								{
+									"key": "search",
+									"value": "Weekly",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "startTime"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Get list of contests with pagination and filtering"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Contest by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has contest data\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('_id');",
+									"    pm.expect(jsonData.data).to.have.property('title');",
+									"    pm.expect(jsonData.data).to.have.property('currentStatus');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/contests/{{CONTEST_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"contests",
+								"{{CONTEST_ID}}"
+							]
+						},
+						"description": "Get detailed information about a specific contest"
+					},
+					"response": []
+				},
+				{
+					"name": "Register for Contest",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Registration successful\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.message).to.include('registered');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{USER_ID}}\",\n  \"username\": \"{{USERNAME}}\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/contests/{{CONTEST_ID}}/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"contests",
+								"{{CONTEST_ID}}",
+								"register"
+							]
+						},
+						"description": "Register a user for a contest"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Contest Problems",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/contests/{{CONTEST_ID}}/problems",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"contests",
+								"{{CONTEST_ID}}",
+								"problems"
+							]
+						},
+						"description": "Get list of problems in a contest"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Contest Leaderboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/contests/{{CONTEST_ID}}/leaderboard?page=1&limit=50",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"contests",
+								"{{CONTEST_ID}}",
+								"leaderboard"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "50"
+								}
+							]
+						},
+						"description": "Get contest leaderboard with rankings"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Contest Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/contests/{{CONTEST_ID}}/stats",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"contests",
+								"{{CONTEST_ID}}",
+								"stats"
+							]
+						},
+						"description": "Get detailed statistics for a contest"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Contest",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Weekly Programming Contest #1 - Updated\",\n  \"description\": \"Updated description for the contest\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/contests/{{CONTEST_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"contests",
+								"{{CONTEST_ID}}"
+							]
+						},
+						"description": "Update contest details (only works before contest starts)"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Contest",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/contests/{{CONTEST_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"contests",
+								"{{CONTEST_ID}}"
+							]
+						},
+						"description": "Cancel a contest"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for managing programming contests"
+		},
+		{
+			"name": "Submissions",
+			"item": [
+				{
+					"name": "Submit Solution",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Submission created successfully\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('submissionId');",
+									"    pm.expect(jsonData.data.status).to.eql('evaluating');",
+									"});",
+									"",
+									"// Store submission ID for later use",
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('SUBMISSION_ID', jsonData.data.submissionId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{USER_ID}}\",\n  \"username\": \"{{USERNAME}}\",\n  \"contestId\": \"{{CONTEST_ID}}\",\n  \"problemId\": \"{{PROBLEM_ID}}\",\n  \"sourceCode\": \"const input = require('fs').readFileSync(0, 'utf8').trim().split('\\\\n');\\nconst nums = input[0].split(' ').map(Number);\\nconst target = parseInt(input[1]);\\n\\nfunction twoSum(nums, target) {\\n    const map = new Map();\\n    for (let i = 0; i < nums.length; i++) {\\n        const complement = target - nums[i];\\n        if (map.has(complement)) {\\n            return [map.get(complement), i];\\n        }\\n        map.set(nums[i], i);\\n    }\\n    return [];\\n}\\n\\nconst result = twoSum(nums, target);\\nconsole.log(result.join(' '));\",\n  \"language\": \"javascript\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/submissions",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"submissions"
+							]
+						},
+						"description": "Submit a solution for evaluation"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submission Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Submission status returned\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('status');",
+									"    pm.expect(jsonData.data).to.have.property('submissionId');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/submissions/{{SUBMISSION_ID}}/status",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"submissions",
+								"{{SUBMISSION_ID}}",
+								"status"
+							]
+						},
+						"description": "Get current status of a submission (for polling)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submission Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Submission details returned\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('_id');",
+									"    pm.expect(jsonData.data).to.have.property('sourceCode');",
+									"    pm.expect(jsonData.data).to.have.property('testCaseResults');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/submissions/{{SUBMISSION_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"submissions",
+								"{{SUBMISSION_ID}}"
+							]
+						},
+						"description": "Get complete details of a submission including test case results"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Submissions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Submissions list returned\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data.submissions).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/submissions?page=1&limit=20&sortBy=createdAt&sortOrder=desc",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"submissions"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "userId",
+									"value": "{{USER_ID}}",
+									"disabled": true
+								},
+								{
+									"key": "contestId",
+									"value": "{{CONTEST_ID}}",
+									"disabled": true
+								},
+								{
+									"key": "problemId",
+									"value": "{{PROBLEM_ID}}",
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": "accepted",
+									"disabled": true
+								},
+								{
+									"key": "language",
+									"value": "javascript",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Get list of submissions with filtering and pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "Rejudge Submission",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/submissions/{{SUBMISSION_ID}}/rejudge",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"submissions",
+								"{{SUBMISSION_ID}}",
+								"rejudge"
+							]
+						},
+						"description": "Rejudge a submission (re-evaluate with current test cases)"
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Java Solution",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Java submission created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{USER_ID}}\",\n  \"username\": \"{{USERNAME}}\",\n  \"contestId\": \"{{CONTEST_ID}}\",\n  \"problemId\": \"{{PROBLEM_ID}}\",\n  \"sourceCode\": \"import java.util.*;\\nimport java.io.*;\\n\\npublic class Solution {\\n    public static void main(String[] args) throws IOException {\\n        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\\n        String[] numsStr = br.readLine().split(\\\" \\\");\\n        int target = Integer.parseInt(br.readLine());\\n        \\n        int[] nums = new int[numsStr.length];\\n        for (int i = 0; i < numsStr.length; i++) {\\n            nums[i] = Integer.parseInt(numsStr[i]);\\n        }\\n        \\n        int[] result = twoSum(nums, target);\\n        System.out.println(result[0] + \\\" \\\" + result[1]);\\n    }\\n    \\n    public static int[] twoSum(int[] nums, int target) {\\n        Map<Integer, Integer> map = new HashMap<>();\\n        for (int i = 0; i < nums.length; i++) {\\n            int complement = target - nums[i];\\n            if (map.containsKey(complement)) {\\n                return new int[]{map.get(complement), i};\\n            }\\n            map.put(nums[i], i);\\n        }\\n        return new int[0];\\n    }\\n}\",\n  \"language\": \"java\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/submissions",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"submissions"
+							]
+						},
+						"description": "Submit a Java solution for evaluation"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for code submissions and evaluation"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set default values if not already set",
+					"if (!pm.collectionVariables.get('BASE_URL')) {",
+					"    pm.collectionVariables.set('BASE_URL', 'http://localhost:3000');",
+					"}",
+					"",
+					"if (!pm.collectionVariables.get('USER_ID')) {",
+					"    pm.collectionVariables.set('USER_ID', 'user_' + Math.random().toString(36).substr(2, 9));",
+					"}",
+					"",
+					"if (!pm.collectionVariables.get('USERNAME')) {",
+					"    pm.collectionVariables.set('USERNAME', 'testuser_' + Math.random().toString(36).substr(2, 6));",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test to log response time",
+					"pm.test(\"Response time is less than 10 seconds\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+					"});",
+					"",
+					"// Log any errors for debugging",
+					"if (pm.response.code >= 400) {",
+					"    console.log('Error Response:', pm.response.json());",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "USER_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "USERNAME",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "PROBLEM_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "CONTEST_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "SUBMISSION_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "REGISTRATION_END_TIME",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "CONTEST_START_TIME",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "CONTEST_END_TIME",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
